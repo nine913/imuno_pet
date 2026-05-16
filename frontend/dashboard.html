@@ -39,17 +39,32 @@
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
+        .pet-card {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            background-color: #fdfdfd;
+        }
+        .pet-card h3 {
+            margin-top: 0;
+            color: #0056b3;
+        }
     </style>
 </head>
 <body>
     <div class="navbar">
         <h2 style="margin: 0;">ImunoPet Brasil</h2>
-        <button id="btnSair">Sair do Sistema</button>
+        <button id="btnSair">Sair</button>
     </div>
 
     <div class="content">
         <h1 id="boasVindas">Carregando...</h1>
-        <p>Esta é a área logada. Aqui ficarão as funcionalidades exclusivas do seu tipo de acesso.</p>
+        
+        <div id="areaTutor" style="display: none;">
+            <h2>Meus Pets</h2>
+            <div id="listaPets"></div>
+        </div>
     </div>
 
     <script>
@@ -60,12 +75,47 @@
         } else {
             const usuario = JSON.parse(usuarioString);
             document.getElementById('boasVindas').textContent = `Bem-vindo! Você está logado como: ${usuario.perfil}`;
+
+            if (usuario.perfil === 'TUTOR') {
+                document.getElementById('areaTutor').style.display = 'block';
+                carregarPets(usuario.id_usuario);
+            }
         }
 
         document.getElementById('btnSair').addEventListener('click', () => {
             localStorage.removeItem('usuarioImunoPet');
             window.location.href = 'index.html';
         });
+
+        async function carregarPets(idUsuario) {
+            const divListaPets = document.getElementById('listaPets');
+            
+            try {
+                const resposta = await fetch(`http://localhost:3000/meus-pets/${idUsuario}`);
+                const pets = await resposta.json();
+
+                if (pets.length === 0) {
+                    divListaPets.innerHTML = '<p>Nenhum pet cadastrado ainda.</p>';
+                    return;
+                }
+
+                pets.forEach(pet => {
+                    const dataNasc = new Date(pet.data_nascimento).toLocaleDateString('pt-BR');
+                    
+                    const petCard = document.createElement('div');
+                    petCard.className = 'pet-card';
+                    petCard.innerHTML = `
+                        <h3>${pet.nome}</h3>
+                        <p><strong>Espécie:</strong> ${pet.especie}</p>
+                        <p><strong>Raça:</strong> ${pet.raca}</p>
+                        <p><strong>Data de Nascimento:</strong> ${dataNasc}</p>
+                    `;
+                    divListaPets.appendChild(petCard);
+                });
+            } catch (erro) {
+                divListaPets.innerHTML = '<p style="color: red;">Erro ao carregar os pets.</p>';
+            }
+        }
     </script>
 </body>
 </html>

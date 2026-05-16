@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro - ImunoPet Brasil</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .cadastro-container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            width: 400px;
+        }
+        .cadastro-container h2 {
+            text-align: center;
+            color: #333;
+        }
+        .cadastro-container input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .cadastro-container button {
+            width: 100%;
+            padding: 10px;
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        .cadastro-container button:hover {
+            background-color: #004494;
+        }
+        .link-login {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: #0056b3;
+            text-decoration: none;
+        }
+        #mensagemCadastro {
+            text-align: center;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="cadastro-container">
+        <h2>Criar Conta (Tutor)</h2>
+        <form id="cadastroForm">
+            <input type="text" id="nome_completo" placeholder="Nome Completo" required>
+            <input type="text" id="cpf" placeholder="CPF (ex: 123.456.789-00)" required maxlength="14">
+            <input type="tel" id="telefone" placeholder="Telefone (ex: (99) 99999-9999)" required maxlength="15">
+            <input type="email" id="emailCad" placeholder="E-mail" required>
+            <input type="password" id="senhaCad" placeholder="Senha" required>
+            <input type="text" id="estado" placeholder="Estado (ex: PA)" maxlength="2" required>
+            <input type="text" id="cidade" placeholder="Cidade" required>
+            <input type="text" id="bairro" placeholder="Bairro" required>
+            <button type="submit">Cadastrar</button>
+        </form>
+        <a href="index.html" class="link-login">Já tem uma conta? Faça login</a>
+        <div id="mensagemCadastro"></div>
+    </div>
+
+    <script src="cadastro.js"></script>
+</body>
+</html>

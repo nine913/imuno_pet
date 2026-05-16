@@ -36,6 +36,58 @@ app.post('/login', async (req, res) => {
   }
 });
 
+app.post('/cadastro', async (req, res) => {
+  try {
+    const { nome_completo, email, senha, cpf, telefone, estado, cidade, bairro } = req.body;
+
+    const [usuariosExistentes] = await db.query('SELECT * FROM usuario WHERE email = ?', [email]);
+    if (usuariosExistentes.length > 0) {
+      return res.status(400).json({ erro: 'E-mail já cadastrado' });
+    }
+
+    const [tutoresExistentes] = await db.query('SELECT * FROM tutor WHERE cpf = ?', [cpf]);
+    if (tutoresExistentes.length > 0) {
+      return res.status(400).json({ erro: 'CPF já cadastrado' });
+    }
+
+    const hashSenha = await bcrypt.hash(senha, 10);
+
+    const [resultadoUsuario] = await db.query(
+      'INSERT INTO usuario (email, senha, perfil) VALUES (?, ?, ?)',
+      [email, hashSenha, 'TUTOR']
+    );
+
+    const idUsuario = resultadoUsuario.insertId;
+
+    await db.query(
+      'INSERT INTO tutor (id_usuario, nome_completo, cpf, telefone, estado, cidade, bairro) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [idUsuario, nome_completo, cpf, telefone, estado, cidade, bairro]
+    );
+
+    res.status(201).json({ mensagem: 'Cadastro realizado com sucesso!' });
+  } catch (error) {
+    res.status(500).json({ erro: 'Erro interno do servidor' });
+  }
+});
+
+app.get('/meus-pets/:id_usuario', async (req, res) => {
+  try {
+    const { id_usuario } = req.params;
+
+    const [pets] = await db.query(
+      `SELECT a.id_animal, a.nome, a.especie, a.raca, a.data_nascimento 
+       FROM animal a
+       JOIN tutor t ON a.id_tutor = t.id_tutor
+       WHERE t.id_usuario = ?`,
+      [id_usuario]
+    );
+
+    res.status(200).json(pets);
+  } catch (error) {
+    res.status(500).json({ erro: 'Erro interno do servidor' });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
