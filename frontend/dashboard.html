@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel - ImunoPet Brasil</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+        .navbar {
+            background-color: #0056b3;
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 8px;
+        }
+        .navbar button {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .navbar button:hover {
+            background-color: #c82333;
+        }
+        .content {
+            margin-top: 20px;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h2 style="margin: 0;">ImunoPet Brasil</h2>
+        <button id="btnSair">Sair do Sistema</button>
+    </div>
+
+    <div class="content">
+        <h1 id="boasVindas">Carregando...</h1>
+        <p>Esta é a área logada. Aqui ficarão as funcionalidades exclusivas do seu tipo de acesso.</p>
+    </div>
+
+    <script>
+        const usuarioString = localStorage.getItem('usuarioImunoPet');
+        
+        if (!usuarioString) {
+            window.location.href = 'index.html';
+        } else {
+            const usuario = JSON.parse(usuarioString);
+            document.getElementById('boasVindas').textContent = `Bem-vindo! Você está logado como: ${usuario.perfil}`;
+        }
+
+        document.getElementById('btnSair').addEventListener('click', () => {
+            localStorage.removeItem('usuarioImunoPet');
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>

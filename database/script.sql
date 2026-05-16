@@ -33,3 +33,4 @@ INSERT INTO vacina (nome_vacina, fabricante, doencas_prevenidas, intervalo_doses
 INSERT INTO registro_vacinacao (id_animal, id_vacina, id_veterinario, data_aplicacao, data_proxima_dose, status) VALUES
 (1, 1, 1, '2025-10-10', '2026-10-10', 'APLICADA'),
 (2, 2, 2, NULL, '2026-06-01', 'PENDENTE');
+
