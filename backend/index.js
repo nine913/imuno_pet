@@ -82,6 +82,24 @@ app.get('/meus-pets/:id_usuario', async (req, res) => {
       [id_usuario]
     );
 
+app.get('/vacinas-pet/:id_animal', async (req, res) => {
+  try {
+    const { id_animal } = req.params;
+
+    const [vacinas] = await db.query(
+      `SELECT v.nome_vacina, v.doencas_prevenidas, rv.data_aplicacao, rv.data_proxima_dose, rv.status 
+       FROM registro_vacinacao rv
+       JOIN vacina v ON rv.id_vacina = v.id_vacina
+       WHERE rv.id_animal = ?`,
+      [id_animal]
+    );
+
+    res.status(200).json(vacinas);
+  } catch (error) {
+    res.status(500).json({ erro: 'Erro interno do servidor' });
+  }
+});
+
     res.status(200).json(pets);
   } catch (error) {
     res.status(500).json({ erro: 'Erro interno do servidor' });
