@@ -1,3 +1,14 @@
+const usuarioString = localStorage.getItem('usuarioImunoPet');
+
+if (!usuarioString) {
+    window.location.href = 'index.html';
+} else {
+    const usuario = JSON.parse(usuarioString);
+    if (usuario.perfil !== 'VETERINARIO') {
+        window.location.href = 'dashboard.html';
+    }
+}
+
 document.getElementById('cpf').addEventListener('input', function (e) {
     let v = e.target.value.replace(/\D/g, "");
     v = v.replace(/(\d{3})(\d)/, "$1.$2");
@@ -45,7 +56,7 @@ document.getElementById('cadastroForm').addEventListener('submit', async (event)
 
         if (resposta.ok) {
             divMensagem.style.color = 'green';
-            divMensagem.textContent = dados.mensagem;
+            divMensagem.textContent = 'Tutor cadastrado com sucesso!';
             document.getElementById('cadastroForm').reset();
         } else {
             divMensagem.style.color = 'red';

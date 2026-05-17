@@ -15,6 +15,8 @@
         .vacina-item { font-size: 14px; margin-top: 10px; padding: 10px; background-color: #e9ecef; border-radius: 4px; }
         .status-aplicada { color: green; font-weight: bold; }
         .status-pendente { color: orange; font-weight: bold; }
+        .btn-vet { background-color: #28a745; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 16px; margin-right: 10px; margin-top: 10px; }
+        .btn-vet:hover { background-color: #218838; }
     </style>
 </head>
 <body>
@@ -30,6 +32,14 @@
             <h2>Meus Pets</h2>
             <div id="listaPets"></div>
         </div>
+
+        <div id="areaVeterinario" style="display: none;">
+            <h2>Painel do Veterinário</h2>
+            <p>Selecione uma ação abaixo:</p>
+            <button class="btn-vet" onclick="window.location.href='vet-cadastrar-tutor.html'">Cadastrar Novo Tutor</button>
+            <button class="btn-vet" onclick="window.location.href='vet-cadastrar-pet.html'">Cadastrar Novo Animal</button>
+            <button class="btn-vet" onclick="window.location.href='vet-buscar.html'">Buscar Animal / Registrar Vacina</button>
+        </div>
     </div>
 
     <script>
@@ -44,6 +54,8 @@
             if (usuario.perfil === 'TUTOR') {
                 document.getElementById('areaTutor').style.display = 'block';
                 carregarPets(usuario.id_usuario);
+            } else if (usuario.perfil === 'VETERINARIO') {
+                document.getElementById('areaVeterinario').style.display = 'block';
             }
         }
 
@@ -64,6 +76,8 @@
                     return;
                 }
 
+                divListaPets.innerHTML = '';
+
                 for (const pet of pets) {
                     const dataNasc = new Date(pet.data_nascimento).toLocaleDateString('pt-BR');
                     
@@ -74,7 +88,7 @@
                         <p><strong>Espécie:</strong> ${pet.especie}</p>
                         <p><strong>Raça:</strong> ${pet.raca}</p>
                         <p><strong>Data de Nascimento:</strong> ${dataNasc}</p>
-                        <h4>Histórico de Vacinas:</h4>
+                        <h4>Histórico de Vacinas</h4>
                         <div id="vacinas-${pet.id_animal}">Carregando vacinas...</div>
                     `;
                     divListaPets.appendChild(petCard);
@@ -86,7 +100,7 @@
             }
         }
 
-async function carregarVacinas(idAnimal) {
+        async function carregarVacinas(idAnimal) {
             const divVacinas = document.getElementById(`vacinas-${idAnimal}`);
             
             try {
