@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscar Animal - Veterinário</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h2, h3 { color: #0056b3; }
+        input[type="text"], input[type="date"], select { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { padding: 10px 15px; background-color: #0056b3; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 5px; }
+        button:hover { background-color: #004494; }
+        .btn-acao { background-color: #28a745; width: 100%; }
+        .btn-acao:hover { background-color: #218838; }
+        .btn-voltar { background-color: #6c757d; margin-bottom: 20px; }
+        .btn-voltar:hover { background-color: #5a6268; }
+        .resultado-card { border: 1px solid #ccc; padding: 15px; border-radius: 8px; margin-top: 15px; background-color: #fdfdfd; display: flex; justify-content: space-between; align-items: center; }
+        #modalVacina { display: none; background-color: #e9ecef; padding: 20px; border-radius: 8px; margin-top: 20px; }
+        #mensagem { font-weight: bold; margin-top: 10px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="btn-voltar" onclick="window.location.href='dashboard.html'">Voltar ao Painel</button>
+        
+        <h2>Buscar Animal</h2>
+        <div style="display: flex; gap: 10px;">
+            <input type="text" id="termoBusca" placeholder="Digite o nome do pet, tutor ou CPF">
+            <button id="btnBuscar">Pesquisar</button>
+        </div>
+
+        <div id="listaResultados"></div>
+
+        <div id="modalVacina">
+            <h3 id="tituloPetSelecionado">Registrar Vacina para: </h3>
+            <form id="formVacina">
+                <input type="hidden" id="id_animal_selecionado">
+                
+                <label>Vacina:</label>
+                <select id="selectVacina" required>
+                    <option value="">Selecione a vacina...</option>
+                </select>
+
+                <label>Status:</label>
+                <select id="statusVacina" required>
+                    <option value="APLICADA">Aplicada Agora</option>
+                    <option value="PENDENTE">Agendada (Pendente)</option>
+                </select>
+
+                <label>Data de Aplicação (se já aplicada):</label>
+                <input type="date" id="data_aplicacao">
+
+                <label>Data da Próxima Dose / Vencimento:</label>
+                <input type="date" id="data_proxima_dose" required>
+
+                <button type="submit" class="btn-acao">Salvar Registro</button>
+            </form>
+            <div id="mensagem"></div>
+        </div>
+    </div>
+
+    <script src="vet-buscar.js"></script>
+</body>
+</html>

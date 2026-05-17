@@ -39,6 +39,7 @@
             <button class="btn-vet" onclick="window.location.href='vet-cadastrar-tutor.html'">Cadastrar Novo Tutor</button>
             <button class="btn-vet" onclick="window.location.href='vet-cadastrar-pet.html'">Cadastrar Novo Animal</button>
             <button class="btn-vet" onclick="window.location.href='vet-buscar.html'">Buscar Animal / Registrar Vacina</button>
+            <button class="btn-vet" onclick="window.location.href='vet-cadastrar-vacina.html'">Cadastrar Tipo de Vacina</button>
         </div>
     </div>
 
@@ -88,7 +89,7 @@
                         <p><strong>Espécie:</strong> ${pet.especie}</p>
                         <p><strong>Raça:</strong> ${pet.raca}</p>
                         <p><strong>Data de Nascimento:</strong> ${dataNasc}</p>
-                        <h4>Histórico de Vacinas</h4>
+                        <h4>Histórico de Vacinas:</h4>
                         <div id="vacinas-${pet.id_animal}">Carregando vacinas...</div>
                     `;
                     divListaPets.appendChild(petCard);

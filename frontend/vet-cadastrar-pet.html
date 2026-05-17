@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Animal - Veterinário</title>
+    <style>
+        body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f4f4f9; margin: 0; padding: 20px; box-sizing: border-box; }
+        .cadastro-container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 400px; }
+        h2 { text-align: center; color: #0056b3; margin-top: 0; }
+        input, select { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        button:hover { background-color: #218838; }
+        .btn-voltar { background-color: #6c757d; }
+        .btn-voltar:hover { background-color: #5a6268; }
+        #mensagemCadastro { text-align: center; margin-top: 15px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="cadastro-container">
+        <h2>Cadastrar Novo Animal</h2>
+        <form id="cadastroPetForm">
+            <select id="id_tutor_selecionado" required>
+                <option value="">Selecione o Tutor dono do pet...</option>
+            </select>
+            <input type="text" id="nome" placeholder="Nome do Pet" required>
+            <select id="especie" required>
+                <option value="">Selecione a Espécie...</option>
+                <option value="Cachorro">Cachorro</option>
+                <option value="Gato">Gato</option>
+                <option value="Outro">Outro</option>
+            </select>
+            <input type="text" id="raca" placeholder="Raça" required>
+            <input type="date" id="data_nascimento" required>
+            <button type="submit">Salvar Animal</button>
+            <button type="button" class="btn-voltar" onclick="window.location.href='dashboard.html'">Voltar ao Painel</button>
+        </form>
+        <div id="mensagemCadastro"></div>
+    </div>
+
+    <script src="vet-cadastrar-pet.js"></script>
+</body>
+</html>

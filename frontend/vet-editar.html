@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Informações - ImunoPet Brasil</title>
+    <style>
+        body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f4f4f9; margin: 0; padding: 20px; box-sizing: border-box; }
+        .form-container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 500px; }
+        h2, h3 { text-align: center; color: #0056b3; margin-top: 0; }
+        input, select { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background-color: #ffc107; color: #333; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 10px; font-weight: bold; }
+        button:hover { background-color: #e0a800; }
+        .btn-voltar { background-color: #6c757d; color: white; }
+        .btn-voltar:hover { background-color: #5a6268; }
+        #mensagem { text-align: center; margin-top: 15px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>Editar Informações</h2>
+        <form id="formEditar">
+            <input type="hidden" id="id_tutor">
+            
+            <h3>Dados do Pet</h3>
+            <input type="text" id="nome_animal" placeholder="Nome do Pet" required>
+            <select id="especie" required>
+                <option value="Cachorro">Cachorro</option>
+                <option value="Gato">Gato</option>
+                <option value="Outro">Outro</option>
+            </select>
+            <input type="text" id="raca" placeholder="Raça" required>
+            <input type="date" id="data_nascimento" required>
+
+            <h3>Dados do Tutor: <span id="nome_tutor_display"></span></h3>
+            <input type="tel" id="telefone" placeholder="Telefone" required maxlength="15">
+            <input type="text" id="estado" placeholder="Estado (ex: PA)" maxlength="2" required>
+            <input type="text" id="cidade" placeholder="Cidade" required>
+            <input type="text" id="bairro" placeholder="Bairro" required>
+
+            <button type="submit">Salvar Alterações</button>
+            <button type="button" class="btn-voltar" onclick="window.location.href='vet-buscar.html'">Cancelar / Voltar</button>
+        </form>
+        <div id="mensagem"></div>
+    </div>
+
+    <script src="vet-editar.js"></script>
+</body>
+</html>
