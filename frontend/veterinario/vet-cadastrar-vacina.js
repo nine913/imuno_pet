@@ -9,7 +9,21 @@ if (!usuarioString) {
     }
 }
 
-document.getElementById('intervalo_doses_dias').addEventListener('input', function (e) {
+const selectTipoDose = document.getElementById('tipo_dose');
+const inputIntervalo = document.getElementById('intervalo_doses_dias');
+
+selectTipoDose.addEventListener('change', function() {
+    if (this.value === 'intervalo') {
+        inputIntervalo.style.display = 'block';
+        inputIntervalo.required = true;
+    } else {
+        inputIntervalo.style.display = 'none';
+        inputIntervalo.required = false;
+        inputIntervalo.value = '';
+    }
+});
+
+inputIntervalo.addEventListener('input', function (e) {
     e.target.value = e.target.value.replace(/\D/g, "");
 });
 
@@ -19,7 +33,14 @@ document.getElementById('cadastroVacinaForm').addEventListener('submit', async (
     const nome_vacina = document.getElementById('nome_vacina').value;
     const doencas_prevenidas = document.getElementById('doencas_prevenidas').value;
     const fabricante = document.getElementById('fabricante').value;
-    const intervalo_dose_dias = document.getElementById('intervalo_doses_dias').value;
+    const tipo_dose = document.getElementById('tipo_dose').value;
+    
+    let intervalo_dose_dias = 0;
+    
+    if (tipo_dose === 'intervalo') {
+        intervalo_doses_dias = document.getElementById('intervalo_doses_dias').value;
+    }
+
     const divMensagem = document.getElementById('mensagemCadastro');
 
     try {
@@ -28,7 +49,7 @@ document.getElementById('cadastroVacinaForm').addEventListener('submit', async (
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ nome_vacina, doencas_prevenidas, fabricante, intervalo_dose_dias })
+            body: JSON.stringify({ nome_vacina, doencas_prevenidas, fabricante, intervalo_doses_dias })
         });
 
         const dados = await resposta.json();
@@ -37,6 +58,8 @@ document.getElementById('cadastroVacinaForm').addEventListener('submit', async (
             divMensagem.style.color = 'green';
             divMensagem.textContent = dados.mensagem;
             document.getElementById('cadastroVacinaForm').reset();
+            inputIntervalo.style.display = 'none';
+            inputIntervalo.required = false;
         } else {
             divMensagem.style.color = 'red';
             divMensagem.textContent = dados.erro;

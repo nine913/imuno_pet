@@ -82,36 +82,9 @@ app.get('/meus-pets/:id_usuario', async (req, res) => {
       [id_usuario]
     );
 
-app.get('/vacinas-pet/:id_animal', async (req, res) => {
-  try {
-    const { id_animal } = req.params;
-
-    const [vacinas] = await db.query(
-      `SELECT v.nome_vacina, v.doencas_prevenidas, v.intervalo_doses_dias, rv.data_aplicacao, rv.data_proxima_dose, rv.status 
-       FROM registro_vacinacao rv
-       JOIN vacina v ON rv.id_vacina = v.id_vacina
-       WHERE rv.id_animal = ?`,
-      [id_animal]
-    );
-
-    res.status(200).json(vacinas);
-  } catch (error) {
-    res.status(500).json({ erro: 'Erro interno do servidor' });
-  }
-});
-
     res.status(200).json(pets);
   } catch (error) {
     res.status(500).json({ erro: 'Erro interno do servidor' });
-  }
-});
-
-app.get('/tutores', async (req, res) => {
-  try {
-    const [tutores] = await db.query('SELECT id_usuario, nome_completo, cpf FROM tutor');
-    res.status(200).json(tutores);
-  } catch (error) {
-    res.status(500).json({ erro: 'Erro ao buscar tutores' });
   }
 });
 
@@ -154,6 +127,64 @@ app.get('/buscar-animais', async (req, res) => {
     }
 });
 
+app.get('/detalhes-animal/:id_animal', async (req, res) => {
+    try {
+        const { id_animal } = req.params;
+        const [dados] = await db.query(`
+            SELECT a.id_animal, a.nome as nome_animal, a.especie, a.raca, a.data_nascimento,
+                   t.id_tutor, t.nome_completo as nome_tutor, t.telefone, t.estado, t.cidade, t.bairro
+            FROM animal a
+            JOIN tutor t ON a.id_tutor = t.id_tutor
+            WHERE a.id_animal = ?
+        `, [id_animal]);
+
+        if (dados.length === 0) {
+            return res.status(404).json({ erro: 'Animal não encontrado' });
+        }
+        res.status(200).json(dados[0]);
+    } catch (error) {
+        res.status(500).json({ erro: 'Erro ao buscar detalhes' });
+    }
+});
+
+app.put('/editar-pet-tutor/:id_animal', async (req, res) => {
+    try {
+        const { id_animal } = req.params;
+        const { nome_animal, especie, raca, data_nascimento, id_tutor, telefone, estado, city, cidade, bairro } = req.body;
+
+        await db.query(`
+            UPDATE animal SET nome = ?, especie = ?, raca = ?, data_nascimento = ? WHERE id_animal = ?
+        `, [nome_animal, especie, raca, data_nascimento, id_animal]);
+
+        await db.query(`
+            UPDATE tutor SET telefone = ?, estado = ?, cidade = ?, bairro = ? WHERE id_tutor = ?
+        `, [telefone, estado, city || cidade, bairro, id_tutor]);
+
+        res.status(200).json({ mensagem: 'Dados updated com sucesso!' });
+    } catch (error) {
+        res.status(500).json({ erro: 'Erro ao atualizar dados' });
+    }
+});
+
+
+app.get('/vacinas-pet/:id_animal', async (req, res) => {
+  try {
+    const { id_animal } = req.params;
+
+    const [vacinas] = await db.query(
+      `SELECT v.nome_vacina, v.doencas_prevenidas, v.intervalo_doses_dias, rv.data_aplicacao, rv.data_proxima_dose, rv.status 
+       FROM registro_vacinacao rv
+       JOIN vacina v ON rv.id_vacina = v.id_vacina
+       WHERE rv.id_animal = ?`,
+      [id_animal]
+    );
+
+    res.status(200).json(vacinas);
+  } catch (error) {
+    res.status(500).json({ erro: 'Erro interno do servidor' });
+  }
+});
+
 app.get('/vacinas', async (req, res) => {
     try {
         const [vacinas] = await db.query('SELECT id_vacina, nome_vacina, doencas_prevenidas, intervalo_doses_dias FROM vacina');
@@ -179,57 +210,30 @@ app.post('/registrar-vacina', async (req, res) => {
 app.post('/cadastrar-vacina', async (req, res) => {
     try {
         const { nome_vacina, doencas_prevenidas, fabricante, intervalo_doses_dias } = req.body;
+
         await db.query(
-            'INSERT INTO vacina (nome_vacina, doencas_prevenidas, fabricante, intervalo_dose_dias) VALUES (?, ?, ?, ?)',
-            [nome_vacina, doencas_prevenidas, fabricante, intervalo_dose_dias]
+            'INSERT INTO vacina (nome_vacina, doencas_prevenidas, fabricante, intervalo_doses_dias) VALUES (?, ?, ?, ?)',
+            [nome_vacina, doencas_prevenidas, fabricante, intervalo_doses_dias]
         );
         res.status(201).json({ mensagem: 'Vacina cadastrada com sucesso!' });
     } catch (error) {
+        
         res.status(500).json({ erro: 'Erro ao cadastrar vacina' });
     }
 });
 
-app.get('/detalhes-animal/:id_animal', async (req, res) => {
-    try {
-        const { id_animal } = req.params;
-        const [dados] = await db.query(`
-            SELECT a.id_animal, a.nome as nome_animal, a.especie, a.raca, a.data_nascimento,
-                   t.id_tutor, t.nome_completo as nome_tutor, t.telefone, t.estado, t.cidade, t.bairro
-            FROM animal a
-            JOIN tutor t ON a.id_tutor = t.id_tutor
-            WHERE a.id_animal = ?
-        `, [id_animal]);
 
-        if (dados.length === 0) {
-            return res.status(404).json({ erro: 'Animal não encontrado' });
-        }
-        res.status(200).json(dados[0]);
-    } catch (error) {
-        res.status(500).json({ erro: 'Erro ao buscar detalhes' });
-    }
-});
-
-app.put('/editar-pet-tutor/:id_animal', async (req, res) => {
-    try {
-        const { id_animal } = req.params;
-        const { nome_animal, especie, raca, data_nascimento, id_tutor, telefone, estado, cidade, bairro } = req.body;
-
-        await db.query(`
-            UPDATE animal SET nome = ?, especie = ?, raca = ?, data_nascimento = ? WHERE id_animal = ?
-        `, [nome_animal, especie, raca, data_nascimento, id_animal]);
-
-        await db.query(`
-            UPDATE tutor SET telefone = ?, estado = ?, cidade = ?, bairro = ? WHERE id_tutor = ?
-        `, [telefone, estado, cidade, bairro, id_tutor]);
-
-        res.status(200).json({ mensagem: 'Dados atualizados com sucesso!' });
-    } catch (error) {
-        res.status(500).json({ erro: 'Erro ao atualizar dados' });
-    }
+app.get('/tutores', async (req, res) => {
+  try {
+    const [tutores] = await db.query('SELECT id_usuario, nome_completo, cpf FROM tutor');
+    res.status(200).json(tutores);
+  } catch (error) {
+    res.status(500).json({ erro: 'Erro ao buscar tutores' });
+  }
 });
 
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+  console.log(`Servidor rodando perfeitamente na porta ${PORT}`);
 });
