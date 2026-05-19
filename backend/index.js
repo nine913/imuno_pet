@@ -297,6 +297,40 @@ app.delete('/deletar-tutor/:id_tutor', async (req, res) => {
     }
 });
 
+app.get('/vacinas', async (req, res) => {
+    try {
+        const [vacinas] = await db.query('SELECT id_vacina, nome_vacina, doencas_prevenidas, fabricante, intervalo_doses_dias FROM vacina');
+        res.status(200).json(vacinas);
+    } catch (error) {
+        res.status(500).json({ erro: 'Erro ao buscar vacinas' });
+    }
+});
+
+app.put('/editar-vacina/:id_vacina', async (req, res) => {
+    try {
+        const { id_vacina } = req.params;
+        const { nome_vacina, doencas_prevenidas, fabricante, intervalo_doses_dias } = req.body;
+        await db.query(
+            'UPDATE vacina SET nome_vacina = ?, doencas_prevenidas = ?, fabricante = ?, intervalo_doses_dias = ? WHERE id_vacina = ?',
+            [nome_vacina, doencas_prevenidas, fabricante, intervalo_doses_dias, id_vacina]
+        );
+        res.status(200).json({ mensagem: 'Vacina atualizada com sucesso!' });
+    } catch (error) {
+        res.status(500).json({ erro: 'Erro ao atualizar vacina' });
+    }
+});
+
+app.delete('/deletar-vacina/:id_vacina', async (req, res) => {
+    try {
+        const { id_vacina } = req.params;
+        await db.query('DELETE FROM registro_vacinacao WHERE id_vacina = ?', [id_vacina]);
+        await db.query('DELETE FROM vacina WHERE id_vacina = ?', [id_vacina]);
+        res.status(200).json({ mensagem: 'Vacina excluída com sucesso!' });
+    } catch (error) {
+        res.status(500).json({ erro: 'Erro ao excluir vacina' });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {

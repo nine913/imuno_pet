@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Vacinas - ImunoPet Brasil</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h2, h3 { color: #0056b3; margin-top: 0; }
+        input, textarea, select { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { padding: 10px 15px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 5px; }
+        button:hover { background-color: #218838; }
+        .btn-voltar { background-color: #6c757d; margin-bottom: 20px; width: auto; }
+        .btn-voltar:hover { background-color: #5a6268; }
+        .resultado-card { border: 1px solid #ccc; padding: 15px; border-radius: 8px; margin-top: 15px; background-color: #fdfdfd; display: flex; justify-content: space-between; align-items: center; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 20px; border-radius: 8px; text-align: center; width: 300px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        #mensagemFormulario { font-weight: bold; margin-top: 10px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="btn-voltar" onclick="window.location.href='../dashboard.html'">Voltar ao Painel</button>
+        
+        <div style="background-color: #e9ecef; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+            <h2 id="tituloFormulario">Cadastrar Nova Vacina</h2>
+            <form id="formVacina">
+                <input type="hidden" id="id_vacina">
+                <input type="text" id="nome_vacina" placeholder="Nome da Vacina (Ex: V10, Antirrábica)" required>
+                <textarea id="doencas_prevenidas" placeholder="Doenças Prevenidas (Ex: Cinomose, Parvovirose...)" rows="3" required></textarea>
+                <input type="text" id="fabricante" placeholder="Fabricante">
+                
+                <select id="tipo_dose" required>
+                    <option value="">Selecione o Tipo de Dose...</option>
+                    <option value="unica">Dose Única</option>
+                    <option value="intervalo">Múltiplas Doses (Com Intervalo)</option>
+                </select>
+
+                <input type="number" id="intervalo_doses_dias" placeholder="Intervalo entre doses (em dias)" min="0" style="display: none;">
+                
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button type="submit" id="btnSalvar" style="flex: 1;">Salvar Vacina</button>
+                    <button type="button" id="btnCancelarEdicao" onclick="cancelarEdicao()" style="flex: 1; background-color: #6c757d; display: none;">Cancelar Edição</button>
+                </div>
+            </form>
+            <div id="mensagemFormulario"></div>
+        </div>
+
+        <h3>Vacinas Cadastradas</h3>
+        <div id="listaVacinas"></div>
+    </div>
+
+    <div id="modalConfirmacao" class="modal">
+        <div class="modal-content">
+            <h3 style="color: #dc3545; margin-top: 0;">Atenção!</h3>
+            <p>Deseja excluir esta vacina? Isso apagará este registro de todos os animais vacinados com ela.</p>
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+                <button id="btnConfirmarExclusao" style="background-color: #dc3545; color: white; width: auto; padding: 10px 20px;">Sim, Excluir</button>
+                <button onclick="fecharModalExclusao()" style="background-color: #6c757d; color: white; width: auto; padding: 10px 20px;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="vet-vacinas.js"></script>
+</body>
+</html>
