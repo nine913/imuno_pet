@@ -130,7 +130,8 @@ npm install
 
 ### Arrumar as senhas
 
-```node arrumar-senha.js
+```
+node arrumar-senha.js
 ```
 
 ---
