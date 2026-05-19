@@ -232,6 +232,71 @@ app.get('/tutores', async (req, res) => {
   }
 });
 
+app.delete('/deletar-animal/:id_animal', async (req, res) => {
+    try {
+        const { id_animal } = req.params;
+        await db.query('DELETE FROM registro_vacinacao WHERE id_animal = ?', [id_animal]);
+        await db.query('DELETE FROM animal WHERE id_animal = ?', [id_animal]);
+        res.status(200).json({ mensagem: 'Animal excluído com sucesso!' });
+    } catch (error) {
+        res.status(500).json({ erro: 'Erro ao excluir animal' });
+    }
+});
+
+app.get('/listar-tutores', async (req, res) => {
+    try {
+        const termo = req.query.termo || '';
+        const busca = `%${termo}%`;
+        const [tutores] = await db.query(`
+            SELECT t.id_tutor, t.id_usuario, t.nome_completo, t.cpf, t.telefone, t.estado, t.cidade, t.bairro, u.email
+            FROM tutor t
+            JOIN usuario u ON t.id_usuario = u.id_usuario
+            WHERE t.nome_completo LIKE ? OR t.cpf LIKE ? OR u.email LIKE ?
+        `, [busca, busca, busca]);
+        res.status(200).json(tutores);
+    } catch (error) {
+        res.status(500).json({ erro: 'Erro ao buscar tutores' });
+    }
+});
+
+app.put('/editar-tutor-dados/:id_tutor', async (req, res) => {
+    try {
+        const { id_tutor } = req.params;
+        const { nome_completo, telefone, estado, cidade, bairro } = req.body;
+        
+        await db.query(`
+            UPDATE tutor SET nome_completo = ?, telefone = ?, estado = ?, cidade = ?, bairro = ? WHERE id_tutor = ?
+        `, [nome_completo, telefone, estado, cidade, bairro, id_tutor]);
+        
+        res.status(200).json({ mensagem: 'Dados do tutor atualizados com sucesso!' });
+    } catch (error) {
+        res.status(500).json({ erro: 'Erro ao atualizar tutor' });
+    }
+});
+
+app.delete('/deletar-tutor/:id_tutor', async (req, res) => {
+    try {
+        const { id_tutor } = req.params;
+        
+        const [tutor] = await db.query('SELECT id_usuario FROM tutor WHERE id_tutor = ?', [id_tutor]);
+        
+        if (tutor.length === 0) {
+            return res.status(404).json({ erro: 'Tutor não encontrado' });
+        }
+        
+        const id_usuario = tutor[0].id_usuario;
+
+        await db.query('DELETE FROM registro_vacinacao WHERE id_animal IN (SELECT id_animal FROM animal WHERE id_tutor = ?)', [id_tutor]);
+        await db.query('DELETE FROM animal WHERE id_tutor = ?', [id_tutor]);
+        await db.query('DELETE FROM tutor WHERE id_tutor = ?', [id_tutor]);
+        await db.query('DELETE FROM usuario WHERE id_usuario = ?', [id_usuario]);
+
+        res.status(200).json({ mensagem: 'Tutor e todos os seus vínculos foram excluídos!' });
+    } catch (error) {
+        res.status(500).json({ erro: 'Erro ao excluir tutor' });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {

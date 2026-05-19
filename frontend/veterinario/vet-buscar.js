@@ -55,7 +55,8 @@ async function realizarBusca(termo = '') {
                 </div>
                 <div style="display: flex; gap: 10px; flex-direction: column;">
                     <button onclick="abrirModalVacina(${pet.id_animal}, '${pet.nome_animal}')" style="background-color: #0056b3;">Registrar Vacina</button>
-                    <button onclick="editarAnimal(${pet.id_animal})" style="background-color: #5aee5a; color: #333;">Editar Informações</button>
+                    <button onclick="editarAnimal(${pet.id_animal})" style="background-color: #ffc107; color: #333;">Editar Informações</button>
+                    <button onclick="deletarAnimal(${pet.id_animal})" style="background-color: #dc3545; color: white;">Excluir Animal</button>
                 </div>
             `;
             divResultados.appendChild(card);
@@ -151,5 +152,37 @@ document.getElementById('formVacina').addEventListener('submit', async (event) =
     } catch (erro) {
         divMensagem.style.color = 'red';
         divMensagem.textContent = 'Erro ao salvar registro.';
+    }
+});
+
+let animalParaExcluir = null;
+
+function deletarAnimal(idAnimal) {
+    animalParaExcluir = idAnimal;
+    document.getElementById('modalConfirmacao').style.display = 'flex';
+}
+
+function fecharModalExclusao() {
+    animalParaExcluir = null;
+    document.getElementById('modalConfirmacao').style.display = 'none';
+}
+
+document.getElementById('btnConfirmarExclusao').addEventListener('click', async () => {
+    if (!animalParaExcluir) return;
+
+    try {
+        const resposta = await fetch(`http://localhost:3000/deletar-animal/${animalParaExcluir}`, {
+            method: 'DELETE'
+        });
+
+        if (resposta.ok) {
+            fecharModalExclusao();
+            const termo = document.getElementById('termoBusca').value;
+            realizarBusca(termo);
+        } else {
+            alert('Erro ao excluir animal.');
+        }
+    } catch (erro) {
+        alert('Erro ao conectar com o servidor.');
     }
 });

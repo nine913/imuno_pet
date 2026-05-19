@@ -78,7 +78,6 @@ IMUNOPET-BRASIL/
 │       ├── vet-editar.html
 │       └── vet-editar.js
 │
-├── node_modules/
 │
 ├── docs/
 │   ├── roadmap.md
@@ -90,8 +89,7 @@ IMUNOPET-BRASIL/
 │
 ├── .gitignore
 ├── README.md
-├── package.json
-└── package-lock.json
+
 ```
 
 ---
@@ -126,6 +124,13 @@ IMUNOPET-BRASIL/
 ```bash
 cd backend
 npm install
+```
+
+---
+
+### Arrumar as senhas
+
+```node arrumar-senha.js
 ```
 
 ---
