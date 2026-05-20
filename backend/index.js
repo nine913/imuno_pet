@@ -113,14 +113,31 @@ app.post('/cadastrar-pet', async (req, res) => {
 
 app.get('/buscar-animais', async (req, res) => {
     try {
-        const termo = req.query.termo || '';
-        const busca = `%${termo}%`;
-        const [animais] = await db.query(`
-            SELECT a.id_animal, a.nome as nome_animal, a.especie, a.raca, t.nome_completo as nome_tutor, t.cpf
+        const termo = req.query.termo ? `%${req.query.termo}%` : '%';
+        const vacina = req.query.vacina ? `%${req.query.vacina}%` : '';
+        const status = req.query.status || '';
+
+        let query = `
+            SELECT DISTINCT a.id_animal, a.nome as nome_animal, a.especie, a.raca, t.nome_completo as nome_tutor, t.cpf
             FROM animal a
             JOIN tutor t ON a.id_tutor = t.id_tutor
-            WHERE a.nome LIKE ? OR t.cpf LIKE ? OR t.nome_completo LIKE ?
-        `, [busca, busca, busca]);
+            LEFT JOIN registro_vacinacao rv ON a.id_animal = rv.id_animal
+            LEFT JOIN vacina v ON rv.id_vacina = v.id_vacina
+            WHERE (a.nome LIKE ? OR t.cpf LIKE ? OR t.nome_completo LIKE ?)
+        `;
+        const params = [termo, termo, termo];
+
+        if (vacina) {
+            query += ` AND v.nome_vacina LIKE ?`;
+            params.push(vacina);
+        }
+        
+        if (status) {
+            query += ` AND rv.status = ?`;
+            params.push(status);
+        }
+
+        const [animais] = await db.query(query, params);
         res.status(200).json(animais);
     } catch (error) {
         res.status(500).json({ erro: 'Erro ao buscar animais' });
@@ -328,6 +345,34 @@ app.delete('/deletar-vacina/:id_vacina', async (req, res) => {
         res.status(200).json({ mensagem: 'Vacina excluída com sucesso!' });
     } catch (error) {
         res.status(500).json({ erro: 'Erro ao excluir vacina' });
+    }
+});
+
+app.get('/historico-pet/:id_animal', async (req, res) => {
+    try {
+        const { id_animal } = req.params;
+        const termo = req.query.termo ? `%${req.query.termo}%` : '%';
+
+        const [historico] = await db.query(`
+            SELECT rv.id_registro, v.nome_vacina, v.doencas_prevenidas, rv.data_aplicacao, rv.data_proxima_dose, rv.status
+            FROM registro_vacinacao rv
+            JOIN vacina v ON rv.id_vacina = v.id_vacina
+            WHERE rv.id_animal = ? AND (v.nome_vacina LIKE ? OR rv.status LIKE ?)
+            ORDER BY rv.data_aplicacao DESC
+        `, [id_animal, termo, termo]);
+        res.status(200).json(historico);
+    } catch (error) {
+        res.status(500).json({ erro: 'Erro ao buscar histórico' });
+    }
+});
+
+app.delete('/deletar-registro-vacina/:id_registro', async (req, res) => {
+    try {
+        const { id_registro } = req.params;
+        await db.query('DELETE FROM registro_vacinacao WHERE id_registro = ?', [id_registro]);
+        res.status(200).json({ mensagem: 'Registro de vacina excluído com sucesso!' });
+    } catch (error) {
+        res.status(500).json({ erro: 'Erro ao excluir registro de vacina' });
     }
 });
 

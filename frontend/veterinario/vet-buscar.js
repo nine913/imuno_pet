@@ -30,18 +30,23 @@ async function carregarVacinas() {
     }
 }
 
-async function realizarBusca(termo = '') {
+async function realizarBusca() {
+    const termo = document.getElementById('termoBusca').value;
+    const vacina = document.getElementById('filtroVacina').value;
+    const status = document.getElementById('filtroStatus').value;
+    
     const divResultados = document.getElementById('listaResultados');
     document.getElementById('modalVacina').style.display = 'none';
     
     try {
-        const resposta = await fetch(`http://localhost:3000/buscar-animais?termo=${termo}`);
+        const url = `http://localhost:3000/buscar-animais?termo=${termo}&vacina=${vacina}&status=${status}`;
+        const resposta = await fetch(url);
         const animais = await resposta.json();
 
         divResultados.innerHTML = '';
 
         if (animais.length === 0) {
-            divResultados.innerHTML = '<p>Nenhum animal encontrado.</p>';
+            divResultados.innerHTML = '<p>Nenhum animal encontrado com esses critérios.</p>';
             return;
         }
 
@@ -55,7 +60,8 @@ async function realizarBusca(termo = '') {
                 </div>
                 <div style="display: flex; gap: 10px; flex-direction: column;">
                     <button onclick="abrirModalVacina(${pet.id_animal}, '${pet.nome_animal}')" style="background-color: #0056b3;">Registrar Vacina</button>
-                    <button onclick="editarAnimal(${pet.id_animal})" style="background-color: #ffc107; color: #333;">Editar Informações</button>
+                    <button onclick="window.location.href='vet-historico.html?id=${pet.id_animal}'" style="background-color: #17a2b8; color: white;">Ver Histórico Completo</button>
+                    <button onclick="window.location.href='vet-editar.html?id=${pet.id_animal}'" style="background-color: #ffc107; color: #333;">Editar Informações</button>
                     <button onclick="deletarAnimal(${pet.id_animal})" style="background-color: #dc3545; color: white;">Excluir Animal</button>
                 </div>
             `;
@@ -66,10 +72,7 @@ async function realizarBusca(termo = '') {
     }
 }
 
-document.getElementById('btnBuscar').addEventListener('click', () => {
-    const termo = document.getElementById('termoBusca').value;
-    realizarBusca(termo);
-});
+document.getElementById('btnBuscar').addEventListener('click', realizarBusca);
 
 window.addEventListener('DOMContentLoaded', () => {
     carregarVacinas();
@@ -84,10 +87,6 @@ function abrirModalVacina(idAnimal, nomeAnimal) {
     window.scrollTo(0, document.body.scrollHeight);
     
     carregarVacinas();
-}
-
-function editarAnimal(idAnimal) {
-    window.location.href = `vet-editar.html?id=${idAnimal}`;
 }
 
 function calcularProximaDose() {
@@ -177,8 +176,7 @@ document.getElementById('btnConfirmarExclusao').addEventListener('click', async 
 
         if (resposta.ok) {
             fecharModalExclusao();
-            const termo = document.getElementById('termoBusca').value;
-            realizarBusca(termo);
+            realizarBusca();
         } else {
             alert('Erro ao excluir animal.');
         }
