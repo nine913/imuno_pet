@@ -376,6 +376,27 @@ app.delete('/deletar-registro-vacina/:id_registro', async (req, res) => {
     }
 });
 
+app.get('/relatorio-vacinas', async (req, res) => {
+    try {
+        const dataInicio = req.query.inicio || '2000-01-01';
+        const dataFim = req.query.fim || '2100-12-31';
+
+        const [relatorio] = await db.query(`
+            SELECT v.nome_vacina, COUNT(rv.id_registro) as quantidade
+            FROM registro_vacinacao rv
+            JOIN vacina v ON rv.id_vacina = v.id_vacina
+            WHERE rv.status = 'APLICADA' 
+            AND rv.data_aplicacao BETWEEN ? AND ?
+            GROUP BY v.id_vacina, v.nome_vacina
+            ORDER BY quantidade DESC
+        `, [dataInicio, dataFim]);
+
+        res.status(200).json(relatorio);
+    } catch (error) {
+        res.status(500).json({ erro: 'Erro ao gerar relatório' });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
