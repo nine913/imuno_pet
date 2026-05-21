@@ -41,7 +41,7 @@ async function gerarRelatorio() {
             const dataApp = item.data_aplicacao ? new Date(item.data_aplicacao).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-';
             const dataProx = item.data_proxima_dose ? new Date(item.data_proxima_dose).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-';
             
-            const corStatus = item.status === 'APLICADA' ? 'green' : 'orange';
+            const corStatus = item.status === 'APLICADA' ? 'green' : (item.status === 'ATRASADA' ? 'red' : 'orange');
 
             const tr = document.createElement('tr');
             tr.innerHTML = `

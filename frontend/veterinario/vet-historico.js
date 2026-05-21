@@ -87,7 +87,7 @@ async function carregarHistorico(termo = '') {
 
             item.innerHTML = `
                 <div>
-                    <strong style="font-size: 18px; color: #0056b3;">${reg.nome_vacina}</strong> - <span style="font-weight: bold; color: ${reg.status === 'APLICADA' ? 'green' : 'orange'};">${reg.status}</span><br>
+                   <strong style="font-size: 18px; color: #0056b3;">${reg.nome_vacina}</strong> - <span style="font-weight: bold; color: ${reg.status === 'APLICADA' ? 'green' : (reg.status === 'ATRASADA' ? 'red' : 'orange')};">${reg.status}</span><br>
                     <span style="font-size: 14px; color: #555;">
                         <strong>Aplicação:</strong> ${dataApp} | <strong>Próxima dose:</strong> ${dataProx}<br>
                         <strong>Previne:</strong> ${reg.doencas_prevenidas}

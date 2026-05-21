@@ -361,19 +361,30 @@ app.get('/historico-pet/:id_animal', async (req, res) => {
     try {
         const { id_animal } = req.params;
         const termo = req.query.termo ? `%${req.query.termo}%` : '%';
+        const status = req.query.status || '';
 
-        const [historico] = await db.query(`
+        let query = `
             SELECT rv.id_registro, v.nome_vacina, v.doencas_prevenidas, rv.data_aplicacao, rv.data_proxima_dose, rv.status
             FROM registro_vacinacao rv
             JOIN vacina v ON rv.id_vacina = v.id_vacina
-            WHERE rv.id_animal = ? AND (v.nome_vacina LIKE ? OR rv.status LIKE ?)
-            ORDER BY rv.data_aplicacao DESC
-        `, [id_animal, termo, termo]);
+            WHERE rv.id_animal = ? AND v.nome_vacina LIKE ?
+        `;
+        const params = [id_animal, termo];
+
+        if (status) {
+            query += ` AND rv.status = ?`;
+            params.push(status);
+        }
+
+        query += ` ORDER BY rv.data_aplicacao DESC`;
+
+        const [historico] = await db.query(query, params);
         res.status(200).json(historico);
     } catch (error) {
         res.status(500).json({ erro: 'Erro ao buscar histórico' });
     }
 });
+
 
 app.delete('/deletar-registro-vacina/:id_registro', async (req, res) => {
     try {
@@ -500,6 +511,63 @@ app.get('/tutor/animais/:id_usuario', async (req, res) => {
         res.status(200).json(animais);
     } catch (error) {
         res.status(500).json({ erro: 'Erro ao buscar animais do tutor' });
+    }
+});
+
+app.get('/animais-atrasados', async (req, res) => {
+    try {
+        const hoje = new Date().toISOString().split('T')[0];
+        
+        await db.query(`
+            UPDATE registro_vacinacao 
+            SET status = 'ATRASADA' 
+            WHERE data_proxima_dose < ? AND status = 'PENDENTE'
+        `, [hoje]);
+
+        const [atrasados] = await db.query(`
+            SELECT rv.id_registro, v.nome_vacina, rv.data_proxima_dose, 
+                   a.nome as nome_animal, a.especie, t.nome_completo as nome_tutor, t.telefone
+            FROM registro_vacinacao rv
+            JOIN vacina v ON rv.id_vacina = v.id_vacina
+            JOIN animal a ON rv.id_animal = a.id_animal
+            JOIN tutor t ON a.id_tutor = t.id_tutor
+            WHERE rv.status = 'ATRASADA'
+            ORDER BY rv.data_proxima_dose ASC
+        `);
+        res.status(200).json(atrasados);
+    } catch (error) {
+        res.status(500).json({ erro: 'Erro ao buscar vacinas atrasadas' });
+    }
+});
+
+app.get('/tutor/alertas/:id_usuario', async (req, res) => {
+    try {
+        const { id_usuario } = req.params;
+        const [tutor] = await db.query('SELECT id_tutor FROM tutor WHERE id_usuario = ?', [id_usuario]);
+        
+        if (tutor.length === 0) {
+            return res.status(404).json({ erro: 'Tutor não encontrado' });
+        }
+        const id_tutor = tutor[0].id_tutor;
+        const hoje = new Date().toISOString().split('T')[0];
+        
+        await db.query(`
+            UPDATE registro_vacinacao 
+            SET status = 'ATRASADA' 
+            WHERE data_proxima_dose < ? AND status = 'PENDENTE'
+        `, [hoje]);
+
+        const [alertas] = await db.query(`
+            SELECT v.nome_vacina, rv.data_proxima_dose, rv.status, a.nome as nome_animal
+            FROM registro_vacinacao rv
+            JOIN vacina v ON rv.id_vacina = v.id_vacina
+            JOIN animal a ON rv.id_animal = a.id_animal
+            WHERE a.id_tutor = ? AND rv.status IN ('PENDENTE', 'ATRASADA')
+            ORDER BY rv.data_proxima_dose ASC
+        `, [id_tutor]);
+        res.status(200).json(alertas);
+    } catch (error) {
+        res.status(500).json({ erro: 'Erro ao buscar alertas' });
     }
 });
 

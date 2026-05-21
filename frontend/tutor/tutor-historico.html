@@ -4,29 +4,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Histórico de Vacinação - ImunoPet Brasil</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         body { font-family: Arial, sans-serif; background-color: #f4f4f9; margin: 0; padding: 20px; }
         .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         h2 { color: #0056b3; margin-top: 0; }
-        input[type="text"] { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        button { padding: 10px 15px; background-color: #0056b3; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
-        button:hover { background-color: #004494; }
-        .btn-voltar { background-color: #6c757d; margin-bottom: 20px; }
+        input[type="text"], select { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { padding: 10px 15px; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        .btn-primario { background-color: #0056b3; }
+        .btn-primario:hover { background-color: #004494; }
+        .btn-voltar { background-color: #6c757d; }
         .btn-voltar:hover { background-color: #5a6268; }
+        .btn-pdf { background-color: #17a2b8; font-weight: bold; }
+        .btn-pdf:hover { background-color: #138496; }
         .historico-item { border-bottom: 1px solid #eee; padding: 15px 0; }
+        .cabecalho-carteira { text-align: center; border-bottom: 2px solid #0056b3; padding-bottom: 15px; margin-bottom: 20px; display: none; }
+        .cabecalho-carteira h1 { color: #0056b3; margin: 0; }
+        
+        @media print {
+            body { background-color: white; padding: 0; }
+            .container { box-shadow: none; padding: 0; max-width: 100%; border: none; }
+            .nao-imprimir { display: none !important; }
+            .cabecalho-carteira { display: block; }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <button class="btn-voltar" onclick="window.location.href='tutor-animais.html'">Voltar aos Meus Pets</button>
-        <h2 id="tituloPet">Carteira de Vacinação</h2>
-        
-        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-            <input type="text" id="termoBuscaHistorico" placeholder="Pesquisar por nome da vacina ou status (Ex: Raiva, PENDENTE)">
-            <button id="btnBuscarHistorico">Pesquisar</button>
+        <div class="nao-imprimir" style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+            <button class="btn-voltar" onclick="window.location.href='tutor-animais.html'" style="margin: 0;">Voltar aos Meus Pets</button>
+            <button class="btn-pdf" onclick="baixarCarteirinhaPDF()" style="margin: 0;">📄 Baixar Carteira Digital</button>
         </div>
+        
+        <div id="area-carteira">
+            <div class="cabecalho-carteira" id="cabecalhoImpresso">
+                <h1>ImunoPet Brasil</h1>
+                <h2 id="tituloPetImpresso">Carteira de Vacinação</h2>
+            </div>
 
-        <div id="conteudoHistorico"></div>
+            <h2 class="nao-imprimir" id="tituloPet">Carteira de Vacinação</h2>
+            
+            <div class="nao-imprimir" style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;" data-html2canvas-ignore="true">
+                <input type="text" id="termoBuscaHistorico" placeholder="Pesquisar por nome da vacina..." style="flex: 2; min-width: 200px;">
+                <select id="filtroStatusHistorico" style="flex: 1; min-width: 150px; margin: 10px 0;">
+                    <option value="">Todos os Status</option>
+                    <option value="APLICADA">Aplicada</option>
+                    <option value="PENDENTE">Pendente</option>
+                    <option value="ATRASADA">Atrasada</option>
+                </select>
+                <button id="btnBuscarHistorico" class="btn-primario" style="height: 40px; margin-top: 10px;">Pesquisar</button>
+            </div>
+
+            <div id="conteudoHistorico"></div>
+        </div>
     </div>
     <script src="tutor-historico.js"></script>
 </body>
