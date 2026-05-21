@@ -1,11 +1,11 @@
 const usuarioString = localStorage.getItem('usuarioImunoPet');
 
 if (!usuarioString) {
-    window.location.href = 'index.html';
+    window.location.href = '../index.html';
 } else {
     const usuario = JSON.parse(usuarioString);
     if (usuario.perfil !== 'VETERINARIO') {
-        window.location.href = 'dashboard.html';
+        window.location.href = '../dashboard.html';
     }
 }
 

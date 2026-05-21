@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meus Pets - ImunoPet Brasil</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h2 { color: #0056b3; margin-top: 0; }
+        input[type="text"] { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { padding: 10px 15px; background-color: #0056b3; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #004494; }
+        .btn-voltar { background-color: #6c757d; margin-bottom: 20px; }
+        .btn-voltar:hover { background-color: #5a6268; }
+        .pet-card { border: 1px solid #ccc; padding: 15px; border-radius: 8px; margin-top: 15px; background-color: #fdfdfd; display: flex; justify-content: space-between; align-items: center; }
+        .btn-historico { background-color: #17a2b8; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 5px; }
+        .btn-historico:hover { background-color: #138496; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="btn-voltar" onclick="window.location.href='../dashboard.html'">Voltar ao Painel</button>
+        <h2>Meus Animais</h2>
+        
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <input type="text" id="termoBuscaPet" placeholder="Pesquisar por nome do pet ou raça...">
+            <button id="btnBuscarPet">Pesquisar</button>
+        </div>
+
+        <div id="listaPets"></div>
+    </div>
+    <script src="tutor-animais.js"></script>
+</body>
+</html>

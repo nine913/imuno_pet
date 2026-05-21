@@ -389,21 +389,37 @@ app.get('/relatorio-vacinas', async (req, res) => {
     try {
         const dataInicio = req.query.inicio || '2000-01-01';
         const dataFim = req.query.fim || '2100-12-31';
+        const status = req.query.status || '';
+        const especie = req.query.especie || '';
 
-        const [relatorio] = await db.query(`
-            SELECT v.nome_vacina, rv.data_aplicacao, a.nome as nome_animal, a.especie, t.nome_completo as nome_tutor
+        let query = `
+            SELECT v.nome_vacina, rv.data_aplicacao, rv.data_proxima_dose, rv.status, 
+                   a.nome as nome_animal, a.especie, t.nome_completo as nome_tutor, t.telefone
             FROM registro_vacinacao rv
             JOIN vacina v ON rv.id_vacina = v.id_vacina
             JOIN animal a ON rv.id_animal = a.id_animal
             JOIN tutor t ON a.id_tutor = t.id_tutor
-            WHERE rv.status = 'APLICADA' 
-            AND rv.data_aplicacao BETWEEN ? AND ?
-            ORDER BY rv.data_aplicacao DESC
-        `, [dataInicio, dataFim]);
+            WHERE (rv.data_aplicacao BETWEEN ? AND ? OR rv.data_proxima_dose BETWEEN ? AND ?)
+        `;
+        
+        const params = [dataInicio, dataFim, dataInicio, dataFim];
 
+        if (status) {
+            query += ` AND rv.status = ?`;
+            params.push(status);
+        }
+        
+        if (especie) {
+            query += ` AND a.especie = ?`;
+            params.push(especie);
+        }
+
+        query += ` ORDER BY rv.data_aplicacao DESC, rv.data_proxima_dose DESC`;
+
+        const [relatorio] = await db.query(query, params);
         res.status(200).json(relatorio);
     } catch (error) {
-        res.status(500).json({ erro: 'Erro ao gerar relatório' });
+        res.status(500).json({ erro: 'Erro ao gerar relatório detalhado' });
     }
 });
 
@@ -461,6 +477,29 @@ app.post('/cadastrar-tutor-pet', async (req, res) => {
         res.status(201).json({ mensagem: 'Tutor e Pet cadastrados com sucesso!' });
     } catch (error) {
         res.status(500).json({ erro: 'Erro ao cadastrar tutor e pet no sistema.' });
+    }
+});
+
+app.get('/tutor/animais/:id_usuario', async (req, res) => {
+    try {
+        const { id_usuario } = req.params;
+        
+        const [tutor] = await db.query('SELECT id_tutor FROM tutor WHERE id_usuario = ?', [id_usuario]);
+        
+        if (tutor.length === 0) {
+            return res.status(404).json({ erro: 'Tutor não encontrado' });
+        }
+        
+        const id_tutor = tutor[0].id_tutor;
+        
+        const [animais] = await db.query(
+            'SELECT id_animal, nome, especie, raca, data_nascimento FROM animal WHERE id_tutor = ?', 
+            [id_tutor]
+        );
+        
+        res.status(200).json(animais);
+    } catch (error) {
+        res.status(500).json({ erro: 'Erro ao buscar animais do tutor' });
     }
 });
 
