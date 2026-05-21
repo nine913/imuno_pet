@@ -70,24 +70,6 @@ app.post('/cadastro', async (req, res) => {
   }
 });
 
-app.get('/meus-pets/:id_usuario', async (req, res) => {
-  try {
-    const { id_usuario } = req.params;
-
-    const [pets] = await db.query(
-      `SELECT a.id_animal, a.nome, a.especie, a.raca, a.data_nascimento 
-       FROM animal a
-       JOIN tutor t ON a.id_tutor = t.id_tutor
-       WHERE t.id_usuario = ?`,
-      [id_usuario]
-    );
-
-    res.status(200).json(pets);
-  } catch (error) {
-    res.status(500).json({ erro: 'Erro interno do servidor' });
-  }
-});
-
 app.post('/cadastrar-pet', async (req, res) => {
   try {
     const { id_usuario, nome, especie, raca, data_nascimento } = req.body;
@@ -181,25 +163,6 @@ app.put('/editar-pet-tutor/:id_animal', async (req, res) => {
     } catch (error) {
         res.status(500).json({ erro: 'Erro ao atualizar dados' });
     }
-});
-
-
-app.get('/vacinas-pet/:id_animal', async (req, res) => {
-  try {
-    const { id_animal } = req.params;
-
-    const [vacinas] = await db.query(
-      `SELECT v.nome_vacina, v.doencas_prevenidas, v.intervalo_doses_dias, rv.data_aplicacao, rv.data_proxima_dose, rv.status 
-       FROM registro_vacinacao rv
-       JOIN vacina v ON rv.id_vacina = v.id_vacina
-       WHERE rv.id_animal = ?`,
-      [id_animal]
-    );
-
-    res.status(200).json(vacinas);
-  } catch (error) {
-    res.status(500).json({ erro: 'Erro interno do servidor' });
-  }
 });
 
 app.get('/vacinas', async (req, res) => {
@@ -568,6 +531,93 @@ app.get('/tutor/alertas/:id_usuario', async (req, res) => {
         res.status(200).json(alertas);
     } catch (error) {
         res.status(500).json({ erro: 'Erro ao buscar alertas' });
+    }
+});
+
+app.get('/gestor/metricas-detalhadas', async (req, res) => {
+    try {
+        const inicio = req.query.inicio || '2000-01-01';
+        const fim = req.query.fim || '2100-12-31';
+
+        const [[{ total_animais }]] = await db.query('SELECT COUNT(*) AS total_animais FROM animal');
+        
+        const [[{ total_aplicadas }]] = await db.query(
+            'SELECT COUNT(*) AS total_aplicadas FROM registro_vacinacao WHERE status = "APLICADA" AND data_aplicacao BETWEEN ? AND ?',
+            [inicio, fim]
+        );
+        
+        const [[{ total_atrasadas }]] = await db.query(
+            'SELECT COUNT(*) AS total_atrasadas FROM registro_vacinacao WHERE status = "ATRASADA"'
+        );
+
+        const [topVacinas] = await db.query(`
+            SELECT v.nome_vacina, COUNT(rv.id_registro) AS quantidade
+            FROM registro_vacinacao rv
+            JOIN vacina v ON rv.id_vacina = v.id_vacina
+            WHERE rv.status = 'APLICADA' AND rv.data_aplicacao BETWEEN ? AND ?
+            GROUP BY v.id_vacina, v.nome_vacina
+            ORDER BY quantidade DESC
+            LIMIT 5
+        `, [inicio, fim]);
+
+        const [evolucaoMensal] = await db.query(`
+            SELECT DATE_FORMAT(rv.data_aplicacao, '%Y-%m') AS mes, COUNT(rv.id_registro) AS quantidade
+            FROM registro_vacinacao rv
+            WHERE rv.status = 'APLICADA' AND rv.data_aplicacao BETWEEN ? AND ?
+            GROUP BY mes
+            ORDER BY mes ASC
+        `, [inicio, fim]);
+
+        res.status(200).json({ total_animais, total_aplicadas, total_atrasadas, topVacinas, evolucaoMensal });
+    } catch (error) {
+        res.status(500).json({ erro: 'Erro ao obter metricas detalhadas' });
+    }
+});
+
+app.get('/gestor/relatorios-avancados', async (req, res) => {
+    try {
+        const dataInicio = req.query.inicio || '2000-01-01';
+        const dataFim = req.query.fim || '2100-12-31';
+        const id_vacina = req.query.vacina || '';
+        const especie = req.query.especie || '';
+        const bairro = req.query.bairro || '';
+        const status = req.query.status || '';
+
+        let query = `
+            SELECT rv.data_aplicacao, rv.data_proxima_dose, rv.status, v.nome_vacina, 
+                   a.nome as nome_animal, a.especie, a.raca, 
+                   t.nome_completo as nome_tutor, t.bairro, t.cidade, t.telefone
+            FROM registro_vacinacao rv
+            JOIN vacina v ON rv.id_vacina = v.id_vacina
+            JOIN animal a ON rv.id_animal = a.id_animal
+            JOIN tutor t ON a.id_tutor = t.id_tutor
+            WHERE (rv.data_aplicacao BETWEEN ? AND ? OR rv.data_proxima_dose BETWEEN ? AND ?)
+        `;
+        const params = [dataInicio, dataFim, dataInicio, dataFim];
+
+        if (id_vacina) {
+            query += ` AND rv.id_vacina = ?`;
+            params.push(id_vacina);
+        }
+        if (especie) {
+            query += ` AND a.especie = ?`;
+            params.push(especie);
+        }
+        if (bairro) {
+            query += ` AND t.bairro LIKE ?`;
+            params.push(`%${bairro}%`);
+        }
+        if (status) {
+            query += ` AND rv.status = ?`;
+            params.push(status);
+        }
+
+        query += ` ORDER BY rv.data_aplicacao DESC, rv.data_proxima_dose DESC`;
+
+        const [relatorio] = await db.query(query, params);
+        res.status(200).json(relatorio);
+    } catch (error) {
+        res.status(500).json({ erro: 'Erro ao gerar relatório avançado' });
     }
 });
 

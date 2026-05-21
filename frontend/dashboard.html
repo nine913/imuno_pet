@@ -14,6 +14,8 @@
         .btn-vet:hover { background-color: #218838; }
         .btn-tutor { background-color: #17a2b8; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 16px; margin-right: 10px; margin-top: 10px; font-weight: bold; }
         .btn-tutor:hover { background-color: #138496; }
+        .btn-gestor { background-color: #6610f2; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 16px; margin-right: 10px; margin-top: 10px; font-weight: bold; }
+        .btn-gestor:hover { background-color: #520dc2; }
     </style>
 </head>
 <body>
@@ -26,7 +28,6 @@
         <h1 id="boasVindas">Carregando...</h1>
         
         <div id="areaTutor" style="display: none;">
-            <div id="areaAlertas" style="margin-top: 10px;"></div>
             <h2>Painel do Tutor</h2>
             <p>Acesse as informações dos seus animais e carteiras de vacinação:</p>
             <button class="btn-tutor" onclick="window.location.href='tutor/tutor-animais.html'">Meus Pets e Vacinas</button>
@@ -41,28 +42,39 @@
             <button class="btn-vet" onclick="window.location.href='veterinario/vet-relatorio.html'" style="background-color: #17a2b8;">Relatório de Vacinação</button>
             <button class="btn-vet" onclick="window.location.href='veterinario/vet-atrasados.html'" style="background-color: #dc3545;">Vacinas Atrasadas</button>
         </div>
+
+    <div id="areaGestor" style="display: none;">
+            <h2>Painel do Gestor</h2>
+            <p>Visão estratégica e administrativa da clínica:</p>
+            <button class="btn-gestor" onclick="window.location.href='gestor/gestor-dashboard.html'">Visão Geral (Métricas)</button>
+            <button class="btn-gestor" onclick="window.location.href='gestor/gestor-relatorios.html'" style="background-color: #520dc2;">Relatórios Avançados</button>
+        </div>
     </div>
 
     <script>
-        const usuarioString = localStorage.getItem('usuarioImunoPet');
-        
-        if (!usuarioString) {
-            window.location.href = 'index.html';
-        } else {
-            const usuario = JSON.parse(usuarioString);
-            document.getElementById('boasVindas').textContent = `Bem-vindo! Você está logado como: ${usuario.perfil}`;
+       const usuarioString = localStorage.getItem('usuarioImunoPet');
 
-            if (usuario.perfil === 'TUTOR') {
-                document.getElementById('areaTutor').style.display = 'block';
-            } else if (usuario.perfil === 'VETERINARIO') {
-                document.getElementById('areaVeterinario').style.display = 'block';
-            }
-        }
+if (!usuarioString) {
+    window.location.href = 'index.html';
+} else {
+    const usuario = JSON.parse(usuarioString);
+    document.getElementById('boasVindas').textContent = `Bem-vindo! Você está logado como: ${usuario.perfil}`;
 
-        document.getElementById('btnSair').addEventListener('click', () => {
-            localStorage.removeItem('usuarioImunoPet');
-            window.location.href = 'index.html';
-        });
+    const perfilUsuario = usuario.perfil.toUpperCase();
+
+    if (perfilUsuario === 'TUTOR') {
+        document.getElementById('areaTutor').style.display = 'block';
+    } else if (perfilUsuario === 'VETERINARIO') {
+        document.getElementById('areaVeterinario').style.display = 'block';
+    } else if (perfilUsuario === 'GESTOR' || perfilUsuario === 'GESTOR_CLINICA') {
+        document.getElementById('areaGestor').style.display = 'block';
+    }
+}
+
+document.getElementById('btnSair').addEventListener('click', () => {
+    localStorage.removeItem('usuarioImunoPet');
+    window.location.href = 'index.html';
+});
     </script>
 </body>
 </html>

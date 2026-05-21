@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatórios Avançados - Gestor</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; margin: 0; padding: 20px; }
+        .container { max-width: 1200px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); }
+        h2, h3 { color: #000000; }
+        input[type="date"], input[type="text"], select { padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; width: 100%; }
+        button { padding: 10px 15px; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 5px; }
+        .btn-primario { background-color: #274aaa; }
+        .btn-primario:hover { background-color: #000000; }
+        .btn-voltar { background-color: #6c757d; }
+        .btn-voltar:hover { background-color: #5a6268; }
+        .btn-pdf { background-color: #17a2b8; font-weight: bold; }
+        .filtros { display: flex; gap: 15px; background-color: #e9ecef; padding: 20px; border-radius: 8px; margin-bottom: 20px; align-items: flex-end; flex-wrap: wrap; }
+        .filtro-item { flex: 1; min-width: 150px; }
+        .tabela-relatorio { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
+        .tabela-relatorio th, .tabela-relatorio td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        .tabela-relatorio th { background-color: #234ebb; color: white; }
+        .tabela-relatorio tr:nth-child(even) { background-color: #f2f2f2; }
+        
+        @media print {
+            body { background-color: white; padding: 0; }
+            .container { box-shadow: none; padding: 0; max-width: 100%; }
+            .nao-imprimir, .filtros { display: none !important; }
+            .tabela-relatorio { font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nao-imprimir" style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+            <button class="btn-voltar" onclick="window.location.href='../dashboard.html'" style="margin: 0;">Voltar ao Painel</button>
+            <button class="btn-pdf" onclick="baixarPDF()" style="margin: 0;">📄 Exportar PDF</button>
+        </div>
+        
+        <div id="area-relatorio">
+            <h2>Relatório Gerencial de Vacinação</h2>
+            
+            <div class="filtros" data-html2canvas-ignore="true">
+                <div class="filtro-item">
+                    <label>Data Início:</label>
+                    <input type="date" id="filtro_inicio">
+                </div>
+                <div class="filtro-item">
+                    <label>Data Fim:</label>
+                    <input type="date" id="filtro_fim">
+                </div>
+                <div class="filtro-item">
+                    <label>Status:</label>
+                    <select id="filtro_status">
+                        <option value="">Todos</option>
+                        <option value="APLICADA">Aplicada</option>
+                        <option value="PENDENTE">Pendente</option>
+                        <option value="ATRASADA">Atrasada</option>
+                    </select>
+                </div>
+                <div class="filtro-item">
+                    <label>Vacina:</label>
+                    <select id="filtro_vacina">
+                        <option value="">Todas</option>
+                    </select>
+                </div>
+                <div class="filtro-item">
+                    <label>Espécie:</label>
+                    <select id="filtro_especie">
+                        <option value="">Todas</option>
+                        <option value="Cachorro">Cachorro</option>
+                        <option value="Gato">Gato</option>
+                        <option value="Outro">Outro</option>
+                    </select>
+                </div>
+                <div class="filtro-item">
+                    <label>Localidade (Bairro):</label>
+                    <input type="text" id="filtro_bairro" placeholder="Ex: Centro">
+                </div>
+                <button id="btnFiltrar" class="btn-primario" style="height: 38px; margin-bottom: 1px;">Gerar</button>
+            </div>
+
+            <div style="background-color: #28a745; color: white; padding: 15px; border-radius: 8px; text-align: center;">
+                <h2 id="totalResultados" style="margin: 0; color: white;">0 Registros Encontrados</h2>
+            </div>
+
+            <table class="tabela-relatorio">
+                <thead>
+                    <tr>
+                        <th>Data (App/Venc)</th>
+                        <th>Status</th>
+                        <th>Vacina</th>
+                        <th>Paciente (Raça)</th>
+                        <th>Espécie</th>
+                        <th>Tutor</th>
+                        <th>Telefone</th>
+                        <th>Localidade</th>
+                    </tr>
+                </thead>
+                <tbody id="corpoTabela">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script src="gestor-relatorios.js"></script>
+</body>
+</html>
