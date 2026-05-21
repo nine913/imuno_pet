@@ -1,5 +1,4 @@
 const usuarioString = localStorage.getItem('usuarioImunoPet');
-
 if (!usuarioString) {
     window.location.href = 'index.html';
 } else {
@@ -28,36 +27,43 @@ document.getElementById('estado').addEventListener('input', function (e) {
     e.target.value = e.target.value.replace(/[^a-zA-Z]/g, "").toUpperCase();
 });
 
-document.getElementById('cadastroForm').addEventListener('submit', async (event) => {
+document.getElementById('formCadastroTutorPet').addEventListener('submit', async (event) => {
     event.preventDefault();
 
-    const nome_completo = document.getElementById('nome_completo').value;
-    const cpf = document.getElementById('cpf').value;
-    const telefone = document.getElementById('telefone').value;
-    const email = document.getElementById('emailCad').value;
-    const senha = document.getElementById('senhaCad').value;
-    const estado = document.getElementById('estado').value;
-    const cidade = document.getElementById('cidade').value;
-    const bairro = document.getElementById('bairro').value;
-    const divMensagem = document.getElementById('mensagemCadastro');
+    const payload = {
+        nome_completo: document.getElementById('nome_completo').value,
+        cpf: document.getElementById('cpf').value,
+        email: document.getElementById('email').value,
+        senha: document.getElementById('senha').value,
+        telefone: document.getElementById('telefone').value,
+        estado: document.getElementById('estado').value,
+        cidade: document.getElementById('cidade').value,
+        bairro: document.getElementById('bairro').value,
+        
+        nome_animal: document.getElementById('nome_animal').value,
+        especie: document.getElementById('especie').value,
+        raca: document.getElementById('raca').value,
+        data_nascimento: document.getElementById('data_nascimento').value
+    };
+
+    const divMensagem = document.getElementById('mensagem');
 
     try {
-        const resposta = await fetch('http://localhost:3000/cadastro', {
+        const resposta = await fetch('http://localhost:3000/cadastrar-tutor-pet', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                nome_completo, cpf, telefone, email, senha, estado, cidade, bairro
-            })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
         });
 
         const dados = await resposta.json();
 
         if (resposta.ok) {
             divMensagem.style.color = 'green';
-            divMensagem.textContent = 'Tutor cadastrado com sucesso!';
-            document.getElementById('cadastroForm').reset();
+            divMensagem.textContent = dados.mensagem;
+            document.getElementById('formCadastroTutorPet').reset();
+            setTimeout(() => {
+                window.location.href = 'vet-tutores.html';
+            }, 2000);
         } else {
             divMensagem.style.color = 'red';
             divMensagem.textContent = dados.erro;

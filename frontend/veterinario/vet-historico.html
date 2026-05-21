@@ -7,14 +7,18 @@
     <style>
         body { font-family: Arial, sans-serif; background-color: #f4f4f9; margin: 0; padding: 20px; }
         .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        h2, h3 { color: #0056b3; }
-        input[type="text"] { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        h2, h3 { color: #0056b3; margin-top: 0; }
+        input[type="text"], input[type="date"], select { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         button { padding: 10px 15px; background-color: #0056b3; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 5px; }
         button:hover { background-color: #004494; }
         .btn-voltar { background-color: #6c757d; margin-bottom: 20px; }
         .btn-voltar:hover { background-color: #5a6268; }
+        .btn-acao { background-color: #28a745; width: 100%; }
+        .btn-acao:hover { background-color: #218838; }
         .historico-item { border-bottom: 1px solid #eee; padding: 15px 0; display: flex; justify-content: space-between; align-items: center; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 10; }
+        .modal-content { background: white; padding: 25px; border-radius: 8px; width: 450px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .area-vazia-cadastro { background-color: #e9ecef; padding: 20px; border-radius: 8px; margin-top: 20px; display: none; }
     </style>
 </head>
 <body>
@@ -23,12 +27,63 @@
         
         <h2 id="tituloPet">Histórico de Vacinas</h2>
         
-        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <div id="barraPesquisaHistorico" style="display: flex; gap: 10px; margin-bottom: 20px;">
             <input type="text" id="termoBuscaHistorico" placeholder="Pesquisar por nome da vacina ou status (Ex: Raiva, PENDENTE)">
             <button id="btnBuscarHistorico">Pesquisar</button>
         </div>
 
         <div id="conteudoHistorico"></div>
+
+        <div id="areaCadastroVazio" class="area-vazia-cadastro">
+            <h3>Nenhuma vacina encontrada. Cadastrar primeira vacina:</h3>
+            <form id="formVacinaVazio">
+                <label>Vacina:</label>
+                <select id="selectVacinaVazio" required></select>
+
+                <label>Status:</label>
+                <select id="statusVacinaVazio" required>
+                    <option value="APLICADA">Aplicada</option>
+                    <option value="PENDENTE">Agendada (Pendente)</option>
+                </select>
+
+                <label>Data de Aplicação (se já aplicada):</label>
+                <input type="date" id="data_aplicacao_vazio">
+
+                <label>Data da Próxima Dose / Vencimento:</label>
+                <input type="date" id="data_proxima_dose_vazio" required>
+
+                <button type="submit" class="btn-acao">Salvar Vacina</button>
+            </form>
+            <div id="mensagemVazio" style="text-align: center; font-weight: bold; margin-top: 10px;"></div>
+        </div>
+    </div>
+
+    <div id="modalEditarRegistro" class="modal">
+        <div class="modal-content">
+            <h3>Editar Registro de Vacinação</h3>
+            <form id="formEditarRegistro">
+                <input type="hidden" id="edit_id_registro">
+                
+                <label>Vacina:</label>
+                <select id="selectVacinaEditar" required></select>
+
+                <label>Status:</label>
+                <select id="statusVacinaEditar" required>
+                    <option value="APLICADA">Aplicada</option>
+                    <option value="PENDENTE">Agendada (Pendente)</option>
+                </select>
+
+                <label>Data de Aplicação (se já aplicada):</label>
+                <input type="date" id="data_aplicacao_editar">
+
+                <label>Data da Próxima Dose / Vencimento:</label>
+                <input type="date" id="data_proxima_dose_editar" required>
+
+                <button type="submit" class="btn-acao">Atualizar Registro</button>
+                <button type="button" onclick="fecharModalEditar()" style="background-color: #6c757d; width: 100%; margin-top: 5px;">Cancelar</button>
+            </form>
+            <div id="mensagemEditar" style="text-align: center; font-weight: bold; margin-top: 10px;"></div>
+        </div>
     </div>
 
     <div id="modalConfirmacaoRegistro" class="modal">

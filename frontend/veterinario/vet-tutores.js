@@ -138,6 +138,10 @@ function fecharModalExclusao() {
     document.getElementById('modalConfirmacao').style.display = 'none';
 }
 
+function fecharModalErroExclusao() {
+    document.getElementById('modalErroExclusao').style.display = 'none';
+}
+
 document.getElementById('btnConfirmarExclusao').addEventListener('click', async () => {
     if (!tutorParaExcluir) return;
 
@@ -151,9 +155,14 @@ document.getElementById('btnConfirmarExclusao').addEventListener('click', async 
             const termo = document.getElementById('termoBusca').value;
             realizarBusca(termo);
         } else {
-            alert('Erro ao excluir tutor.');
+            const dados = await resposta.json();
+            fecharModalExclusao();
+            document.getElementById('mensagemErroExclusao').textContent = dados.erro || 'Erro: tutor não pode ser excluído.';
+            document.getElementById('modalErroExclusao').style.display = 'flex';
         }
     } catch (erro) {
-        alert('Erro ao conectar com o servidor.');
+        fecharModalExclusao();
+        document.getElementById('mensagemErroExclusao').textContent = 'Erro ao conectar com o servidor.';
+        document.getElementById('modalErroExclusao').style.display = 'flex';
     }
 });

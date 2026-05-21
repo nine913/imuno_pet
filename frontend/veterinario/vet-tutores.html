@@ -56,13 +56,23 @@
         </div>
     </div>
 
-    <div id="modalConfirmacao" class="modal">
+   <div id="modalConfirmacao" class="modal">
         <div class="modal-content modal-content-small">
             <h3 style="color: #dc3545; margin-top: 0;">Atenção!</h3>
             <p>Deseja excluir este tutor? Isso apagará a conta dele, todos os seus animais e registros de vacina.</p>
             <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
                 <button id="btnConfirmarExclusao" style="background-color: #dc3545; color: white; width: auto; padding: 10px 20px;">Sim, Excluir</button>
                 <button onclick="fecharModalExclusao()" style="background-color: #6c757d; color: white; width: auto; padding: 10px 20px;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalErroExclusao" class="modal">
+        <div class="modal-content modal-content-small">
+            <h3 style="color: #dc3545; margin-top: 0;">Erro na Exclusão</h3>
+            <p id="mensagemErroExclusao">O tutor não pode ser excluído.</p>
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+                <button onclick="fecharModalErroExclusao()" style="background-color: #6c757d; color: white; width: auto; padding: 10px 20px;">Fechar</button>
             </div>
         </div>
     </div>

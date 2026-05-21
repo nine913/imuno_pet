@@ -9,34 +9,34 @@ if (!usuarioString) {
     }
 }
 
-const selectTipoDose = document.getElementById('tipo_dose');
-const inputIntervalo = document.getElementById('intervalo_doses_dias');
+const editSelectTipoDose = document.getElementById('edit_tipo_dose');
+const editInputIntervalo = document.getElementById('edit_intervalo_dose_dias');
 
-selectTipoDose.addEventListener('change', function() {
+editSelectTipoDose.addEventListener('change', function() {
     if (this.value === 'intervalo') {
-        inputIntervalo.style.display = 'block';
-        inputIntervalo.required = true;
+        editInputIntervalo.style.display = 'block';
+        editInputIntervalo.required = true;
     } else {
-        inputIntervalo.style.display = 'none';
-        inputIntervalo.required = false;
-        inputIntervalo.value = '';
+        editInputIntervalo.style.display = 'none';
+        editInputIntervalo.required = false;
+        editInputIntervalo.value = '';
     }
 });
 
-inputIntervalo.addEventListener('input', function (e) {
+editInputIntervalo.addEventListener('input', function (e) {
     e.target.value = e.target.value.replace(/\D/g, "");
 });
 
-async function carregarListaVacinas() {
+async function realizarBusca(termo = '') {
     const divResultados = document.getElementById('listaVacinas');
     try {
-        const resposta = await fetch('http://localhost:3000/vacinas');
+        const resposta = await fetch(`http://localhost:3000/vacinas?termo=${termo}`);
         const vacinas = await resposta.json();
         
         divResultados.innerHTML = '';
 
         if (vacinas.length === 0) {
-            divResultados.innerHTML = '<p>Nenhuma vacina cadastrada.</p>';
+            divResultados.innerHTML = '<p>Nenhuma vacina encontrada.</p>';
             return;
         }
 
@@ -45,7 +45,7 @@ async function carregarListaVacinas() {
             card.className = 'resultado-card';
             
             const vacinaString = encodeURIComponent(JSON.stringify(v));
-            const textoIntervalo = v.intervalo_doses_dias > 0 ? `${v.intervalo_doses_dias} dias` : 'Dose Única';
+            const textoIntervalo = v.intervalo_dose_dias > 0 ? `${v.intervalo_dose_dias} dias` : 'Dose Única';
 
             card.innerHTML = `
                 <div style="flex: 1;">
@@ -56,81 +56,75 @@ async function carregarListaVacinas() {
                     </span>
                 </div>
                 <div style="display: flex; gap: 10px; flex-direction: column;">
-                    <button onclick="editarVacina('${vacinaString}')" style="background-color: #ffc107; color: #333;">Editar</button>
+                    <button onclick="abrirModalEditar('${vacinaString}')" style="background-color: #ffc107; color: #333;">Editar Vacina</button>
                     <button onclick="abrirModalExclusao(${v.id_vacina})" style="background-color: #dc3545; color: white;">Excluir</button>
                 </div>
             `;
             divResultados.appendChild(card);
         });
     } catch (erro) {
-        divResultados.innerHTML = '<p style="color:red;">Erro ao carregar a lista.</p>';
+        divResultados.innerHTML = '<p style="color:red;">Erro ao buscar vacinas.</p>';
     }
 }
 
-window.addEventListener('DOMContentLoaded', carregarListaVacinas);
+document.getElementById('btnBuscar').addEventListener('click', () => {
+    const termo = document.getElementById('termoBusca').value;
+    realizarBusca(termo);
+});
 
-function editarVacina(vacinaDados) {
+window.addEventListener('DOMContentLoaded', () => {
+    realizarBusca();
+});
+
+function abrirModalEditar(vacinaDados) {
     const vacina = JSON.parse(decodeURIComponent(vacinaDados));
     
-    document.getElementById('id_vacina').value = vacina.id_vacina;
-    document.getElementById('nome_vacina').value = vacina.nome_vacina;
-    document.getElementById('doencas_prevenidas').value = vacina.doencas_prevenidas;
-    document.getElementById('fabricante').value = vacina.fabricante;
+    document.getElementById('edit_id_vacina').value = vacina.id_vacina;
+    document.getElementById('edit_nome_vacina').value = vacina.nome_vacina;
+    document.getElementById('edit_doencas_prevenidas').value = vacina.doencas_prevenidas;
+    document.getElementById('edit_fabricante').value = vacina.fabricante;
 
-    if (vacina.intervalo_doses_dias > 0) {
-        selectTipoDose.value = 'intervalo';
-        inputIntervalo.style.display = 'block';
-        inputIntervalo.required = true;
-        inputIntervalo.value = vacina.intervalo_doses_dias;
+    if (vacina.intervalo_dose_dias > 0) {
+        editSelectTipoDose.value = 'intervalo';
+        editInputIntervalo.style.display = 'block';
+        editInputIntervalo.required = true;
+        editInputIntervalo.value = vacina.intervalo_dose_dias;
     } else {
-        selectTipoDose.value = 'unica';
-        inputIntervalo.style.display = 'none';
-        inputIntervalo.required = false;
-        inputIntervalo.value = '';
+        editSelectTipoDose.value = 'unica';
+        editInputIntervalo.style.display = 'none';
+        editInputIntervalo.required = false;
+        editInputIntervalo.value = '';
     }
 
-    document.getElementById('tituloFormulario').textContent = 'Editar Vacina';
-    document.getElementById('btnSalvar').textContent = 'Atualizar Vacina';
-    document.getElementById('btnCancelarEdicao').style.display = 'inline-block';
-    
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.getElementById('mensagemEditar').textContent = '';
+    document.getElementById('modalEditar').style.display = 'flex';
 }
 
-function cancelarEdicao() {
-    document.getElementById('formVacina').reset();
-    document.getElementById('id_vacina').value = '';
-    document.getElementById('tituloFormulario').textContent = 'Cadastrar Nova Vacina';
-    document.getElementById('btnSalvar').textContent = 'Salvar Vacina';
-    document.getElementById('btnCancelarEdicao').style.display = 'none';
-    
-    inputIntervalo.style.display = 'none';
-    inputIntervalo.required = false;
+function fecharModalEditar() {
+    document.getElementById('modalEditar').style.display = 'none';
 }
 
-document.getElementById('formVacina').addEventListener('submit', async (event) => {
+document.getElementById('formEditarVacina').addEventListener('submit', async (event) => {
     event.preventDefault();
 
-    const id_vacina = document.getElementById('id_vacina').value;
-    const nome_vacina = document.getElementById('nome_vacina').value;
-    const doencas_prevenidas = document.getElementById('doencas_prevenidas').value;
-    const fabricante = document.getElementById('fabricante').value;
-    const tipo_dose = document.getElementById('tipo_dose').value;
+    const id_vacina = document.getElementById('edit_id_vacina').value;
+    const nome_vacina = document.getElementById('edit_nome_vacina').value;
+    const doencas_prevenidas = document.getElementById('edit_doencas_prevenidas').value;
+    const fabricante = document.getElementById('edit_fabricante').value;
+    const tipo_dose = document.getElementById('edit_tipo_dose').value;
     
-    let intervalo_doses_dias = 0;
+    let intervalo_dose_dias = 0;
     if (tipo_dose === 'intervalo') {
-        intervalo_doses_dias = document.getElementById('intervalo_doses_dias').value;
+        intervalo_dose_dias = document.getElementById('edit_intervalo_dose_dias').value;
     }
 
-    const divMensagem = document.getElementById('mensagemFormulario');
-    
-    const url = id_vacina ? `http://localhost:3000/editar-vacina/${id_vacina}` : 'http://localhost:3000/cadastrar-vacina';
-    const metodo = id_vacina ? 'PUT' : 'POST';
+    const divMensagem = document.getElementById('mensagemEditar');
 
     try {
-        const resposta = await fetch(url, {
-            method: metodo,
+        const resposta = await fetch(`http://localhost:3000/editar-vacina/${id_vacina}`, {
+            method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nome_vacina, doencas_prevenidas, fabricante, intervalo_doses_dias })
+            body: JSON.stringify({ nome_vacina, doencas_prevenidas, fabricante, intervalo_dose_dias })
         });
 
         const dados = await resposta.json();
@@ -138,19 +132,18 @@ document.getElementById('formVacina').addEventListener('submit', async (event) =
         if (resposta.ok) {
             divMensagem.style.color = 'green';
             divMensagem.textContent = dados.mensagem;
-            cancelarEdicao();
-            carregarListaVacinas();
-            
             setTimeout(() => {
-                divMensagem.textContent = '';
-            }, 3000);
+                fecharModalEditar();
+                const termo = document.getElementById('termoBusca').value;
+                realizarBusca(termo);
+            }, 1500);
         } else {
             divMensagem.style.color = 'red';
             divMensagem.textContent = dados.erro;
         }
     } catch (erro) {
         divMensagem.style.color = 'red';
-        divMensagem.textContent = 'Erro ao conectar com o servidor.';
+        divMensagem.textContent = 'Erro ao salvar alterações.';
     }
 });
 
@@ -176,11 +169,8 @@ document.getElementById('btnConfirmarExclusao').addEventListener('click', async 
 
         if (resposta.ok) {
             fecharModalExclusao();
-            carregarListaVacinas();
-            
-            if (document.getElementById('id_vacina').value == vacinaParaExcluir) {
-                cancelarEdicao();
-            }
+            const termo = document.getElementById('termoBusca').value;
+            realizarBusca(termo);
         } else {
             alert('Erro ao excluir vacina.');
         }

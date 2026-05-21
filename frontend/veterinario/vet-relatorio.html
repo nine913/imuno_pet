@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório de Vacinação - ImunoPet Brasil</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; margin: 0; padding: 20px; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h2, h3 { color: #0056b3; }
+        input[type="date"] { padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; width: 100%; }
+        button { padding: 10px 15px; background-color: #0056b3; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 5px; }
+        button:hover { background-color: #004494; }
+        .btn-voltar { background-color: #6c757d; margin-bottom: 20px; }
+        .btn-voltar:hover { background-color: #5a6268; }
+        .filtros { display: flex; gap: 15px; background-color: #e9ecef; padding: 20px; border-radius: 8px; margin-bottom: 20px; align-items: flex-end; }
+        .filtro-item { flex: 1; }
+        .card-resumo { background-color: #28a745; color: white; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px; }
+        .card-resumo h1 { margin: 0; font-size: 48px; }
+        .card-resumo p { margin: 5px 0 0 0; font-size: 18px; }
+        .tabela-relatorio { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .tabela-relatorio th, .tabela-relatorio td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        .tabela-relatorio th { background-color: #0056b3; color: white; }
+        .tabela-relatorio tr:nth-child(even) { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="btn-voltar" onclick="window.location.href='../dashboard.html'">Voltar ao Painel</button>
+        
+        <h2>Relatório de Vacinas Aplicadas</h2>
+        
+        <div class="filtros">
+            <div class="filtro-item">
+                <label>Data Inicial:</label>
+                <input type="date" id="data_inicio">
+            </div>
+            <div class="filtro-item">
+                <label>Data Final:</label>
+                <input type="date" id="data_fim">
+            </div>
+            <button id="btnGerarRelatorio" style="flex: 1; height: 40px; margin-bottom: 1px;">Gerar Relatório</button>
+        </div>
+
+        <div class="card-resumo">
+            <h1 id="totalGeral">0</h1>
+            <p>Total de Vacinas Aplicadas no Período</p>
+        </div>
+
+        <table class="tabela-relatorio">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Vacina</th>
+                    <th>Pet</th>
+                    <th>Espécie</th>
+                    <th>Tutor</th>
+                </tr>
+            </thead>
+            <tbody id="corpoTabela">
+            </tbody>
+        </table>
+    </div>
+
+    <script src="vet-relatorio.js"></script>
+</body>
+</html>

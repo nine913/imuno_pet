@@ -295,6 +295,12 @@ app.delete('/deletar-tutor/:id_tutor', async (req, res) => {
     try {
         const { id_tutor } = req.params;
         
+        const [animais] = await db.query('SELECT COUNT(*) AS total FROM animal WHERE id_tutor = ?', [id_tutor]);
+        
+        if (animais[0].total > 0) {
+            return res.status(400).json({ erro: 'Não é possível excluir. Este tutor possui animais vinculados.' });
+        }
+
         const [tutor] = await db.query('SELECT id_usuario FROM tutor WHERE id_tutor = ?', [id_tutor]);
         
         if (tutor.length === 0) {
@@ -303,12 +309,10 @@ app.delete('/deletar-tutor/:id_tutor', async (req, res) => {
         
         const id_usuario = tutor[0].id_usuario;
 
-        await db.query('DELETE FROM registro_vacinacao WHERE id_animal IN (SELECT id_animal FROM animal WHERE id_tutor = ?)', [id_tutor]);
-        await db.query('DELETE FROM animal WHERE id_tutor = ?', [id_tutor]);
         await db.query('DELETE FROM tutor WHERE id_tutor = ?', [id_tutor]);
         await db.query('DELETE FROM usuario WHERE id_usuario = ?', [id_usuario]);
 
-        res.status(200).json({ mensagem: 'Tutor e todos os seus vínculos foram excluídos!' });
+        res.status(200).json({ mensagem: 'Tutor excluído com sucesso!' });
     } catch (error) {
         res.status(500).json({ erro: 'Erro ao excluir tutor' });
     }
@@ -316,7 +320,12 @@ app.delete('/deletar-tutor/:id_tutor', async (req, res) => {
 
 app.get('/vacinas', async (req, res) => {
     try {
-        const [vacinas] = await db.query('SELECT id_vacina, nome_vacina, doencas_prevenidas, fabricante, intervalo_doses_dias FROM vacina');
+        const termo = req.query.termo ? `%${req.query.termo}%` : '%';
+        const [vacinas] = await db.query(`
+            SELECT id_vacina, nome_vacina, doencas_prevenidas, fabricante, intervalo_dose_dias 
+            FROM vacina 
+            WHERE nome_vacina LIKE ? OR doencas_prevenidas LIKE ? OR fabricante LIKE ?
+        `, [termo, termo, termo]);
         res.status(200).json(vacinas);
     } catch (error) {
         res.status(500).json({ erro: 'Erro ao buscar vacinas' });
@@ -382,18 +391,76 @@ app.get('/relatorio-vacinas', async (req, res) => {
         const dataFim = req.query.fim || '2100-12-31';
 
         const [relatorio] = await db.query(`
-            SELECT v.nome_vacina, COUNT(rv.id_registro) as quantidade
+            SELECT v.nome_vacina, rv.data_aplicacao, a.nome as nome_animal, a.especie, t.nome_completo as nome_tutor
             FROM registro_vacinacao rv
             JOIN vacina v ON rv.id_vacina = v.id_vacina
+            JOIN animal a ON rv.id_animal = a.id_animal
+            JOIN tutor t ON a.id_tutor = t.id_tutor
             WHERE rv.status = 'APLICADA' 
             AND rv.data_aplicacao BETWEEN ? AND ?
-            GROUP BY v.id_vacina, v.nome_vacina
-            ORDER BY quantidade DESC
+            ORDER BY rv.data_aplicacao DESC
         `, [dataInicio, dataFim]);
 
         res.status(200).json(relatorio);
     } catch (error) {
         res.status(500).json({ erro: 'Erro ao gerar relatório' });
+    }
+});
+
+app.put('/editar-registro-vacina/:id_registro', async (req, res) => {
+    try {
+        const { id_registro } = req.params;
+        const { id_vacina, status, data_aplicacao, data_proxima_dose } = req.body;
+        
+        await db.query(`
+            UPDATE registro_vacinacao 
+            SET id_vacina = ?, status = ?, data_aplicacao = ?, data_proxima_dose = ? 
+            WHERE id_registro = ?
+        `, [id_vacina, status, data_aplicacao, data_proxima_dose, id_registro]);
+        
+        res.status(200).json({ mensagem: 'Registro de vacina atualizado com sucesso!' });
+    } catch (error) {
+        res.status(500).json({ erro: 'Erro ao atualizar registro de vacina' });
+    }
+});
+
+app.post('/cadastrar-tutor-pet', async (req, res) => {
+    try {
+        const { 
+            nome_completo, cpf, email, senha, telefone, estado, cidade, bairro,
+            nome_animal, especie, raca, data_nascimento
+        } = req.body;
+
+        const [usuarioExistente] = await db.query('SELECT * FROM usuario WHERE email = ?', [email]);
+        if (usuarioExistente.length > 0) {
+            return res.status(400).json({ erro: 'E-mail já cadastrado!' });
+        }
+
+        const [cpfExistente] = await db.query('SELECT * FROM tutor WHERE cpf = ?', [cpf]);
+        if (cpfExistente.length > 0) {
+            return res.status(400).json({ erro: 'CPF já cadastrado!' });
+        }
+
+        const [resultUsuario] = await db.query(
+            'INSERT INTO usuario (email, senha, perfil) VALUES (?, ?, "TUTOR")', 
+            [email, senha]
+        );
+        const id_usuario = resultUsuario.insertId;
+
+        const [resultTutor] = await db.query(
+            'INSERT INTO tutor (id_usuario, nome_completo, cpf, telefone, estado, cidade, bairro) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [id_usuario, nome_completo, cpf, telefone, estado, cidade, bairro]
+        );
+        const id_tutor = resultTutor.insertId;
+
+        await db.query(
+            'INSERT INTO animal (id_tutor, nome, especie, raca, data_nascimento) VALUES (?, ?, ?, ?, ?)',
+            [id_tutor, nome_animal, especie, raca, data_nascimento]
+        );
+
+        res.status(201).json({ mensagem: 'Tutor e Pet cadastrados com sucesso!' });
+    } catch (error) {
+        res.status(500).json({ erro: 'Erro ao cadastrar tutor e pet no sistema.' });
     }
 });
 
