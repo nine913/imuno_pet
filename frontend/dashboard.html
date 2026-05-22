@@ -43,38 +43,46 @@
             <button class="btn-vet" onclick="window.location.href='veterinario/vet-atrasados.html'" style="background-color: #dc3545;">Vacinas Atrasadas</button>
         </div>
 
-    <div id="areaGestor" style="display: none;">
+   <div id="areaGestor" style="display: none;">
             <h2>Painel do Gestor</h2>
             <p>Visão estratégica e administrativa da clínica:</p>
             <button class="btn-gestor" onclick="window.location.href='gestor/gestor-dashboard.html'">Visão Geral (Métricas)</button>
-            <button class="btn-gestor" onclick="window.location.href='gestor/gestor-relatorios.html'" style="background-color: #520dc2;">Relatórios Avançados</button>
+            <button class="btn-gestor" onclick="window.location.href='gestor/gestor-relatorios.html'" style="background-color: #274aaa;">Relatórios Avançados</button>
+        </div>
+
+        <div id="areaOrgao" style="display: none;">
+            <h2>Painel Governamental (Vigilância Sanitária)</h2>
+            <p>Monitoramento epidemiológico e controle de endemias por região:</p>
+            <button class="btn-org" onclick="window.location.href='orgao/orgao-dashboard.html'" style="background-color: #fd7e14;">Painel Epidemiológico</button>
         </div>
     </div>
 
     <script>
-       const usuarioString = localStorage.getItem('usuarioImunoPet');
+        const usuarioString = localStorage.getItem('usuarioImunoPet');
+        
+        if (!usuarioString) {
+            window.location.href = 'index.html';
+        } else {
+            const usuario = JSON.parse(usuarioString);
+            document.getElementById('boasVindas').textContent = `Bem-vindo! Você está logado como: ${usuario.perfil}`;
 
-if (!usuarioString) {
-    window.location.href = 'index.html';
-} else {
-    const usuario = JSON.parse(usuarioString);
-    document.getElementById('boasVindas').textContent = `Bem-vindo! Você está logado como: ${usuario.perfil}`;
+            const perfilUsuario = usuario.perfil.toUpperCase();
 
-    const perfilUsuario = usuario.perfil.toUpperCase();
+            if (perfilUsuario === 'TUTOR') {
+                document.getElementById('areaTutor').style.display = 'block';
+            } else if (perfilUsuario === 'VETERINARIO') {
+                document.getElementById('areaVeterinario').style.display = 'block';
+            } else if (perfilUsuario === 'GESTOR' || perfilUsuario === 'GESTOR_CLINICA') {
+                document.getElementById('areaGestor').style.display = 'block';
+            } else if (perfilUsuario === 'GOVERNO' || perfilUsuario === 'ORGAO_GOVERNAMENTAL') {
+                document.getElementById('areaOrgao').style.display = 'block';
+            }
+        }
 
-    if (perfilUsuario === 'TUTOR') {
-        document.getElementById('areaTutor').style.display = 'block';
-    } else if (perfilUsuario === 'VETERINARIO') {
-        document.getElementById('areaVeterinario').style.display = 'block';
-    } else if (perfilUsuario === 'GESTOR' || perfilUsuario === 'GESTOR_CLINICA') {
-        document.getElementById('areaGestor').style.display = 'block';
-    }
-}
-
-document.getElementById('btnSair').addEventListener('click', () => {
-    localStorage.removeItem('usuarioImunoPet');
-    window.location.href = 'index.html';
-});
+        document.getElementById('btnSair').addEventListener('click', () => {
+            localStorage.removeItem('usuarioImunoPet');
+            window.location.href = 'index.html';
+        });
     </script>
 </body>
 </html>

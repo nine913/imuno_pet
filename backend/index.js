@@ -621,6 +621,34 @@ app.get('/gestor/relatorios-avancados', async (req, res) => {
     }
 });
 
+app.get('/orgao/dados-epidemiologicos', async (req, res) => {
+    try {
+        const [riscoRegiao] = await db.query(`
+            SELECT t.bairro, t.cidade,
+                   SUM(CASE WHEN rv.status = 'APLICADA' THEN 1 ELSE 0 END) as total_aplicadas,
+                   SUM(CASE WHEN rv.status = 'ATRASADA' THEN 1 ELSE 0 END) as total_atrasadas
+            FROM registro_vacinacao rv
+            JOIN animal a ON rv.id_animal = a.id_animal
+            JOIN tutor t ON a.id_tutor = t.id_tutor
+            GROUP BY t.cidade, t.bairro
+            ORDER BY total_atrasadas DESC
+        `);
+
+        const [coberturaEspecie] = await db.query(`
+            SELECT a.especie, COUNT(rv.id_registro) as total_vacinados
+            FROM registro_vacinacao rv
+            JOIN animal a ON rv.id_animal = a.id_animal
+            WHERE rv.status = 'APLICADA'
+            GROUP BY a.especie
+            ORDER BY total_vacinados DESC
+        `);
+
+        res.status(200).json({ riscoRegiao, coberturaEspecie });
+    } catch (error) {
+        res.status(500).json({ erro: 'Erro ao buscar dados epidemiológicos' });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
