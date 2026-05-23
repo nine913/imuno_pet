@@ -10,12 +10,15 @@
         .navbar button { background-color: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
         .navbar button:hover { background-color: #c82333; }
         .content { margin-top: 20px; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .btn-vet { background-color: #28a745; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 16px; margin-right: 10px; margin-top: 10px; }
+        .btn-vet { background-color: #28a745; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 16px; margin-right: 10px; margin-top: 10px; font-weight: bold; }
         .btn-vet:hover { background-color: #218838; }
         .btn-tutor { background-color: #17a2b8; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 16px; margin-right: 10px; margin-top: 10px; font-weight: bold; }
         .btn-tutor:hover { background-color: #138496; }
         .btn-gestor { background-color: #6610f2; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 16px; margin-right: 10px; margin-top: 10px; font-weight: bold; }
         .btn-gestor:hover { background-color: #520dc2; }
+        .btn-governo { background-color: #fd7e14; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 16px; margin-right: 10px; margin-top: 10px; font-weight: bold; }
+        .btn-governo:hover { background-color: #eaa75a; }
+
     </style>
 </head>
 <body>
@@ -53,9 +56,9 @@
         <div id="areaOrgao" style="display: none;">
             <h2>Painel Governamental (Vigilância Sanitária)</h2>
             <p>Monitoramento epidemiológico e controle de endemias por região:</p>
-            <button class="btn-org" onclick="window.location.href='orgao/orgao-dashboard.html'" style="background-color: #fd7e14;">Painel Epidemiológico</button>
+            <button class="btn-governo" onclick="window.location.href='governo/governo-dashboard.html'">Monitoramento Epidemiológico</button>
+            <button class="btn-governo" onclick="window.location.href='governo/governo-relatorios.html'" style="background-color: #274aaa;">Relatórios Avançados</button>
         </div>
-    </div>
 
     <script>
         const usuarioString = localStorage.getItem('usuarioImunoPet');
@@ -74,7 +77,7 @@
                 document.getElementById('areaVeterinario').style.display = 'block';
             } else if (perfilUsuario === 'GESTOR' || perfilUsuario === 'GESTOR_CLINICA') {
                 document.getElementById('areaGestor').style.display = 'block';
-            } else if (perfilUsuario === 'GOVERNO' || perfilUsuario === 'ORGAO_GOVERNAMENTAL') {
+            } else if (perfilUsuario === 'GOVERNO') {
                 document.getElementById('areaOrgao').style.display = 'block';
             }
         }
@@ -83,6 +86,6 @@
             localStorage.removeItem('usuarioImunoPet');
             window.location.href = 'index.html';
         });
-    </script>
+</script>
 </body>
 </html>

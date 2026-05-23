@@ -16,9 +16,11 @@
         .btn-voltar { background-color: #6c757d; margin-bottom: 20px; }
         .btn-voltar:hover { background-color: #5a6268; }
         .resultado-card { border: 1px solid #ccc; padding: 15px; border-radius: 8px; margin-top: 15px; background-color: #fdfdfd; display: flex; justify-content: space-between; align-items: center; }
-        #modalVacina { display: none; background-color: #e9ecef; padding: 20px; border-radius: 8px; margin-top: 20px; }
+        .modal-content { display: none; background-color: #e9ecef; padding: 20px; border-radius: 8px; margin-top: 20px; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
         #mensagem { font-weight: bold; margin-top: 10px; text-align: center; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+        .grid-2 { display: flex; gap: 15px; }
+        .grid-2 > div { flex: 1; }
     </style>
 </head>
 <body>
@@ -26,9 +28,9 @@
         <button class="btn-voltar" onclick="window.location.href='../dashboard.html'">Voltar ao Painel</button>
         
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-    <h2 style="margin: 0;">Buscar Animal</h2>
-    <button onclick="window.location.href='vet-cadastrar-pet.html'" style="background-color: #28a745; width: auto; margin: 0; padding: 10px 20px;">+ Cadastrar Novo Pet</button>
-</div>
+            <h2 style="margin: 0;">Buscar Animal</h2>
+            <button onclick="window.location.href='vet-cadastrar-pet.html'" style="background-color: #28a745; width: auto; margin: 0; padding: 10px 20px;">+ Cadastrar Novo Pet</button>
+        </div>
         
         <div style="display: flex; gap: 10px; flex-direction: column; background-color: #e9ecef; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
             <div style="display: flex; gap: 10px;">
@@ -49,10 +51,41 @@
 
         <div id="listaResultados"></div>
 
-        <div id="modalVacina">
-            <h3 id="tituloPetSelecionado">Registrar Vacina para: </h3>
+        <div id="modalEditar" class="modal-content">
+            <h3>✏️ Editar Dados do Paciente e Tutor</h3>
+            <form id="formEditarAnimal">
+                <input type="hidden" id="edit_id_animal">
+                <input type="hidden" id="edit_id_tutor">
+                
+                <h4 style="margin-bottom: 0;">Dados do Pet</h4>
+                <div class="grid-2">
+                    <div><input type="text" id="edit_nome_animal" placeholder="Nome do Pet" required></div>
+                    <div><input type="date" id="edit_data_nascimento" required></div>
+                </div>
+                <div class="grid-2">
+                    <div><input type="text" id="edit_especie" placeholder="Espécie (ex: Cachorro)" required></div>
+                    <div><input type="text" id="edit_raca" placeholder="Raça" required></div>
+                </div>
+
+                <h4 style="margin-bottom: 0;">Dados de Contato do Tutor</h4>
+                <input type="text" id="edit_telefone" placeholder="Telefone do Tutor" required>
+                <div class="grid-2">
+                    <div><input type="text" id="edit_estado" placeholder="Estado (UF)" required></div>
+                    <div><input type="text" id="edit_cidade" placeholder="Cidade" required></div>
+                    <div><input type="text" id="edit_bairro" placeholder="Bairro" required></div>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button type="submit" class="btn-acao">Salvar Alterações</button>
+                    <button type="button" class="btn-voltar" style="margin: 0;" onclick="fecharModais()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+
+        <div id="modalVacina" class="modal-content">
+            <h3 id="tituloPetSelecionado">💉 Registrar Vacina</h3>
             <form id="formVacina">
-                <input type="hidden" id="id_animal_selecionado">
+                <input type="hidden" id="vacina_id_animal">
                 
                 <label>Vacina:</label>
                 <select id="selectVacina" required>
@@ -65,25 +98,32 @@
                     <option value="PENDENTE">Agendada (Pendente)</option>
                 </select>
 
+                <label id="labelVeterinario" style="display: block;">Veterinário Aplicante:</label>
+                <select id="selectVeterinario" style="display: block;" required>
+                    <option value="">Selecione quem aplicou...</option>
+                </select>
+
                 <label>Data de Aplicação (se já aplicada):</label>
-                <input type="date" id="data_aplicacao">
+                <input type="date" id="data_aplicacao" required>
 
                 <label>Data da Próxima Dose / Vencimento:</label>
                 <input type="date" id="data_proxima_dose" required>
 
-                <button type="submit" class="btn-acao">Salvar Registro</button>
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button type="submit" class="btn-acao">Salvar Registro</button>
+                    <button type="button" class="btn-voltar" style="margin: 0;" onclick="fecharModais()">Cancelar</button>
+                </div>
             </form>
             <div id="mensagem"></div>
         </div>
-    </div>
 
-    <div id="modalConfirmacao" class="modal">
+    <div id="modalConfirmacao" class="modal-overlay">
         <div style="background: white; padding: 20px; border-radius: 8px; text-align: center; width: 300px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
             <h3 style="color: #dc3545; margin-top: 0;">Atenção!</h3>
             <p>Tem certeza que deseja excluir este animal e todo o seu histórico de vacinas?</p>
             <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
-                <button id="btnConfirmarExclusao" style="background-color: #dc3545; color: white; width: auto; padding: 10px 20px;">Sim, Excluir</button>
-                <button onclick="fecharModalExclusao()" style="background-color: #6c757d; color: white; width: auto; padding: 10px 20px;">Cancelar</button>
+                <button id="btnConfirmarExclusao" style="background-color: #dc3545; color: white; width: auto; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">Sim, Excluir</button>
+                <button onclick="fecharModalExclusao()" style="background-color: #6c757d; color: white; width: auto; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">Cancelar</button>
             </div>
         </div>
     </div>

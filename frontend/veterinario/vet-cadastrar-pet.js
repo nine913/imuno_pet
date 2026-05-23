@@ -26,8 +26,6 @@ async function carregarTutores() {
     }
 }
 
-carregarTutores();
-
 document.getElementById('cadastroPetForm').addEventListener('submit', async (event) => {
     event.preventDefault();
 
@@ -63,4 +61,15 @@ document.getElementById('cadastroPetForm').addEventListener('submit', async (eve
         divMensagem.style.color = 'red';
         divMensagem.textContent = 'Erro ao conectar com o servidor.';
     }
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+    const dataHoje = new Date().toISOString().split('T')[0];
+    const campoNascimento = document.getElementById('data_nascimento');
+    
+    if (campoNascimento) {
+        campoNascimento.setAttribute('max', dataHoje);
+    }
+    
+    carregarTutores();
 });

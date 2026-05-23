@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Geral - ImunoPet Brasil</title>
+    <title>Dashboard do Gestor - ImunoPet Brasil</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: Arial, sans-serif; background-color: #f4f4f9; margin: 0; padding: 20px; }
@@ -11,63 +11,67 @@
         h2, h3 { color: #000000; margin-top: 0; }
         .btn-voltar { background-color: #6c757d; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-bottom: 20px; }
         .btn-voltar:hover { background-color: #5a6268; }
-        .filtros-dashboard { display: flex; gap: 15px; background-color: #e9ecef; padding: 15px; border-radius: 8px; margin-bottom: 25px; align-items: flex-end; }
-        .filtro-item { flex: 1; }
+        
+        .filtros-dashboard { display: flex; gap: 15px; background-color: #e9ecef; padding: 15px; border-radius: 8px; margin-bottom: 25px; align-items: flex-end; flex-wrap: wrap; }
+        .filtro-item { flex: 1; min-width: 150px; }
         .filtro-item label { display: block; font-size: 14px; font-weight: bold; color: #333; margin-bottom: 5px; }
-        .filtros-dashboard input[type="date"] { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        .btn-filtrar { padding: 9px 20px; background-color: #1a49bf; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        .btn-filtrar:hover { background-color: #36968b; }
-        .dashboard-grid { display: flex; gap: 20px; margin-bottom: 30px; flex-wrap: wrap; }
-        .card { flex: 1; min-width: 220px; padding: 20px; border-radius: 8px; color: white; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .card h3 { margin: 0; font-size: 15px; text-transform: uppercase; letter-spacing: 0.5px; color: white; }
-        .card h1 { margin: 10px 0 0 0; font-size: 38px; }
-        .bg-azul { background-color: #0056b3; }
-        .bg-verde { background-color: #28a745; }
-        .bg-vermelho { background-color: #dc3545; }
-        .charts-container { display: flex; gap: 25px; flex-wrap: wrap; }
-        .chart-box { flex: 1; min-width: 450px; background-color: #fdfdfd; border: 1px solid #e3e3e3; padding: 20px; border-radius: 8px; box-sizing: border-box; }
+        .filtros-dashboard input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .btn-filtrar { padding: 9px 20px; background-color: #0056b3; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; height: 35px; }
+        
+        .kpi-grid { display: flex; gap: 20px; margin-bottom: 25px; flex-wrap: wrap; }
+        .kpi-card { flex: 1; min-width: 200px; padding: 20px; border-radius: 8px; color: white; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .kpi-card h3 { margin: 0; font-size: 14px; text-transform: uppercase; color: white; }
+        .kpi-card h1 { margin: 10px 0 0 0; font-size: 36px; }
+
+        .layout-grid { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; }
+        .box { flex: 1; min-width: 350px; background-color: #fdfdfd; border: 1px solid #e3e3e3; padding: 20px; border-radius: 8px; box-sizing: border-box; }
     </style>
 </head>
 <body>
     <div class="container">
         <button class="btn-voltar" onclick="window.location.href='../dashboard.html'">Voltar ao Painel</button>
-        <h2>Métricas Gerais da Clínica</h2>
         
+        <h2>Visão Estratégica da Clínica</h2>
+
         <div class="filtros-dashboard">
             <div class="filtro-item">
                 <label>Data Início:</label>
-                <input type="date" id="dash_inicio">
+                <input type="date" id="filtro_inicio">
             </div>
             <div class="filtro-item">
                 <label>Data Fim:</label>
-                <input type="date" id="dash_fim">
+                <input type="date" id="filtro_fim">
             </div>
-            <button class="btn-filtrar" id="btnFiltrarDashboard">Aplicar Filtro</button>
+            <button class="btn-filtrar" id="btnFiltrarGestor">Filtrar Período</button>
+        </div>
+        
+        <div class="kpi-grid">
+            <div class="kpi-card" style="background-color: #007bff;">
+                <h3>Total de Vacinas Aplicadas</h3>
+                <h1 id="kpiAplicadas">0</h1>
+            </div>
+            <div class="kpi-card" style="background-color: #ffc107; color: #333;">
+                <h3 style="color: #333;">Doses Pendentes (Agendadas)</h3>
+                <h1 id="kpiPendentes">0</h1>
+            </div>
+            <div class="kpi-card" style="background-color: #dc3545;">
+                <h3>Doses Atrasadas</h3>
+                <h1 id="kpiAtrasadas">0</h1>
+            </div>
+            <div class="kpi-card" style="background-color: #28a745;">
+                <h3>Pacientes Atendidos</h3>
+                <h1 id="kpiAnimais">0</h1>
+            </div>
         </div>
 
-        <div class="dashboard-grid">
-            <div class="card bg-azul">
-                <h3>Total de Pacientes</h3>
-                <h1 id="metricaAnimais">0</h1>
+        <div class="layout-grid">
+            <div class="box" style="flex: 2;">
+                <h3>Evolução de Atendimentos</h3>
+                <canvas id="chartEvolucaoGestor"></canvas>
             </div>
-            <div class="card bg-verde">
-                <h3>Vacinas Aplicadas no Período</h3>
-                <h1 id="metricaAplicadas">0</h1>
-            </div>
-            <div class="card bg-vermelho">
-                <h3>Doses Atuais em Atraso</h3>
-                <h1 id="metricaAtrasadas">0</h1>
-            </div>
-        </div>
-
-        <div class="charts-container">
-            <div class="chart-box">
-                <h3>Ranking: Vacinas Mais Aplicadas</h3>
-                <canvas id="chartTopVacinas"></canvas>
-            </div>
-            <div class="chart-box">
-                <h3>Sazonalidade: Evolução Mensal de Atendimentos</h3>
-                <canvas id="chartEvolucaoMensal"></canvas>
+            <div class="box">
+                <h3>Vacinas Mais Aplicadas</h3>
+                <canvas id="chartTopVacinasGestor"></canvas>
             </div>
         </div>
     </div>
