@@ -1,6 +1,7 @@
 # REGRAS DE NEGÓCIO — IMUNOPET BRASIL
 
 ## AUTENTICAÇÃO
+
 - [x] Todo usuário deve possuir e-mail único
 - [x] Toda senha deve ser armazenada com hash bcrypt
 - [x] Usuários devem possuir perfil definido
@@ -12,6 +13,7 @@
 ---
 
 ## PERFIS DE USUÁRIO
+
 - [x] Cada usuário possui apenas um perfil principal
 - [x] O perfil define permissões do sistema
 - [x] Tutores podem visualizar apenas seus próprios pets
@@ -24,6 +26,7 @@
 ---
 
 ## TUTORES
+
 - [x] Todo tutor deve possuir CPF único
 - [x] Todo tutor deve estar vinculado a um usuário
 - [x] Um tutor pode possuir múltiplos animais
@@ -34,6 +37,7 @@
 ---
 
 ## ANIMAIS
+
 - [x] Todo animal deve possuir tutor vinculado
 - [x] Todo animal deve possuir nome
 - [x] Todo animal deve possuir espécie cadastrada
@@ -45,6 +49,7 @@
 ---
 
 ## VACINAS
+
 - [x] Toda vacina deve possuir nome
 - [x] Toda vacina deve possuir fabricante
 - [x] Vacinas possuem intervalo de doses
@@ -57,12 +62,14 @@
 ---
 
 ## REGISTRO VACINAL
+
 - [x] Registro vacinal deve estar vinculado a um animal
 - [x] Registro vacinal deve estar vinculado a uma vacina
 - [x] Registro vacinal pode estar vinculado a veterinário
 - [x] Status permitido atualmente:
   - APLICADA
   - PENDENTE
+  - ATRASADA
 - [ ] Data da aplicação não pode ser futura
 - [ ] Próxima dose deve respeitar intervalo da vacina
 - [ ] Histórico vacinal não deve ser perdido
@@ -70,6 +77,7 @@
 ---
 
 ## DASHBOARD
+
 - [x] Dashboard deve variar conforme perfil
 - [x] Tutor visualiza seus pets
 - [x] Tutor visualiza histórico vacinal
@@ -80,6 +88,7 @@
 ---
 
 ## BUSCAS
+
 - [x] Sistema permite busca por nome do animal
 - [x] Sistema permite busca por CPF
 - [x] Sistema permite busca por nome do tutor
@@ -89,9 +98,12 @@
 ---
 
 ## BANCO DE DADOS
+
 - [x] Sistema utiliza modelagem relacional
 - [x] Entidades devem possuir chave primária
 - [x] Relacionamentos devem ser mantidos
+- [x] Tabelas `clinica` e `orgao_governamental` previstas no modelo
+- [x] Dados iniciais de seed em `database/script.sql`
 - [ ] Foreign keys devem ser revisadas
 - [ ] Integridade relacional deve ser fortalecida
 - [ ] Constraints devem ser implementadas
@@ -99,6 +111,7 @@
 ---
 
 ## SEGURANÇA
+
 - [x] Consultas SQL devem ser parametrizadas
 - [x] Variáveis sensíveis devem permanecer no .env
 - [x] Senhas não devem ser armazenadas em texto puro
@@ -109,6 +122,7 @@
 ---
 
 ## ESCALABILIDADE
+
 - [ ] Sistema deverá suportar múltiplas clínicas
 - [ ] Sistema deverá suportar expansão institucional
 - [ ] Estrutura deverá permitir dashboards analíticos
@@ -118,6 +132,7 @@
 ---
 
 ## REGRAS FUTURAS
+
 - [ ] Sistema enviará notificações vacinais
 - [ ] Sistema possuirá calendário vacinal
 - [ ] Sistema permitirá relatórios epidemiológicos

@@ -1,6 +1,7 @@
 # BACKLOG — IMUNOPET BRASIL
 
 ## BACKEND
+
 - [ ] Separar rotas do index.js
 - [ ] Criar controllers
 - [ ] Criar services
@@ -17,6 +18,7 @@
 ---
 
 ## FRONTEND
+
 - [ ] Organizar páginas por módulos
 - [ ] Separar CSS do HTML
 - [ ] Criar arquivo global de configuração API
@@ -31,6 +33,7 @@
 ---
 
 ## BANCO DE DADOS
+
 - [ ] Validar foreign keys
 - [ ] Criar constraints
 - [ ] Criar índices de busca
@@ -42,6 +45,7 @@
 ---
 
 ## AUTENTICAÇÃO E SEGURANÇA
+
 - [ ] Implementar JWT
 - [ ] Criar proteção de rotas
 - [ ] Implementar autorização por perfil
@@ -53,6 +57,7 @@
 ---
 
 ## FUNCIONALIDADES
+
 - [x] Cadastro de tutor
 - [x] Cadastro de pet
 - [x] Cadastro de vacina
@@ -60,8 +65,8 @@
 - [x] Histórico vacinal
 - [x] Dashboard inicial
 - [x] Busca de animais
-- [ ] Relatórios vacinais
-- [ ] Dashboard analítico
+- [x] Relatórios vacinais
+- [x] Dashboard analítico
 - [ ] Cobertura vacinal
 - [ ] Estatísticas vacinais
 - [ ] Notificações de vacinação
@@ -71,12 +76,13 @@
 ---
 
 ## ORGANIZAÇÃO DO SISTEMA
+
 - [x] Criar roadmap
 - [x] Criar documentação técnica
 - [x] Criar labels do GitHub
 - [x] Organizar GitHub Projects
-- [ ] Criar documentação de funcionalidades
-- [ ] Criar regras de negócio
+- [x] Criar documentação de funcionalidades
+- [x] Criar regras de negócio
 - [ ] Criar padronização de commits
 - [ ] Criar fluxo de versionamento
 - [ ] Melhorar organização do repositório
@@ -84,6 +90,7 @@
 ---
 
 ## TESTES
+
 - [ ] Testar endpoints da API
 - [ ] Testar autenticação
 - [ ] Testar cadastro de pets
@@ -96,11 +103,12 @@
 ---
 
 ## MELHORIAS FUTURAS
+
 - [ ] Dashboard administrativo
 - [ ] Sistema de notificações
 - [ ] Integração entre clínicas
-- [ ] Relatórios epidemiológicos
+- [x] Relatórios epidemiológicos
 - [ ] Controle de campanhas vacinais
-- [ ] Painel governamental
+- [x] Painel governamental
 - [ ] Estatísticas regionais
 - [ ] Integração mobile futura

@@ -1,6 +1,7 @@
 # FUNCIONALIDADES — IMUNOPET BRASIL
 
 ## AUTENTICAÇÃO
+
 - [x] Login de usuários
 - [x] Validação de senha com bcrypt
 - [x] Controle básico por perfil
@@ -13,64 +14,70 @@
 ---
 
 ## PERFIS DE USUÁRIOS
-- [x] Perfil ADMINISTRADOR
+
+- [ ] Perfil ADMINISTRADOR
 - [x] Perfil TUTOR
 - [x] Perfil VETERINARIO
 - [x] Perfil GESTOR_CLINICA
 - [x] Perfil GOVERNO
 - [ ] Controle avançado de permissões
-- [ ] Painéis específicos por perfil
+- [x] Painéis específicos por perfil
 
 ---
 
 ## TUTORES
+
 - [x] Cadastro de tutor
 - [x] Consulta de tutor
 - [x] Associação tutor-animal
-- [ ] Edição completa de tutor
-- [ ] Exclusão de tutor
+- [x] Edição completa de tutor
+- [x] Exclusão de tutor
 - [ ] Histórico completo do tutor
 
 ---
 
 ## ANIMAIS
+
 - [x] Cadastro de pets
 - [x] Busca de animais
 - [x] Consulta de detalhes do animal
 - [x] Edição de pet
 - [x] Associação tutor-pet
-- [ ] Exclusão de animal
+- [x] Exclusão de animal
 - [ ] Foto do animal
 - [ ] Histórico completo do pet
 
 ---
 
 ## VACINAS
+
 - [x] Cadastro de vacinas
 - [x] Registro vacinal
 - [x] Histórico vacinal
 - [x] Controle de status da vacina
 - [x] Próxima dose
-- [ ] Atualização de vacina
-- [ ] Exclusão de vacina
+- [x] Atualização de vacina
+- [x] Exclusão de vacina
 - [ ] Controle automático de vencimento
 - [ ] Alertas vacinais
 
 ---
 
 ## DASHBOARD
+
 - [x] Dashboard do tutor
 - [x] Dashboard do veterinário
 - [x] Visualização de pets
 - [x] Visualização de vacinas
 - [ ] Dashboard administrativo
-- [ ] Dashboard analítico
-- [ ] Dashboard governamental
+- [x] Dashboard analítico
+- [x] Dashboard governamental
 - [ ] Estatísticas em tempo real
 
 ---
 
 ## BUSCAS
+
 - [x] Busca de animais
 - [x] Busca por nome
 - [x] Busca por CPF
@@ -83,17 +90,19 @@
 ---
 
 ## RELATÓRIOS
-- [ ] Relatório vacinal
+
+- [x] Relatório vacinal
 - [ ] Relatório por tutor
 - [ ] Relatório por animal
 - [ ] Relatório institucional
 - [ ] Cobertura vacinal
-- [ ] Relatórios epidemiológicos
-- [ ] Estatísticas vacinais
+- [x] Relatórios epidemiológicos
+- [x] Estatísticas vacinais
 
 ---
 
 ## SISTEMA VETERINÁRIO
+
 - [x] Cadastro de tutores
 - [x] Cadastro de pets
 - [x] Registro de vacinação
@@ -106,16 +115,18 @@
 ---
 
 ## SISTEMA GOVERNAMENTAL
+
 - [x] Estrutura inicial de órgão governamental
-- [ ] Painel governamental
+- [x] Painel governamental
 - [ ] Controle regional
-- [ ] Estatísticas epidemiológicas
+- [x] Estatísticas epidemiológicas
 - [ ] Controle de campanhas vacinais
 - [ ] Cobertura vacinal regional
 
 ---
 
 ## FUNCIONALIDADES FUTURAS
+
 - [ ] Sistema de notificações
 - [ ] Calendário vacinal
 - [ ] Alertas automáticos

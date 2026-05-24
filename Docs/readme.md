@@ -1,6 +1,7 @@
 # IMUNOPET BRASIL
 
 ## VISÃO GERAL
+
 - [x] Plataforma de gestão vacinal veterinária
 - [x] Sistema acadêmico em desenvolvimento
 - [x] Controle de vacinação animal
@@ -11,6 +12,7 @@
 ---
 
 ## OBJETIVO DO SISTEMA
+
 - [x] Centralizar informações vacinais de animais
 - [x] Facilitar controle de vacinação
 - [x] Auxiliar clínicas veterinárias
@@ -23,6 +25,7 @@
 ## TECNOLOGIAS UTILIZADAS
 
 ### BACKEND
+
 - [x] Node.js
 - [x] Express
 - [x] MySQL2
@@ -31,11 +34,13 @@
 - [x] cors
 
 ### FRONTEND
+
 - [x] HTML5
 - [x] CSS3
 - [x] JavaScript Vanilla
 
 ### BANCO DE DADOS
+
 - [x] MySQL
 
 ---
@@ -64,7 +69,20 @@ IMUNOPET-BRASIL/
 │   ├── index.html
 │   ├── administrador/
 │   ├── governo/
+│   │   ├── governo-dashboard.html
+│   │   ├── governo-dashboard.js
+│   │   ├── governo-relatorios.html
+│   │   └── governo-relatorios.js
+│   ├── gestor/
+│   │   ├── gestor-dashboard.html
+│   │   ├── gestor-dashboard.js
+│   │   ├── gestor-relatorios.html
+│   │   └── gestor-relatorios.js
 │   ├── tutor/
+│   │   ├── tutor-animais.html
+│   │   ├── tutor-animais.js
+│   │   ├── tutor-historico.html
+│   │   └── tutor-historico.js
 │   ├── usuario/
 │   └── veterinario/
 │       ├── vet-buscar.html
@@ -92,9 +110,12 @@ IMUNOPET-BRASIL/
 
 ```
 
+- Nota: o diretório `frontend/administrador/` existe como placeholder, mas não contém páginas implementadas.
+
 ---
 
 ## FUNCIONALIDADES IMPLEMENTADAS
+
 - [x] Login de usuários
 - [x] Cadastro de tutores
 - [x] Cadastro de pets
@@ -104,12 +125,16 @@ IMUNOPET-BRASIL/
 - [x] Busca de animais
 - [x] Dashboard do tutor
 - [x] Dashboard do veterinário
+- [x] Dashboard do gestor
+- [x] Dashboard do governo
+- [x] Relatórios gerenciais
 - [x] Persistência de sessão
 
 ---
 
 ## PERFIS DO SISTEMA
-- [x] ADMINISTRADOR
+
+- [ ] ADMINISTRADOR (em planejamento)
 - [x] TUTOR
 - [x] VETERINARIO
 - [x] GESTOR_CLINICA
@@ -130,7 +155,7 @@ npm install
 
 ### Arrumar as senhas
 
-```
+```bash
 node arrumar-senha.js
 ```
 
@@ -163,6 +188,7 @@ npm start
 ---
 
 ## CONFIGURAÇÃO DO BANCO DE DADOS
+
 - [x] Criar banco MySQL
 - [x] Executar script.sql
 - [x] Importar modelagem .mwb opcionalmente
@@ -173,28 +199,56 @@ npm start
 ## ENDPOINTS PRINCIPAIS
 
 ### AUTENTICAÇÃO
+
 - [x] POST /login
 - [x] POST /cadastro
 
+### TUTOR
+
+- [x] GET /tutor/animais/:id_usuario
+- [x] GET /tutor/alertas/:id_usuario
+- [x] POST /cadastrar-tutor-pet
+
 ### PETS
-- [x] GET /meus-pets/:id_usuario
+
 - [x] POST /cadastrar-pet
 - [x] GET /buscar-animais
 - [x] GET /detalhes-animal/:id_animal
 - [x] PUT /editar-pet-tutor/:id_animal
+- [x] DELETE /deletar-animal/:id_animal
 
-### VACINAS
+### VACINAS E REGISTROS
+
 - [x] GET /vacinas
-- [x] GET /vacinas-pet/:id_animal
-- [x] POST /registrar-vacina
 - [x] POST /cadastrar-vacina
+- [x] PUT /editar-vacina/:id_vacina
+- [x] DELETE /deletar-vacina/:id_vacina
+- [x] POST /registrar-vacina
+- [x] GET /historico-pet/:id_animal
+- [x] DELETE /deletar-registro-vacina/:id_registro
+- [x] PUT /editar-registro-vacina/:id_registro
+- [x] GET /animais-atrasados
 
-### TUTORES
+### TUTORES E USUÁRIOS
+
 - [x] GET /tutores
+- [x] GET /listar-tutores
+- [x] PUT /editar-tutor-dados/:id_tutor
+- [x] DELETE /deletar-tutor/:id_tutor
+
+### RELATÓRIOS E DASHBOARDS
+
+- [x] GET /relatorio-vacinas
+- [x] GET /veterinarios
+- [x] GET /gestor/dados-dashboard
+- [x] GET /gestor/relatorios-avancados
+- [x] GET /governo/dados-epidemiologicos
+- [x] GET /governo/relatorios-avancados
 
 ---
 
 ## SEGURANÇA
+
 - [x] Senhas criptografadas com bcrypt
 - [x] SQL parametrizado
 - [x] Variáveis sensíveis no .env
@@ -205,6 +259,7 @@ npm start
 ---
 
 ## DOCUMENTAÇÃO
+
 - [x] roadmap.md
 - [x] backlog.md
 - [x] arquitetura.md
@@ -215,20 +270,22 @@ npm start
 ---
 
 ## ROADMAP FUTURO
+
 - [ ] Modularização do backend
 - [ ] Modularização do frontend
 - [ ] JWT
-- [ ] Dashboard analítico
-- [ ] Relatórios vacinais
+- [x] Dashboard analítico
+- [x] Relatórios vacinais
 - [ ] Cobertura vacinal
 - [ ] Notificações automáticas
 - [ ] Calendário vacinal
-- [ ] Painel governamental
+- [x] Painel governamental
 - [ ] Aplicação mobile
 
 ---
 
 ## ESTADO ATUAL DO PROJETO
+
 - [x] MVP funcional
 - [x] Backend operacional
 - [x] Frontend operacional
@@ -241,6 +298,7 @@ npm start
 ---
 
 ## CONSIDERAÇÕES FINAIS
+
 - [x] Projeto acadêmico em evolução
 - [x] Estrutura preparada para expansão
 - [x] Base sólida para continuidade

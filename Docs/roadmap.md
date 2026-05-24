@@ -1,6 +1,7 @@
 # ROADMAP — IMUNOPET BRASIL
 
 ## FASE 1 — Estrutura Inicial
+
 - [x] Criar banco de dados
 - [x] Criar modelagem relacional
 - [x] Criar backend inicial
@@ -13,6 +14,7 @@
 ---
 
 ## FASE 2 — Funcionalidades Base
+
 - [x] Cadastro de tutores
 - [x] Cadastro de pets
 - [x] Cadastro de vacinas
@@ -26,6 +28,7 @@
 ---
 
 ## FASE 3 — Consolidação do MVP
+
 - [x] Estruturar fluxo tutor
 - [x] Estruturar fluxo veterinário
 - [x] Implementar persistência local
@@ -38,6 +41,7 @@
 ---
 
 ## FASE 4 — Organização Arquitetural
+
 - [x] Organizar GitHub Projects
 - [x] Criar labels do GitHub
 - [x] Criar documentação técnica
@@ -53,6 +57,7 @@
 ---
 
 ## FASE 5 — Refatoração Estrutural
+
 - [ ] Separar rotas
 - [ ] Criar controllers
 - [ ] Criar services
@@ -65,6 +70,7 @@
 ---
 
 ## FASE 6 — Segurança
+
 - [x] Hash de senha com bcrypt
 - [x] SQL parametrizado
 - [x] Uso de .env
@@ -77,11 +83,12 @@
 ---
 
 ## FASE 7 — Melhorias Funcionais
+
 - [ ] Dashboard administrativo
-- [ ] Dashboard governamental
-- [ ] Relatórios vacinais
+- [x] Dashboard governamental
+- [x] Relatórios vacinais
 - [ ] Cobertura vacinal
-- [ ] Estatísticas vacinais
+- [x] Estatísticas vacinais
 - [ ] Calendário vacinal
 - [ ] Alertas automáticos
 - [ ] Sistema de notificações
@@ -89,16 +96,18 @@
 ---
 
 ## FASE 8 — Expansão Institucional
+
 - [ ] Integração entre clínicas
 - [ ] Controle regional
-- [ ] Painel epidemiológico
-- [ ] Relatórios governamentais
+- [x] Painel epidemiológico
+- [x] Relatórios governamentais
 - [ ] Estatísticas regionais
 - [ ] Gestão de campanhas vacinais
 
 ---
 
 ## FASE 9 — Escalabilidade
+
 - [ ] Estrutura pronta para mobile
 - [ ] APIs padronizadas
 - [ ] Melhor performance do sistema
@@ -110,6 +119,7 @@
 ---
 
 ## FASE 10 — Futuro do Sistema
+
 - [ ] Aplicação mobile
 - [ ] Inteligência analítica
 - [ ] Automação vacinal

@@ -1,18 +1,23 @@
 # ARQUITETURA — IMUNOPET BRASIL
 
 ## FASE 1 — Arquitetura Atual
+
 - [x] Estrutura frontend em HTML/CSS/JS
 - [x] Backend em Node.js + Express
 - [x] Banco de dados MySQL
 - [x] API REST básica
 - [x] Integração frontend/backend
+- [x] Dashboards de gestor e governo com gráficos
 - [x] Sistema de autenticação inicial
 - [x] Pool de conexão MySQL
+- [x] Conexão de banco separada em `backend/db.js`
 - [x] Uso de variáveis de ambiente (.env)
+- [x] Seed de dados em `database/script.sql`
 
 ---
 
 ## FASE 2 — Estrutura do Backend
+
 - [ ] Modularizar rotas
 - [ ] Criar controllers
 - [ ] Criar services
@@ -25,6 +30,7 @@
 ---
 
 ## FASE 3 — Estrutura do Frontend
+
 - [ ] Organizar páginas por módulos
 - [ ] Separar CSS do HTML
 - [ ] Criar configuração global da API
@@ -36,8 +42,10 @@
 ---
 
 ## FASE 4 — Estrutura do Banco de Dados
+
 - [x] Modelagem relacional inicial
 - [x] Relacionamento entre entidades
+- [x] Tabelas `clinica` e `orgao_governamental` previstas no modelo
 - [ ] Validar foreign keys
 - [ ] Criar constraints
 - [ ] Criar índices de busca
@@ -47,6 +55,7 @@
 ---
 
 ## FASE 5 — Fluxo de Comunicação
+
 - [x] Comunicação frontend → backend
 - [x] Comunicação backend → banco
 - [x] Retorno JSON da API
@@ -57,6 +66,7 @@
 ---
 
 ## FASE 6 — Segurança Arquitetural
+
 - [x] Hash de senha com bcrypt
 - [x] SQL parametrizado
 - [x] Uso de variáveis de ambiente
@@ -69,6 +79,7 @@
 ---
 
 ## FASE 7 — Modularização e Escalabilidade
+
 - [ ] Separação completa de responsabilidades
 - [ ] Redução de acoplamento
 - [ ] Estrutura preparada para crescimento
@@ -80,6 +91,7 @@
 ---
 
 ## FASE 8 — Arquitetura Futura Planejada
+
 - [ ] Backend totalmente modular
 - [ ] Frontend modularizado
 - [ ] APIs padronizadas
