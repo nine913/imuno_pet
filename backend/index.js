@@ -167,12 +167,14 @@ app.put('/editar-pet-tutor/:id_animal', async (req, res) => {
 
 app.post('/registrar-vacina', async (req, res) => {
     try {
-        const { id_animal, id_vacina, data_aplicacao, data_proxima_dose, status } = req.body;
+        const { id_animal, id_vacina, data_aplicacao, data_proxima_dose, status, id_veterinario } = req.body;
+        
         await db.query(`
-            INSERT INTO registro_vacinacao (id_animal, id_vacina, data_aplicacao, data_proxima_dose, status)
-            VALUES (?, ?, ?, ?, ?)
-        `, [id_animal, id_vacina, data_aplicacao || null, data_proxima_dose || null, status]);
-        res.status(201).json({ mensagem: 'Registro salvo com sucesso!' });
+            INSERT INTO registro_vacinacao (id_animal, id_vacina, data_aplicacao, data_proxima_dose, status, id_veterinario)
+            VALUES (?, ?, ?, ?, ?, ?)
+        `, [id_animal, id_vacina, data_aplicacao, data_proxima_dose, status, id_veterinario]);
+        
+        res.status(201).json({ mensagem: 'Vacina registrada com sucesso' });
     } catch (error) {
         res.status(500).json({ erro: 'Erro ao registrar vacina' });
     }
@@ -318,7 +320,7 @@ app.get('/historico-pet/:id_animal', async (req, res) => {
         const status = req.query.status || '';
 
         let query = `
-            SELECT rv.id_registro, v.nome_vacina, v.doencas_prevenidas, rv.data_aplicacao, rv.data_proxima_dose, rv.status
+            SELECT rv.id_registro, v.id_vacina, v.nome_vacina, v.doencas_prevenidas, rv.data_aplicacao, rv.data_proxima_dose, rv.status, rv.id_veterinario
             FROM registro_vacinacao rv
             JOIN vacina v ON rv.id_vacina = v.id_vacina
             WHERE rv.id_animal = ? AND v.nome_vacina LIKE ?
@@ -335,7 +337,7 @@ app.get('/historico-pet/:id_animal', async (req, res) => {
         const [historico] = await db.query(query, params);
         res.status(200).json(historico);
     } catch (error) {
-        res.status(500).json({ erro: 'Erro ao buscar histórico' });
+        res.status(500).json({ erro: 'Erro ao buscar historico' });
     }
 });
 
@@ -359,7 +361,7 @@ app.get('/relatorio-vacinas', async (req, res) => {
 
         let query = `
             SELECT v.nome_vacina, rv.data_aplicacao, rv.data_proxima_dose, rv.status, 
-                   a.nome as nome_animal, a.especie, t.nome_completo as nome_tutor, t.telefone
+                   a.nome as nome_animal, a.especie, a.raca, t.nome_completo as nome_tutor, t.telefone
             FROM registro_vacinacao rv
             JOIN vacina v ON rv.id_vacina = v.id_vacina
             JOIN animal a ON rv.id_animal = a.id_animal
@@ -391,13 +393,13 @@ app.get('/relatorio-vacinas', async (req, res) => {
 app.put('/editar-registro-vacina/:id_registro', async (req, res) => {
     try {
         const { id_registro } = req.params;
-        const { id_vacina, status, data_aplicacao, data_proxima_dose } = req.body;
+        const { id_vacina, status, data_aplicacao, data_proxima_dose, id_veterinario } = req.body;
         
         await db.query(`
             UPDATE registro_vacinacao 
-            SET id_vacina = ?, status = ?, data_aplicacao = ?, data_proxima_dose = ? 
+            SET id_vacina = ?, status = ?, data_aplicacao = ?, data_proxima_dose = ?, id_veterinario = ? 
             WHERE id_registro = ?
-        `, [id_vacina, status, data_aplicacao, data_proxima_dose, id_registro]);
+        `, [id_vacina, status, data_aplicacao, data_proxima_dose, id_veterinario, id_registro]);
         
         res.status(200).json({ mensagem: 'Registro de vacina atualizado com sucesso!' });
     } catch (error) {
@@ -528,9 +530,8 @@ app.get('/tutor/alertas/:id_usuario', async (req, res) => {
 app.get('/veterinarios', async (req, res) => {
     try {
         const [veterinarios] = await db.query(`
-            SELECT id_usuario, nome_completo 
-            FROM usuario 
-            WHERE perfil = 'VETERINARIO'
+            SELECT id_veterinario, nome_completo 
+            FROM veterinario
         `);
         res.status(200).json(veterinarios);
     } catch (error) {
@@ -581,10 +582,21 @@ app.get('/gestor/dados-dashboard', async (req, res) => {
         `;
         const [atendimentosMes] = await db.query(queryEvolucao, paramsAplicadas);
 
+        const queryVets = `
+            SELECT vet.nome_completo, COUNT(rv.id_registro) as quantidade
+            FROM registro_vacinacao rv
+            JOIN veterinario vet ON rv.id_veterinario = vet.id_veterinario
+            WHERE ${condicaoAplicadas}
+            GROUP BY vet.id_veterinario, vet.nome_completo
+            ORDER BY quantidade DESC
+        `;
+        const [aplicacoesVet] = await db.query(queryVets, paramsAplicadas);
+
         res.status(200).json({
             kpis: kpis[0],
             vacinasAplicadas,
-            atendimentosMes
+            atendimentosMes,
+            aplicacoesVet
         });
     } catch (error) {
         res.status(500).json({ erro: 'Erro ao buscar dados do gestor' });
@@ -599,15 +611,18 @@ app.get('/gestor/relatorios-avancados', async (req, res) => {
         const especie = req.query.especie || '';
         const bairro = req.query.bairro || '';
         const status = req.query.status || '';
+        const aplicante = req.query.aplicante || '';
 
         let query = `
             SELECT rv.data_aplicacao, rv.data_proxima_dose, rv.status, v.nome_vacina, 
                    a.nome as nome_animal, a.especie, a.raca, 
-                   t.nome_completo as nome_tutor, t.bairro, t.cidade, t.telefone
+                   t.nome_completo as nome_tutor, t.bairro, t.cidade, t.telefone,
+                   vet.nome_completo as nome_vet, vet.crmv as crmv_vet
             FROM registro_vacinacao rv
             JOIN vacina v ON rv.id_vacina = v.id_vacina
             JOIN animal a ON rv.id_animal = a.id_animal
             JOIN tutor t ON a.id_tutor = t.id_tutor
+            LEFT JOIN veterinario vet ON rv.id_veterinario = vet.id_veterinario
             WHERE (rv.data_aplicacao BETWEEN ? AND ? OR rv.data_proxima_dose BETWEEN ? AND ?)
         `;
         const params = [dataInicio, dataFim, dataInicio, dataFim];
@@ -628,13 +643,17 @@ app.get('/gestor/relatorios-avancados', async (req, res) => {
             query += ` AND rv.status = ?`;
             params.push(status);
         }
+        if (aplicante) {
+            query += ` AND rv.id_veterinario = ?`;
+            params.push(aplicante);
+        }
 
         query += ` ORDER BY rv.data_aplicacao DESC, rv.data_proxima_dose DESC`;
 
         const [relatorio] = await db.query(query, params);
         res.status(200).json(relatorio);
     } catch (error) {
-        res.status(500).json({ erro: 'Erro ao gerar relatório avançado' });
+        res.status(500).json({ erro: 'Erro ao gerar relatorio avancado' });
     }
 });
 
@@ -768,6 +787,35 @@ app.get('/governo/relatorios-avancados', async (req, res) => {
         res.status(200).json(relatorio);
     } catch (error) {
         res.status(500).json({ erro: 'Erro ao gerar relatorio avancado do governo' });
+    }
+});
+
+app.get('/gestor/veterinarios', async (req, res) => {
+    try {
+        const termo = req.query.termo ? `%${req.query.termo}%` : '%';
+        const [vets] = await db.query('SELECT * FROM veterinario WHERE nome_completo LIKE ? OR crmv LIKE ?', [termo, termo]);
+        res.status(200).json(vets);
+    } catch (error) {
+        res.status(500).json({ erro: 'Erro ao listar veterinários' });
+    }
+});
+
+app.post('/gestor/cadastrar-vet', async (req, res) => {
+    try {
+        const { nome_completo, crmv, id_clinica } = req.body;
+        await db.query('INSERT INTO veterinario (nome_completo, crmv, id_clinica) VALUES (?, ?, ?)', [nome_completo, crmv, id_clinica]);
+        res.status(201).json({ mensagem: 'Veterinário cadastrado!' });
+    } catch (error) {
+        res.status(500).json({ erro: 'Erro ao cadastrar' });
+    }
+});
+
+app.delete('/gestor/deletar-vet/:id', async (req, res) => {
+    try {
+        await db.query('DELETE FROM veterinario WHERE id_veterinario = ?', [req.params.id]);
+        res.status(200).json({ mensagem: 'Removido com sucesso' });
+    } catch (error) {
+        res.status(500).json({ erro: 'Erro ao excluir' });
     }
 });
 

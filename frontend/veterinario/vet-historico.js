@@ -8,265 +8,335 @@ if (!usuarioString) {
     }
 }
 
-const params = new URLSearchParams(window.location.search);
-const idAnimalUrl = params.get('id');
+const urlParams = new URLSearchParams(window.location.search);
+const idAnimalAtual = urlParams.get('id');
 
-if (!idAnimalUrl) {
-    window.location.href = 'vet-buscar.html';
-}
+let todasAsVacinas = [];
+let idRegistroParaExcluir = null;
 
-let listaVacinasCatalogo = [];
+const modalEditar = document.getElementById('modalEditarRegistro');
+const modalConfirmacao = document.getElementById('modalConfirmacao');
+const formEditar = document.getElementById('formEditarRegistro');
 
-async function carregarOpcoesVacinas() {
+async function carregarFiltroVacinas() {
     try {
         const resposta = await fetch('http://localhost:3000/vacinas');
-        listaVacinasCatalogo = await resposta.json();
-        
-        const selectVazio = document.getElementById('selectVacinaVazio');
-        const selectEditar = document.getElementById('selectVacinaEditar');
-        
-        let htmlOpcoes = '<option value="" data-intervalo="0">Selecione uma vacina...</option>';
-        listaVacinasCatalogo.forEach(v => {
-            htmlOpcoes += `<option value="${v.id_vacina}" data-intervalo="${v.intervalo_doses_dias || 0}">${v.nome_vacina} (${v.doencas_prevenidas})</option>`;
-        });
-        
-        selectVazio.innerHTML = htmlOpcoes;
-        selectEditar.innerHTML = htmlOpcoes;
-    } catch (erro) {
-        console.error(erro);
-    }
+        todasAsVacinas = await resposta.json();
+        const selectVacinaModal = document.getElementById('selectVacina');
+        if(selectVacinaModal) {
+            selectVacinaModal.innerHTML = '<option value="">Selecione a vacina...</option>';
+            todasAsVacinas.forEach(v => {
+                const optionModal = document.createElement('option');
+                optionModal.value = v.id_vacina;
+                optionModal.textContent = v.nome_vacina;
+                selectVacinaModal.appendChild(optionModal);
+            });
+        }
+    } catch (erro) {}
 }
 
-async function carregarDetalhesPet() {
+async function carregarVeterinarios() {
     try {
-        const resposta = await fetch(`http://localhost:3000/detalhes-animal/${idAnimalUrl}`);
+        const resposta = await fetch('http://localhost:3000/veterinarios');
         if (resposta.ok) {
-            const dados = await resposta.json();
-            document.getElementById('tituloPet').textContent = `Histórico de Vacinas: ${dados.nome_animal}`;
+            const vets = await resposta.json();
+            const selectVet = document.getElementById('selectVeterinario');
+            if (selectVet) {
+                selectVet.innerHTML = '<option value="">Selecione quem aplicou...</option>';
+                vets.forEach(v => {
+                    const option = document.createElement('option');
+                    option.value = v.id_veterinario;
+                    option.textContent = v.nome_completo;
+                    selectVet.appendChild(option);
+                });
+            }
         }
-    } catch (erro) {
-        console.error(erro);
+    } catch (erro) {}
+}
+
+function calcularProximaDose() {
+    const idVacina = document.getElementById('selectVacina').value;
+    const dataApp = document.getElementById('data_aplicacao').value;
+    const inputProxDose = document.getElementById('data_proxima_dose');
+
+    if (idVacina && dataApp && inputProxDose) {
+        const vacinaSelecionada = todasAsVacinas.find(v => v.id_vacina == idVacina);
+        const intervalo = vacinaSelecionada ? (vacinaSelecionada.intervalo_doses_dias || vacinaSelecionada.intervalo_dose_dias || 0) : 0;
+
+        if (intervalo > 0) {
+            const partes = dataApp.split('-');
+            const dataBaseObj = new Date(partes[0], partes[1] - 1, partes[2]);
+            dataBaseObj.setDate(dataBaseObj.getDate() + parseInt(intervalo));
+
+            const ano = dataBaseObj.getFullYear();
+            const mes = String(dataBaseObj.getMonth() + 1).padStart(2, '0');
+            const dia = String(dataBaseObj.getDate()).padStart(2, '0');
+            
+            inputProxDose.value = `${ano}-${mes}-${dia}`;
+        }
     }
 }
 
-async function carregarHistorico(termo = '') {
-    const contenedor = document.getElementById('conteudoHistorico');
-    const areaVazia = document.getElementById('areaCadastroVazio');
-    const barraPesquisa = document.getElementById('barraPesquisaHistorico');
-    contenedor.innerHTML = '<p>Carregando histórico...</p>';
+async function carregarHistorico() {
+    if (!idAnimalAtual) return;
+    
+    const termo = document.getElementById('termoBusca') ? document.getElementById('termoBusca').value : '';
+    const status = document.getElementById('filtroStatus') ? document.getElementById('filtroStatus').value : '';
+
+    let url = `http://localhost:3000/historico-pet/${idAnimalAtual}?termo=${termo}&status=${status}`;
 
     try {
-        const resposta = await fetch(`http://localhost:3000/historico-pet/${idAnimalUrl}?termo=${termo}`);
-        const historico = await resposta.json();
-
-        contenedor.innerHTML = '';
-
-        if (historico.length === 0 && termo === '') {
-            contenedor.innerHTML = '';
-            barraPesquisa.style.display = 'none';
-            areaVazia.style.display = 'block';
-            return;
-        }
-
-        barraPesquisa.style.display = 'flex';
-        areaVazia.style.display = 'none';
-
-        if (historico.length === 0) {
-            contenedor.innerHTML = '<p>Nenhuma vacina encontrada para os termos pesquisados.</p>';
-            return;
-        }
-
-        historico.forEach(reg => {
-            const dataApp = reg.data_aplicacao ? new Date(reg.data_aplicacao).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : 'N/A';
-            const dataProx = reg.data_proxima_dose ? new Date(reg.data_proxima_dose).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : 'N/A';
-            
-            const item = document.createElement('div');
-            item.className = 'historico-item';
-            
-            const regString = encodeURIComponent(JSON.stringify(reg));
-
-            item.innerHTML = `
-                <div>
-                   <strong style="font-size: 18px; color: #0056b3;">${reg.nome_vacina}</strong> - <span style="font-weight: bold; color: ${reg.status === 'APLICADA' ? 'green' : (reg.status === 'ATRASADA' ? 'red' : 'orange')};">${reg.status}</span><br>
-                    <span style="font-size: 14px; color: #555;">
-                        <strong>Aplicação:</strong> ${dataApp} | <strong>Próxima dose:</strong> ${dataProx}<br>
-                        <strong>Previne:</strong> ${reg.doencas_prevenidas}
-                    </span>
-                </div>
-                <div style="display: flex; gap: 5px;">
-                    <button onclick="abrirModalEditar('${regString}')" style="background-color: #ffc107; color: #333; padding: 10px 15px;">Editar</button>
-                    <button onclick="abrirModalConfirmacaoRegistro(${reg.id_registro})" style="background-color: #dc3545; color: white; padding: 10px 15px; width: auto; margin: 0;">Excluir</button>
-                </div>
-            `;
-            contenedor.appendChild(item);
-        });
-    } catch (erro) {
-        contenedor.innerHTML = '<p style="color: red;">Erro ao carregar o histórico.</p>';
-    }
-}
-
-function calcularProximaDoseGenerico(idSelect, idAplicacao, idProxima) {
-    const selectVacina = document.getElementById(idSelect);
-    const inputAplicacao = document.getElementById(idAplicacao);
-    const inputProximaDose = document.getElementById(idProxima);
-
-    if (!selectVacina.value || !inputAplicacao.value) return;
-
-    const opcaoSelecionada = selectVacina.options[selectVacina.selectedIndex];
-    const intervaloDias = parseInt(opcaoSelecionada.getAttribute('data-intervalo'), 10);
-
-    if (intervaloDias > 0) {
-        const partesData = inputAplicacao.value.split('-');
-        const data = new Date(partesData[0], partesData[1] - 1, partesData[2]);
-        
-        data.setDate(data.getDate() + intervaloDias);
-
-        const ano = data.getFullYear();
-        const mes = String(data.getMonth() + 1).padStart(2, '0');
-        const dia = String(data.getDate()).padStart(2, '0');
-        
-        inputProximaDose.value = `${ano}-${mes}-${dia}`;
-    } else {
-        inputProximaDose.value = '';
-    }
-}
-
-document.getElementById('selectVacinaVazio').addEventListener('change', () => calcularProximaDoseGenerico('selectVacinaVazio', 'data_aplicacao_vazio', 'data_proxima_dose_vazio'));
-document.getElementById('data_aplicacao_vazio').addEventListener('change', () => calcularProximaDoseGenerico('selectVacinaVazio', 'data_aplicacao_vazio', 'data_proxima_dose_vazio'));
-
-document.getElementById('selectVacinaEditar').addEventListener('change', () => calcularProximaDoseGenerico('selectVacinaEditar', 'data_aplicacao_editar', 'data_proxima_dose_editar'));
-document.getElementById('data_aplicacao_editar').addEventListener('change', () => calcularProximaDoseGenerico('selectVacinaEditar', 'data_aplicacao_editar', 'data_proxima_dose_editar'));
-
-document.getElementById('btnBuscarHistorico').addEventListener('click', () => {
-    const termo = document.getElementById('termoBuscaHistorico').value;
-    carregarHistorico(termo);
-});
-
-document.getElementById('formVacinaVazio').addEventListener('submit', async (event) => {
-    event.preventDefault();
-
-    const id_animal = idAnimalUrl;
-    const id_vacina = document.getElementById('selectVacinaVazio').value;
-    const status = document.getElementById('statusVacinaVazio').value;
-    const data_aplicacao = document.getElementById('data_aplicacao_vazio').value;
-    const data_proxima_dose = document.getElementById('data_proxima_dose_vazio').value;
-    const divMensagem = document.getElementById('mensagemVazio');
-
-    try {
-        const resposta = await fetch('http://localhost:3000/registrar-vacina', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id_animal, id_vacina, status, data_aplicacao, data_proxima_dose })
-        });
-
+        const resposta = await fetch(url);
         const dados = await resposta.json();
+        renderizarHistorico(dados);
+    } catch (erro) {}
+}
 
-        if (resposta.ok) {
-            divMensagem.style.color = 'green';
-            divMensagem.textContent = dados.mensagem;
-            document.getElementById('formVacinaVazio').reset();
-            setTimeout(() => {
-                divMensagem.textContent = '';
-                carregarHistorico();
-            }, 1500);
-        } else {
-            divMensagem.style.color = 'red';
-            divMensagem.textContent = dados.erro;
-        }
-    } catch (erro) {
-        divMensagem.style.color = 'red';
-        divMensagem.textContent = 'Erro ao salvar registro.';
+function renderizarHistorico(historico) {
+    const divResultados = document.getElementById('listaHistorico');
+    if (!divResultados) return;
+    divResultados.innerHTML = '';
+
+    if (historico.length === 0) {
+        divResultados.innerHTML = '<p>Nenhum registro encontrado.</p>';
+        return;
     }
-});
 
-function abrirModalEditar(regString) {
-    const reg = JSON.parse(decodeURIComponent(regString));
+    historico.forEach(reg => {
+        const card = document.createElement('div');
+        card.className = 'resultado-card';
+        
+        const dataApp = reg.data_aplicacao ? new Date(reg.data_aplicacao).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-';
+        const dataProx = reg.data_proxima_dose ? new Date(reg.data_proxima_dose).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-';
+        const corStatus = reg.status === 'APLICADA' ? 'green' : (reg.status === 'ATRASADA' ? 'red' : 'orange');
+
+        const regString = encodeURIComponent(JSON.stringify(reg));
+
+        card.innerHTML = `
+            <div>
+                <h3>💉 ${reg.nome_vacina}</h3>
+                <p><strong>Status:</strong> <span style="color: ${corStatus}; font-weight: bold;">${reg.status}</span></p>
+                <p><strong>Aplicação:</strong> ${dataApp} | <strong>Próxima Dose:</strong> ${dataProx}</p>
+            </div>
+            <div style="display: flex; gap: 10px; flex-direction: column;">
+                <button class="btn-vet" style="background-color: #ffc107; color: black; margin: 0;" onclick="abrirModalEditar('${regString}')">✏️ Editar</button>
+                <button class="btn-vet" style="background-color: #dc3545; margin: 0;" onclick="excluirRegistro(${reg.id_registro})">🗑️ Excluir</button>
+            </div>
+        `;
+        divResultados.appendChild(card);
+    });
+}
+
+function abrirModalEditar(registroEncoded) {
+    const reg = JSON.parse(decodeURIComponent(registroEncoded));
     
     document.getElementById('edit_id_registro').value = reg.id_registro;
-    document.getElementById('selectVacinaEditar').value = reg.id_vacina;
-    document.getElementById('statusVacinaEditar').value = reg.status;
+    document.getElementById('selectVacina').value = reg.id_vacina || '';
     
-    document.getElementById('data_aplicacao_editar').value = reg.data_aplicacao ? reg.data_aplicacao.split('T')[0] : '';
-    document.getElementById('data_proxima_dose_editar').value = reg.data_proxima_dose ? reg.data_proxima_dose.split('T')[0] : '';
+    const selectStatus = document.getElementById('statusVacina');
+    selectStatus.innerHTML = `
+        <option value="APLICADA">Aplicada</option>
+        <option value="PENDENTE">Agendada (Pendente)</option>
+    `;
     
-    document.getElementById('mensagemEditar').textContent = '';
-    document.getElementById('modalEditarRegistro').style.display = 'flex';
-}
-
-function fecharModalEditar() {
-    document.getElementById('modalEditarRegistro').style.display = 'none';
-}
-
-document.getElementById('formEditarRegistro').addEventListener('submit', async (event) => {
-    event.preventDefault();
-
-    const id_registro = document.getElementById('edit_id_registro').value;
-    const id_vacina = document.getElementById('selectVacinaEditar').value;
-    const status = document.getElementById('statusVacinaEditar').value;
-    const data_aplicacao = document.getElementById('data_aplicacao_editar').value;
-    const data_proxima_dose = document.getElementById('data_proxima_dose_editar').value;
-    const divMensagem = document.getElementById('mensagemEditar');
-
-    try {
-        const resposta = await fetch(`http://localhost:3000/editar-registro-vacina/${id_registro}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id_vacina, status, data_aplicacao, data_proxima_dose })
-        });
-
-        const dados = await resposta.json();
-
-        if (resposta.ok) {
-            divMensagem.style.color = 'green';
-            divMensagem.textContent = dados.mensagem;
-            setTimeout(() => {
-                fecharModalEditar();
-                const termo = document.getElementById('termoBuscaHistorico').value;
-                carregarHistorico(termo);
-            }, 1500);
-        } else {
-            divMensagem.style.color = 'red';
-            divMensagem.textContent = dados.erro;
-        }
-    } catch (erro) {
-        divMensagem.style.color = 'red';
-        divMensagem.textContent = 'Erro ao salvar alterações.';
+    if (reg.status === 'ATRASADA') {
+        const opt = document.createElement('option');
+        opt.value = 'ATRASADA';
+        opt.textContent = 'Atrasada (Automático)';
+        selectStatus.appendChild(opt);
     }
-});
-
-let registroParaExcluir = null;
-
-function abrirModalConfirmacaoRegistro(idRegistro) {
-    registroParaExcluir = idRegistro;
-    document.getElementById('modalConfirmacaoRegistro').style.display = 'flex';
-}
-
-function fecharModalConfirmacaoRegistro() {
-    registroParaExcluir = null;
-    document.getElementById('modalConfirmacaoRegistro').style.display = 'none';
-}
-
-document.getElementById('btnConfirmarExclusaoRegistro').addEventListener('click', async () => {
-    if (!registroParaExcluir) return;
-
-    try {
-        const resposta = await fetch(`http://localhost:3000/deletar-registro-vacina/${registroParaExcluir}`, {
-            method: 'DELETE'
-        });
-
-        if (resposta.ok) {
-            fecharModalConfirmacaoRegistro();
-            carregarHistorico();
-        } else {
-            alert('Erro ao excluir o registro.');
-        }
-    } catch (erro) {
-        alert('Erro ao conectar com o servidor.');
+    
+    selectStatus.value = reg.status;
+    
+    if (reg.data_aplicacao) {
+        document.getElementById('data_aplicacao').value = reg.data_aplicacao.split('T')[0];
+    } else {
+        document.getElementById('data_aplicacao').value = '';
     }
-});
+
+    if (reg.data_proxima_dose) {
+        document.getElementById('data_proxima_dose').value = reg.data_proxima_dose.split('T')[0];
+    } else {
+        document.getElementById('data_proxima_dose').value = '';
+    }
+
+    const selectVeterinario = document.getElementById('selectVeterinario');
+    if (selectVeterinario && reg.id_veterinario) {
+        selectVeterinario.value = reg.id_veterinario;
+    } else if (selectVeterinario) {
+        selectVeterinario.value = '';
+    }
+
+    const divMensagem = document.getElementById('mensagem');
+    if(divMensagem) divMensagem.textContent = '';
+
+    dispararLogicaVisualStatus();
+
+    if (modalEditar) {
+        modalEditar.style.display = 'block';
+        modalEditar.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+function dispararLogicaVisualStatus() {
+    const statusVal = document.getElementById('statusVacina').value;
+    const inputDataAplicacao = document.getElementById('data_aplicacao');
+    const inputProximaDose = document.getElementById('data_proxima_dose');
+    const selectVeterinario = document.getElementById('selectVeterinario');
+    const labelVeterinario = document.getElementById('labelVeterinario');
+    const dataHojeStr = new Date().toISOString().split('T')[0];
+
+    if (statusVal === 'PENDENTE' || statusVal === 'ATRASADA') {
+        inputDataAplicacao.value = '';
+        inputDataAplicacao.disabled = true;
+        inputDataAplicacao.required = false;
+        
+        if (statusVal === 'PENDENTE') {
+            inputProximaDose.setAttribute('min', dataHojeStr);
+        } else {
+            inputProximaDose.removeAttribute('min');
+        }
+
+        if (selectVeterinario && labelVeterinario) {
+            selectVeterinario.style.display = 'none';
+            labelVeterinario.style.display = 'none';
+            selectVeterinario.required = false;
+            selectVeterinario.value = '';
+        }
+    } else {
+        inputDataAplicacao.disabled = false;
+        inputDataAplicacao.required = true;
+        
+        inputProximaDose.setAttribute('min', inputDataAplicacao.value || '');
+
+        if (selectVeterinario && labelVeterinario) {
+            selectVeterinario.style.display = 'block';
+            labelVeterinario.style.display = 'block';
+            selectVeterinario.required = true;
+        }
+    }
+}
+
+const selectStatusVacina = document.getElementById('statusVacina');
+if (selectStatusVacina) {
+    selectStatusVacina.addEventListener('change', () => {
+        dispararLogicaVisualStatus();
+        calcularProximaDose();
+    });
+}
+
+const inputDataAplicacao = document.getElementById('data_aplicacao');
+if (inputDataAplicacao) {
+    inputDataAplicacao.addEventListener('change', () => {
+        calcularProximaDose();
+        const inputProximaDose = document.getElementById('data_proxima_dose');
+        if(inputProximaDose) {
+            inputProximaDose.setAttribute('min', inputDataAplicacao.value);
+        }
+    });
+}
+
+const selectVacinaCalculo = document.getElementById('selectVacina');
+if (selectVacinaCalculo) {
+    selectVacinaCalculo.addEventListener('change', calcularProximaDose);
+}
+
+if (formEditar) {
+    formEditar.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const idRegistro = document.getElementById('edit_id_registro').value;
+        const statusVal = document.getElementById('statusVacina').value;
+        const idVetEl = document.getElementById('selectVeterinario');
+        const dataAppStr = document.getElementById('data_aplicacao').value;
+        const dataProxStr = document.getElementById('data_proxima_dose').value;
+        const dataHojeStr = new Date().toISOString().split('T')[0];
+        const divMensagem = document.getElementById('mensagem');
+
+        if (statusVal === 'PENDENTE' && dataProxStr < dataHojeStr) {
+            if (divMensagem) {
+                divMensagem.style.color = 'red';
+                divMensagem.textContent = 'A data de vencimento de uma vacina pendente não pode estar no passado.';
+            }
+            return;
+        }
+
+        if (dataAppStr && dataProxStr && dataProxStr < dataAppStr) {
+            if (divMensagem) {
+                divMensagem.style.color = 'red';
+                divMensagem.textContent = 'A data da próxima dose/vencimento não pode ser anterior à data de aplicação.';
+            }
+            return;
+        }
+        
+        const payload = {
+            id_vacina: document.getElementById('selectVacina').value,
+            data_aplicacao: dataAppStr || null,
+            data_proxima_dose: dataProxStr || null,
+            status: statusVal,
+            id_veterinario: (statusVal === 'APLICADA' || statusVal === 'ATRASADA') && idVetEl ? idVetEl.value : null
+        };
+
+        try {
+            const resposta = await fetch(`http://localhost:3000/editar-registro-vacina/${idRegistro}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (resposta.ok) {
+                fecharModais();
+                carregarHistorico();
+            } else {
+                if (divMensagem) {
+                    divMensagem.style.color = 'red';
+                    divMensagem.textContent = 'Erro ao atualizar o registro.';
+                }
+            }
+        } catch (erro) {
+            if (divMensagem) {
+                divMensagem.style.color = 'red';
+                divMensagem.textContent = 'Erro de conexão com o servidor.';
+            }
+        }
+    });
+}
+
+function fecharModais() {
+    if(modalEditar) modalEditar.style.display = 'none';
+    if(modalConfirmacao) modalConfirmacao.style.display = 'none';
+}
+
+function excluirRegistro(id) {
+    idRegistroParaExcluir = id;
+    if(modalConfirmacao) modalConfirmacao.style.display = 'flex';
+}
+
+const btnConfirmarExclusao = document.getElementById('btnConfirmarExclusao');
+if (btnConfirmarExclusao) {
+    btnConfirmarExclusao.addEventListener('click', async () => {
+        if (!idRegistroParaExcluir) return;
+        try {
+            const res = await fetch(`http://localhost:3000/deletar-registro-vacina/${idRegistroParaExcluir}`, { method: 'DELETE' });
+            if (res.ok) {
+                fecharModais();
+                carregarHistorico();
+            }
+        } catch(e) {}
+    });
+}
+
+const btnBuscar = document.getElementById('btnBuscar');
+if (btnBuscar) {
+    btnBuscar.addEventListener('click', carregarHistorico);
+}
 
 window.addEventListener('DOMContentLoaded', async () => {
-    await carregarOpcoesVacinas();
-    await carregarDetalhesPet();
-    await carregarHistorico();
+    const dataHoje = new Date().toISOString().split('T')[0];
+    const inputAppDate = document.getElementById('data_aplicacao');
+    if (inputAppDate) inputAppDate.setAttribute('max', dataHoje);
+    
+    await carregarFiltroVacinas();
+    await carregarVeterinarios();
+    carregarHistorico();
 });

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerenciar Veterinários</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #f4f4f9; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; }
+        input { width: 100%; padding: 10px; margin: 5px 0; }
+        .btn { padding: 10px; cursor: pointer; border: none; border-radius: 4px; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Equipe Veterinária</h2>
+        <input type="text" id="termoVet" placeholder="Pesquisar nome ou CRMV...">
+        <div id="listaVets"></div>
+        
+        <h3>Cadastrar Novo</h3>
+        <input type="text" id="novoNome" placeholder="Nome Completo">
+        <input type="text" id="novoCrmv" placeholder="CRMV">
+        <button class="btn" style="background:#28a745" onclick="cadastrarVet()">Salvar</button>
+    </div>
+    <script src="gestor-equipe.js"></script>
+</body>
+</html>

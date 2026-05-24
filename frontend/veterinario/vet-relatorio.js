@@ -41,18 +41,19 @@ async function gerarRelatorio() {
             const dataApp = item.data_aplicacao ? new Date(item.data_aplicacao).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-';
             const dataProx = item.data_proxima_dose ? new Date(item.data_proxima_dose).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-';
             
+            const dataExibicao = item.status === 'APLICADA' ? dataApp : dataProx;
+            
             const corStatus = item.status === 'APLICADA' ? 'green' : (item.status === 'ATRASADA' ? 'red' : 'orange');
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${dataApp}</td>
-                <td>${dataProx}</td>
+                <td>${dataExibicao}</td>
+                <td style="color: ${corStatus}; font-weight: bold;">${item.status}</td>
                 <td><strong>${item.nome_vacina}</strong></td>
-                <td>${item.nome_animal}</td>
+                <td>${item.nome_animal}<br><span style="font-size: 12px; color: #555;">${item.raca}</span></td>
                 <td>${item.especie}</td>
                 <td>${item.nome_tutor}</td>
                 <td>${item.telefone}</td>
-                <td style="color: ${corStatus}; font-weight: bold;">${item.status}</td>
             `;
             corpoTabela.appendChild(tr);
         });

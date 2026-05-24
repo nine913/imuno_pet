@@ -41,18 +41,27 @@ async function carregarFiltroVacinas() {
 async function carregarVeterinarios() {
     try {
         const resposta = await fetch('http://localhost:3000/veterinarios');
+        
+        if (!resposta.ok) {
+            alert("Erro na rota de veterinários no servidor.");
+            return;
+        }
+
         const vets = await resposta.json();
         const selectVet = document.getElementById('selectVeterinario');
         
         if (selectVet) {
+            selectVet.innerHTML = '<option value="">Selecione quem aplicou...</option>';
+            
             vets.forEach(v => {
                 const option = document.createElement('option');
-                option.value = v.id_usuario;
+                option.value = v.id_veterinario;
                 option.textContent = v.nome_completo;
                 selectVet.appendChild(option);
             });
         }
     } catch (erro) {
+        alert("Erro de conexão ao tentar carregar a lista de veterinários.");
     }
 }
 
@@ -208,6 +217,7 @@ function abrirModalVacina(idAnimal, nomeAnimal) {
     const inputDataAplicacao = document.getElementById('data_aplicacao');
     const selectVeterinario = document.getElementById('selectVeterinario');
     const labelVeterinario = document.getElementById('labelVeterinario');
+    const statusVacina = document.getElementById('statusVacina');
     
     inputDataAplicacao.disabled = false;
     inputDataAplicacao.required = true;
@@ -216,6 +226,10 @@ function abrirModalVacina(idAnimal, nomeAnimal) {
         selectVeterinario.style.display = 'block';
         labelVeterinario.style.display = 'block';
         selectVeterinario.required = true;
+    }
+    
+    if (statusVacina) {
+        statusVacina.value = 'APLICADA';
     }
     
     const divMensagem = document.getElementById('mensagem');
@@ -234,6 +248,7 @@ if (formVacina) {
         const dataAppEl = document.getElementById('data_aplicacao').value;
         const dataProxEl = document.getElementById('data_proxima_dose').value;
         const idVetEl = document.getElementById('selectVeterinario');
+        const statusVal = document.getElementById('statusVacina').value;
         const divMensagem = document.getElementById('mensagem');
 
         const payload = {
@@ -241,8 +256,8 @@ if (formVacina) {
             id_vacina: document.getElementById('selectVacina').value,
             data_aplicacao: dataAppEl ? dataAppEl : null,
             data_proxima_dose: dataProxEl ? dataProxEl : null,
-            status: document.getElementById('statusVacina').value,
-            id_veterinario: (idVetEl && idVetEl.style.display === 'block') ? idVetEl.value : null
+            status: statusVal,
+            id_veterinario: statusVal === 'APLICADA' ? idVetEl.value : null
         };
 
         try {

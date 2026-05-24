@@ -10,6 +10,7 @@ if (!usuarioString) {
 
 let chartEvolucaoGestor = null;
 let chartTopVacinasGestor = null;
+let chartVeterinariosGestor = null;
 
 async function carregarDadosGestor() {
     const inicio = document.getElementById('filtro_inicio').value;
@@ -26,8 +27,8 @@ async function carregarDadosGestor() {
         renderizarKPIsGestor(dados.kpis || {});
         renderizarEvolucaoGestor(dados.atendimentosMes || []);
         renderizarTopVacinasGestor(dados.vacinasAplicadas || []);
-    } catch (erro) {
-    }
+        renderizarVeterinariosGestor(dados.aplicacoesVet || []);
+    } catch (erro) {}
 }
 
 function renderizarKPIsGestor(kpis) {
@@ -47,17 +48,12 @@ function renderizarEvolucaoGestor(dados) {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     
-    if (chartEvolucaoGestor) {
-        chartEvolucaoGestor.destroy();
-    }
+    if (chartEvolucaoGestor) chartEvolucaoGestor.destroy();
 
     if (!dados || dados.length === 0) {
         chartEvolucaoGestor = new Chart(ctx, {
             type: 'line',
-            data: {
-                labels: ['Sem dados'],
-                datasets: [{ label: 'Atendimentos', data: [0], borderColor: '#ccc' }]
-            }
+            data: { labels: ['Sem dados'], datasets: [{ label: 'Atendimentos', data: [0], borderColor: '#ccc' }] }
         });
         return;
     }
@@ -83,10 +79,7 @@ function renderizarEvolucaoGestor(dados) {
                 borderWidth: 3
             }]
         },
-        options: {
-            responsive: true,
-            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
-        }
+        options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
     });
 }
 
@@ -95,17 +88,12 @@ function renderizarTopVacinasGestor(dados) {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     
-    if (chartTopVacinasGestor) {
-        chartTopVacinasGestor.destroy();
-    }
+    if (chartTopVacinasGestor) chartTopVacinasGestor.destroy();
 
     if (!dados || dados.length === 0) {
         chartTopVacinasGestor = new Chart(ctx, {
             type: 'doughnut',
-            data: {
-                labels: ['Sem dados'],
-                datasets: [{ data: [1], backgroundColor: ['#ccc'] }]
-            }
+            data: { labels: ['Sem dados'], datasets: [{ data: [1], backgroundColor: ['#ccc'] }] }
         });
         return;
     }
@@ -124,6 +112,40 @@ function renderizarTopVacinasGestor(dados) {
             }]
         },
         options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+}
+
+function renderizarVeterinariosGestor(dados) {
+    const canvas = document.getElementById('chartVeterinariosGestor');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    
+    if (chartVeterinariosGestor) chartVeterinariosGestor.destroy();
+
+    if (!dados || dados.length === 0) {
+        chartVeterinariosGestor = new Chart(ctx, {
+            type: 'bar',
+            data: { labels: ['Sem dados'], datasets: [{ label: 'Aplicações', data: [0], backgroundColor: '#ccc' }] }
+        });
+        return;
+    }
+
+    const labels = dados.map(item => item.nome_completo);
+    const valores = dados.map(item => item.quantidade);
+
+    chartVeterinariosGestor = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Total de Aplicações Realizadas',
+                data: valores,
+                backgroundColor: '#17a2b8',
+                borderWidth: 0,
+                borderRadius: 4
+            }]
+        },
+        options: { responsive: true, indexAxis: 'y', scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } } }
     });
 }
 

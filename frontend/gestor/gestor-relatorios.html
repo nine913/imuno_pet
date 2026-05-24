@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Relatórios Avançados - Gestor</title>
+    <title>Relatórios Estratégicos - Gestor</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         body { font-family: Arial, sans-serif; background-color: #f4f4f9; margin: 0; padding: 20px; }
         .container { max-width: 1200px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); }
-        h2, h3 { color: #000000; }
+        h2 { color: #000000; }
         input[type="date"], input[type="text"], select { padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; width: 100%; }
         button { padding: 10px 15px; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 5px; }
-        .btn-primario { background-color: #274aaa; }
-        .btn-primario:hover { background-color: #000000; }
+        .btn-primario { background-color: #0056b3; }
+        .btn-primario:hover { background-color: #004494; }
         .btn-voltar { background-color: #6c757d; }
         .btn-voltar:hover { background-color: #5a6268; }
         .btn-pdf { background-color: #17a2b8; font-weight: bold; }
@@ -20,9 +20,8 @@
         .filtro-item { flex: 1; min-width: 150px; }
         .tabela-relatorio { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
         .tabela-relatorio th, .tabela-relatorio td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        .tabela-relatorio th { background-color: #234ebb; color: white; }
+        .tabela-relatorio th { background-color: #0056b3; color: white; }
         .tabela-relatorio tr:nth-child(even) { background-color: #f2f2f2; }
-        
         @media print {
             body { background-color: white; padding: 0; }
             .container { box-shadow: none; padding: 0; max-width: 100%; }
@@ -39,7 +38,7 @@
         </div>
         
         <div id="area-relatorio">
-            <h2>Relatório Gerencial de Vacinação</h2>
+            <h2>Relatório de Vacinação e Atendimentos da Clínica</h2>
             
             <div class="filtros" data-html2canvas-ignore="true">
                 <div class="filtro-item">
@@ -78,6 +77,12 @@
                     <label>Localidade (Bairro):</label>
                     <input type="text" id="filtro_bairro" placeholder="Ex: Centro">
                 </div>
+                <div class="filtro-item">
+                    <label>Veterinário:</label>
+                    <select id="filtro_veterinario">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
                 <button id="btnFiltrar" class="btn-primario" style="height: 38px; margin-bottom: 1px;">Gerar</button>
             </div>
 
@@ -95,7 +100,7 @@
                         <th>Espécie</th>
                         <th>Tutor</th>
                         <th>Telefone</th>
-                        <th>Localidade</th>
+                        <th>Aplicante (CRMV)</th>
                     </tr>
                 </thead>
                 <tbody id="corpoTabela">

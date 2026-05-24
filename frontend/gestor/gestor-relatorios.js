@@ -8,20 +8,28 @@ if (!usuarioString) {
     }
 }
 
-async function carregarFiltroVacinas() {
+async function carregarFiltros() {
     try {
-        const resposta = await fetch('http://localhost:3000/vacinas');
-        const vacinas = await resposta.json();
-        const selectVacina = document.getElementById('filtro_vacina');
-        
+        const resVac = await fetch('http://localhost:3000/vacinas');
+        const vacinas = await resVac.json();
+        const selectVac = document.getElementById('filtro_vacina');
         vacinas.forEach(v => {
-            const option = document.createElement('option');
-            option.value = v.id_vacina;
-            option.textContent = v.nome_vacina;
-            selectVacina.appendChild(option);
+            const opt = document.createElement('option');
+            opt.value = v.id_vacina;
+            opt.textContent = v.nome_vacina;
+            selectVac.appendChild(opt);
         });
-    } catch (erro) {
-    }
+
+        const resVet = await fetch('http://localhost:3000/veterinarios');
+        const vets = await resVet.json();
+        const selectVet = document.getElementById('filtro_veterinario');
+        vets.forEach(v => {
+            const opt = document.createElement('option');
+            opt.value = v.id_veterinario;
+            opt.textContent = v.nome_completo;
+            selectVet.appendChild(opt);
+        });
+    } catch (erro) {}
 }
 
 async function gerarRelatorio() {
@@ -31,6 +39,7 @@ async function gerarRelatorio() {
     const especie = document.getElementById('filtro_especie').value;
     const bairro = document.getElementById('filtro_bairro').value;
     const status = document.getElementById('filtro_status').value;
+    const aplicante = document.getElementById('filtro_veterinario').value;
     
     let url = 'http://localhost:3000/gestor/relatorios-avancados?';
     if (inicio) url += `inicio=${inicio}&`;
@@ -38,7 +47,8 @@ async function gerarRelatorio() {
     if (vacina) url += `vacina=${vacina}&`;
     if (especie) url += `especie=${especie}&`;
     if (bairro) url += `bairro=${bairro}&`;
-    if (status) url += `status=${status}`;
+    if (status) url += `status=${status}&`;
+    if (aplicante) url += `aplicante=${aplicante}`;
 
     const corpoTabela = document.getElementById('corpoTabela');
     const displayTotal = document.getElementById('totalResultados');
@@ -59,6 +69,7 @@ async function gerarRelatorio() {
             const dataBase = item.status === 'APLICADA' ? item.data_aplicacao : item.data_proxima_dose;
             const dataExibicao = dataBase ? new Date(dataBase).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-';
             const corStatus = item.status === 'APLICADA' ? 'green' : (item.status === 'ATRASADA' ? 'red' : 'orange');
+            const infoVet = item.nome_vet ? `${item.nome_vet}<br><span style="font-size: 12px; color: #555;">${item.crmv_vet}</span>` : '-';
             
             const tr = document.createElement('tr');
             tr.innerHTML = `
@@ -69,7 +80,7 @@ async function gerarRelatorio() {
                 <td>${item.especie}</td>
                 <td>${item.nome_tutor}</td>
                 <td>${item.telefone}</td>
-                <td>${item.bairro}, ${item.cidade}</td>
+                <td>${infoVet}</td>
             `;
             corpoTabela.appendChild(tr);
         });
@@ -82,7 +93,7 @@ function baixarPDF() {
     const elemento = document.getElementById('area-relatorio');
     const opcoes = {
         margin:       10,
-        filename:     'relatorio_gerencial_imunopet.pdf',
+        filename:     'relatorio_estrategico_gestor.pdf',
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { scale: 2 },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
@@ -93,6 +104,6 @@ function baixarPDF() {
 document.getElementById('btnFiltrar').addEventListener('click', gerarRelatorio);
 
 window.addEventListener('DOMContentLoaded', async () => {
-    await carregarFiltroVacinas();
+    await carregarFiltros();
     gerarRelatorio();
 });
