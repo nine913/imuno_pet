@@ -9,31 +9,60 @@ app.use(cors());
 app.use(express.json());
 
 app.post('/login', async (req, res) => {
-  try {
-    const { email, senha } = req.body;
+    try {
+        const { email, senha } = req.body;
 
-    const [rows] = await db.query('SELECT * FROM usuario WHERE email = ?', [email]);
+        const [rows] = await db.query('SELECT * FROM usuario WHERE email = ?', [email]);
 
-    if (rows.length === 0) {
-      return res.status(401).json({ erro: 'Usuário não encontrado' });
+        if (rows.length === 0) {
+            return res.status(401).json({ erro: 'Usuário não encontrado' });
+        }
+
+        const usuario = rows[0];
+        const senhaValida = await bcrypt.compare(senha, usuario.senha);
+
+        if (!senhaValida) {
+            return res.status(401).json({ erro: 'Senha incorreta' });
+        }
+
+        let id_clinica = null;
+        let id_especifico = null;
+        let nome_usuario = '';
+
+        if (usuario.perfil === 'VETERINARIO') {
+            const [vet] = await db.query('SELECT id_veterinario, id_clinica, nome_completo FROM veterinario WHERE id_usuario = ?', [usuario.id_usuario]);
+            if (vet.length > 0) {
+                id_clinica = vet[0].id_clinica;
+                id_especifico = vet[0].id_veterinario;
+                nome_usuario = vet[0].nome_completo;
+            }
+        } else if (usuario.perfil === 'GESTOR_CLINICA') {
+            const [gestor] = await db.query('SELECT id_gestor, id_clinica, nome_completo FROM gestor WHERE id_usuario = ?', [usuario.id_usuario]);
+            if (gestor.length > 0) {
+                id_clinica = gestor[0].id_clinica;
+                id_especifico = gestor[0].id_gestor;
+                nome_usuario = gestor[0].nome_completo;
+            }
+        } else if (usuario.perfil === 'TUTOR') {
+            const [tutor] = await db.query('SELECT id_tutor, nome_completo FROM tutor WHERE id_usuario = ?', [usuario.id_usuario]);
+            if (tutor.length > 0) {
+                id_especifico = tutor[0].id_tutor;
+                nome_usuario = tutor[0].nome_completo;
+            }
+        }
+
+        res.status(200).json({
+            mensagem: 'Login efetuado com sucesso',
+            perfil: usuario.perfil,
+            id_usuario: usuario.id_usuario,
+            id_clinica: id_clinica,
+            id_especifico: id_especifico,
+            nome: nome_usuario
+        });
+
+    } catch (error) {
+        res.status(500).json({ erro: 'Erro interno do servidor' });
     }
-
-    const usuario = rows[0];
-    const senhaValida = await bcrypt.compare(senha, usuario.senha);
-
-    if (!senhaValida) {
-      return res.status(401).json({ erro: 'Senha incorreta' });
-    }
-
-    res.status(200).json({
-      mensagem: 'Login efetuado com sucesso',
-      perfil: usuario.perfil,
-      id_usuario: usuario.id_usuario
-    });
-
-  } catch (error) {
-    res.status(500).json({ erro: 'Erro interno do servidor' });
-  }
 });
 
 app.post('/cadastro', async (req, res) => {
@@ -167,7 +196,15 @@ app.put('/editar-pet-tutor/:id_animal', async (req, res) => {
 
 app.post('/registrar-vacina', async (req, res) => {
     try {
-        const { id_animal, id_vacina, data_aplicacao, data_proxima_dose, status, id_veterinario } = req.body;
+        const { id_animal, id_vacina, data_aplicacao, data_proxima_dose, status, id_usuario } = req.body;
+        
+        let id_veterinario = null;
+        if (status === 'APLICADA' && id_usuario) {
+            const [vet] = await db.query('SELECT id_veterinario FROM veterinario WHERE id_usuario = ?', [id_usuario]);
+            if (vet.length > 0) {
+                id_veterinario = vet[0].id_veterinario;
+            }
+        }
         
         await db.query(`
             INSERT INTO registro_vacinacao (id_animal, id_vacina, data_aplicacao, data_proxima_dose, status, id_veterinario)
@@ -393,7 +430,15 @@ app.get('/relatorio-vacinas', async (req, res) => {
 app.put('/editar-registro-vacina/:id_registro', async (req, res) => {
     try {
         const { id_registro } = req.params;
-        const { id_vacina, status, data_aplicacao, data_proxima_dose, id_veterinario } = req.body;
+        const { id_vacina, status, data_aplicacao, data_proxima_dose, id_usuario } = req.body;
+        
+        let id_veterinario = null;
+        if (status === 'APLICADA' && id_usuario) {
+            const [vet] = await db.query('SELECT id_veterinario FROM veterinario WHERE id_usuario = ?', [id_usuario]);
+            if (vet.length > 0) {
+                id_veterinario = vet[0].id_veterinario;
+            }
+        }
         
         await db.query(`
             UPDATE registro_vacinacao 
@@ -790,35 +835,113 @@ app.get('/governo/relatorios-avancados', async (req, res) => {
     }
 });
 
-app.get('/gestor/veterinarios', async (req, res) => {
+app.get('/veterinarios', async (req, res) => {
+    try {
+        const [veterinarios] = await db.query(`
+            SELECT id_veterinario, id_usuario, nome_completo 
+            FROM veterinario
+        `);
+        res.status(200).json(veterinarios);
+    } catch (error) {
+        res.status(500).json({ erro: 'Erro ao buscar veterinarios' });
+    }
+});
+
+app.get('/gestor/veterinarios-lista', async (req, res) => {
     try {
         const termo = req.query.termo ? `%${req.query.termo}%` : '%';
-        const [vets] = await db.query('SELECT * FROM veterinario WHERE nome_completo LIKE ? OR crmv LIKE ?', [termo, termo]);
+        const [vets] = await db.query(`
+            SELECT v.id_veterinario, v.id_usuario, v.nome_completo, v.crmv, u.email
+            FROM veterinario v
+            JOIN usuario u ON v.id_usuario = u.id_usuario
+            WHERE v.nome_completo LIKE ? OR v.crmv LIKE ? OR u.email LIKE ?
+            ORDER BY v.nome_completo ASC
+        `, [termo, termo, termo]);
         res.status(200).json(vets);
     } catch (error) {
-        res.status(500).json({ erro: 'Erro ao listar veterinários' });
+        res.status(500).json({ erro: 'Erro ao listar veterinarios' });
     }
 });
 
 app.post('/gestor/cadastrar-vet', async (req, res) => {
     try {
-        const { nome_completo, crmv, id_clinica } = req.body;
-        await db.query('INSERT INTO veterinario (nome_completo, crmv, id_clinica) VALUES (?, ?, ?)', [nome_completo, crmv, id_clinica]);
-        res.status(201).json({ mensagem: 'Veterinário cadastrado!' });
+        const { nome_completo, crmv, email, senha } = req.body;
+        
+        const [existente] = await db.query('SELECT * FROM usuario WHERE email = ?', [email]);
+        if (existente.length > 0) {
+            return res.status(400).json({ erro: 'E-mail já cadastrado no sistema.' });
+        }
+
+        const [crmvExistente] = await db.query('SELECT * FROM veterinario WHERE crmv = ?', [crmv]);
+        if (crmvExistente.length > 0) {
+            return res.status(400).json({ erro: 'CRMV já cadastrado.' });
+        }
+
+        const hashSenha = await bcrypt.hash(senha, 10);
+        const [resUser] = await db.query(
+            'INSERT INTO usuario (email, senha, perfil) VALUES (?, ?, "VETERINARIO")', 
+            [email, hashSenha]
+        );
+        const idUsuario = resUser.insertId;
+
+        await db.query(
+            'INSERT INTO veterinario (id_usuario, id_clinica, nome_completo, crmv) VALUES (?, 1, ?, ?)', 
+            [idUsuario, nome_completo, crmv]
+        );
+        
+        res.status(201).json({ mensagem: 'Veterinário cadastrado com sucesso!' });
     } catch (error) {
-        res.status(500).json({ erro: 'Erro ao cadastrar' });
+        res.status(500).json({ erro: 'Erro ao cadastrar veterinario' });
     }
 });
 
-app.delete('/gestor/deletar-vet/:id', async (req, res) => {
+app.put('/gestor/editar-vet/:id_veterinario', async (req, res) => {
     try {
-        await db.query('DELETE FROM veterinario WHERE id_veterinario = ?', [req.params.id]);
-        res.status(200).json({ mensagem: 'Removido com sucesso' });
+        const { id_veterinario } = req.params;
+        const { nome_completo, crmv, email, id_usuario } = req.body;
+        
+        await db.query(
+            'UPDATE veterinario SET nome_completo = ?, crmv = ? WHERE id_veterinario = ?', 
+            [nome_completo, crmv, id_veterinario]
+        );
+        await db.query(
+            'UPDATE usuario SET email = ? WHERE id_usuario = ?', 
+            [email, id_usuario]
+        );
+        
+        res.status(200).json({ mensagem: 'Dados atualizados com sucesso!' });
     } catch (error) {
-        res.status(500).json({ erro: 'Erro ao excluir' });
+        res.status(500).json({ erro: 'Erro ao atualizar dados' });
     }
 });
 
+app.delete('/gestor/deletar-vet/:id_veterinario', async (req, res) => {
+    try {
+        const { id_veterinario } = req.params;
+        
+        const [vacinas] = await db.query(
+            'SELECT COUNT(*) as total FROM registro_vacinacao WHERE id_veterinario = ?', 
+            [id_veterinario]
+        );
+        if (vacinas[0].total > 0) {
+            return res.status(400).json({ erro: 'Exclusão bloqueada: O veterinário possui registros de vacinas aplicadas.' });
+        }
+        
+        const [vet] = await db.query('SELECT id_usuario FROM veterinario WHERE id_veterinario = ?', [id_veterinario]);
+        if (vet.length === 0) {
+            return res.status(404).json({ erro: 'Veterinário não encontrado' });
+        }
+        
+        const id_user = vet[0].id_usuario;
+        
+        await db.query('DELETE FROM veterinario WHERE id_veterinario = ?', [id_veterinario]);
+        await db.query('DELETE FROM usuario WHERE id_usuario = ?', [id_user]);
+        
+        res.status(200).json({ mensagem: 'Veterinário excluído com sucesso' });
+    } catch (error) {
+        res.status(500).json({ erro: 'Erro ao excluir veterinario' });
+    }
+});
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {

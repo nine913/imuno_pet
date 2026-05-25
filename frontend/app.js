@@ -17,7 +17,15 @@ document.getElementById('loginForm').addEventListener('submit', async (event) =>
         const dados = await resposta.json();
 
         if (resposta.ok) {
-            localStorage.setItem('usuarioImunoPet', JSON.stringify(dados));
+            const usuarioImunoPet = {
+                id_usuario: dados.id_usuario,
+                perfil: dados.perfil,
+                id_clinica: dados.id_clinica,
+                id_especifico: dados.id_especifico,
+                nome: dados.nome
+            };
+            
+            localStorage.setItem('usuarioImunoPet', JSON.stringify(usuarioImunoPet));
             window.location.href = 'dashboard.html';
         } else {
             divMensagem.style.color = 'red';

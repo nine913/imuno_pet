@@ -30,7 +30,7 @@ async function gerarRelatorio() {
         corpoTabela.innerHTML = '';
 
         if (dados.length === 0) {
-            corpoTabela.innerHTML = '<tr><td colspan="8" style="text-align: center;">Nenhum registro encontrado com esses filtros.</td></tr>';
+            corpoTabela.innerHTML = '<tr><td colspan="9" style="text-align: center;">Nenhum registro encontrado com esses filtros.</td></tr>';
             displayTotal.textContent = '0';
             return;
         }
@@ -41,25 +41,25 @@ async function gerarRelatorio() {
             const dataApp = item.data_aplicacao ? new Date(item.data_aplicacao).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-';
             const dataProx = item.data_proxima_dose ? new Date(item.data_proxima_dose).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-';
             
-            const dataExibicao = item.status === 'APLICADA' ? dataApp : dataProx;
-            
             const corStatus = item.status === 'APLICADA' ? 'green' : (item.status === 'ATRASADA' ? 'red' : 'orange');
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${dataExibicao}</td>
-                <td style="color: ${corStatus}; font-weight: bold;">${item.status}</td>
+                <td>${dataApp}</td>
+                <td>${dataProx}</td>
                 <td><strong>${item.nome_vacina}</strong></td>
-                <td>${item.nome_animal}<br><span style="font-size: 12px; color: #555;">${item.raca}</span></td>
+                <td>${item.nome_animal}</td>
                 <td>${item.especie}</td>
+                <td>${item.raca}</td>
                 <td>${item.nome_tutor}</td>
                 <td>${item.telefone}</td>
+                <td style="color: ${corStatus}; font-weight: bold;">${item.status}</td>
             `;
             corpoTabela.appendChild(tr);
         });
 
     } catch (erro) {
-        corpoTabela.innerHTML = '<tr><td colspan="8" style="text-align: center; color: red;">Erro ao gerar o relatório.</td></tr>';
+        corpoTabela.innerHTML = '<tr><td colspan="9" style="text-align: center; color: red;">Erro ao gerar o relatório.</td></tr>';
     }
 }
 

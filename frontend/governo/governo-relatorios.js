@@ -51,7 +51,7 @@ async function gerarRelatorio() {
         displayTotal.textContent = `${dados.length} Registros Encontrados`;
 
         if (dados.length === 0) {
-            corpoTabela.innerHTML = '<tr><td colspan="8" style="text-align: center;">Nenhum registro encontrado.</td></tr>';
+            corpoTabela.innerHTML = '<tr><td colspan="9" style="text-align: center;">Nenhum registro encontrado.</td></tr>';
             return;
         }
 
@@ -65,8 +65,9 @@ async function gerarRelatorio() {
                 <td>${dataExibicao}</td>
                 <td style="color: ${corStatus}; font-weight: bold;">${item.status}</td>
                 <td><strong>${item.nome_vacina}</strong></td>
-                <td>${item.nome_animal}<br><span style="font-size: 12px; color: #555;">${item.raca}</span></td>
+                <td>${item.nome_animal}</td>
                 <td>${item.especie}</td>
+                <td>${item.raca}</td>
                 <td>${item.nome_tutor}</td>
                 <td>${item.telefone}</td>
                 <td>${item.bairro}, ${item.cidade}</td>
@@ -74,7 +75,7 @@ async function gerarRelatorio() {
             corpoTabela.appendChild(tr);
         });
     } catch (erro) {
-        corpoTabela.innerHTML = '<tr><td colspan="8" style="text-align: center; color: red;">Erro ao gerar relatório.</td></tr>';
+        corpoTabela.innerHTML = '<tr><td colspan="9" style="text-align: center; color: red;">Erro ao gerar relatório.</td></tr>';
     }
 }
 

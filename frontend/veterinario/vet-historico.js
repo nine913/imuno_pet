@@ -1,8 +1,10 @@
 const usuarioString = localStorage.getItem('usuarioImunoPet');
+let usuario = null;
+
 if (!usuarioString) {
     window.location.href = '../index.html';
 } else {
-    const usuario = JSON.parse(usuarioString);
+    usuario = JSON.parse(usuarioString);
     if (usuario.perfil !== 'VETERINARIO') {
         window.location.href = '../dashboard.html';
     }
@@ -35,44 +37,27 @@ async function carregarFiltroVacinas() {
     } catch (erro) {}
 }
 
-async function carregarVeterinarios() {
-    try {
-        const resposta = await fetch('http://localhost:3000/veterinarios');
-        if (resposta.ok) {
-            const vets = await resposta.json();
-            const selectVet = document.getElementById('selectVeterinario');
-            if (selectVet) {
-                selectVet.innerHTML = '<option value="">Selecione quem aplicou...</option>';
-                vets.forEach(v => {
-                    const option = document.createElement('option');
-                    option.value = v.id_veterinario;
-                    option.textContent = v.nome_completo;
-                    selectVet.appendChild(option);
-                });
-            }
-        }
-    } catch (erro) {}
-}
-
 function calcularProximaDose() {
     const idVacina = document.getElementById('selectVacina').value;
     const dataApp = document.getElementById('data_aplicacao').value;
     const inputProxDose = document.getElementById('data_proxima_dose');
 
     if (idVacina && dataApp && inputProxDose) {
-        const vacinaSelecionada = todasAsVacinas.find(v => v.id_vacina == idVacina);
-        const intervalo = vacinaSelecionada ? (vacinaSelecionada.intervalo_doses_dias || vacinaSelecionada.intervalo_dose_dias || 0) : 0;
+        const vacinaSelecionada = todasAsVacinas.find(v => String(v.id_vacina) === String(idVacina));
+        const intervalo = vacinaSelecionada ? parseInt(vacinaSelecionada.intervalo_doses_dias || vacinaSelecionada.intervalo_dose_dias || 0) : 0;
 
         if (intervalo > 0) {
             const partes = dataApp.split('-');
             const dataBaseObj = new Date(partes[0], partes[1] - 1, partes[2]);
-            dataBaseObj.setDate(dataBaseObj.getDate() + parseInt(intervalo));
+            dataBaseObj.setDate(dataBaseObj.getDate() + intervalo);
 
             const ano = dataBaseObj.getFullYear();
             const mes = String(dataBaseObj.getMonth() + 1).padStart(2, '0');
             const dia = String(dataBaseObj.getDate()).padStart(2, '0');
             
             inputProxDose.value = `${ano}-${mes}-${dia}`;
+        } else {
+            inputProxDose.value = '';
         }
     }
 }
@@ -134,37 +119,28 @@ function abrirModalEditar(registroEncoded) {
     document.getElementById('selectVacina').value = reg.id_vacina || '';
     
     const selectStatus = document.getElementById('statusVacina');
-    selectStatus.innerHTML = `
-        <option value="APLICADA">Aplicada</option>
-        <option value="PENDENTE">Agendada (Pendente)</option>
-    `;
-    
-    if (reg.status === 'ATRASADA') {
-        const opt = document.createElement('option');
-        opt.value = 'ATRASADA';
-        opt.textContent = 'Atrasada (Automático)';
-        selectStatus.appendChild(opt);
+    if (selectStatus) {
+        selectStatus.innerHTML = `
+            <option value="APLICADA">Aplicada</option>
+            <option value="PENDENTE">Agendada (Pendente)</option>
+        `;
+        if (reg.status === 'ATRASADA') {
+            const opt = document.createElement('option');
+            opt.value = 'ATRASADA';
+            opt.textContent = 'Atrasada (Automático)';
+            selectStatus.appendChild(opt);
+        }
+        selectStatus.value = reg.status;
     }
     
-    selectStatus.value = reg.status;
-    
-    if (reg.data_aplicacao) {
-        document.getElementById('data_aplicacao').value = reg.data_aplicacao.split('T')[0];
-    } else {
-        document.getElementById('data_aplicacao').value = '';
-    }
-
-    if (reg.data_proxima_dose) {
-        document.getElementById('data_proxima_dose').value = reg.data_proxima_dose.split('T')[0];
-    } else {
-        document.getElementById('data_proxima_dose').value = '';
+    const dataAppEl = document.getElementById('data_aplicacao');
+    if (dataAppEl) {
+        dataAppEl.value = reg.data_aplicacao ? reg.data_aplicacao.split('T')[0] : '';
     }
 
-    const selectVeterinario = document.getElementById('selectVeterinario');
-    if (selectVeterinario && reg.id_veterinario) {
-        selectVeterinario.value = reg.id_veterinario;
-    } else if (selectVeterinario) {
-        selectVeterinario.value = '';
+    const dataProxEl = document.getElementById('data_proxima_dose');
+    if (dataProxEl) {
+        dataProxEl.value = reg.data_proxima_dose ? reg.data_proxima_dose.split('T')[0] : '';
     }
 
     const divMensagem = document.getElementById('mensagem');
@@ -182,37 +158,30 @@ function dispararLogicaVisualStatus() {
     const statusVal = document.getElementById('statusVacina').value;
     const inputDataAplicacao = document.getElementById('data_aplicacao');
     const inputProximaDose = document.getElementById('data_proxima_dose');
-    const selectVeterinario = document.getElementById('selectVeterinario');
-    const labelVeterinario = document.getElementById('labelVeterinario');
     const dataHojeStr = new Date().toISOString().split('T')[0];
 
     if (statusVal === 'PENDENTE' || statusVal === 'ATRASADA') {
-        inputDataAplicacao.value = '';
-        inputDataAplicacao.disabled = true;
-        inputDataAplicacao.required = false;
-        
-        if (statusVal === 'PENDENTE') {
-            inputProximaDose.setAttribute('min', dataHojeStr);
-        } else {
-            inputProximaDose.removeAttribute('min');
+        if (inputDataAplicacao) {
+            inputDataAplicacao.value = '';
+            inputDataAplicacao.disabled = true;
+            inputDataAplicacao.required = false;
         }
-
-        if (selectVeterinario && labelVeterinario) {
-            selectVeterinario.style.display = 'none';
-            labelVeterinario.style.display = 'none';
-            selectVeterinario.required = false;
-            selectVeterinario.value = '';
+        
+        if (inputProximaDose) {
+            if (statusVal === 'PENDENTE') {
+                inputProximaDose.setAttribute('min', dataHojeStr);
+            } else {
+                inputProximaDose.removeAttribute('min');
+            }
         }
     } else {
-        inputDataAplicacao.disabled = false;
-        inputDataAplicacao.required = true;
+        if (inputDataAplicacao) {
+            inputDataAplicacao.disabled = false;
+            inputDataAplicacao.required = true;
+        }
         
-        inputProximaDose.setAttribute('min', inputDataAplicacao.value || '');
-
-        if (selectVeterinario && labelVeterinario) {
-            selectVeterinario.style.display = 'block';
-            labelVeterinario.style.display = 'block';
-            selectVeterinario.required = true;
+        if (inputProximaDose && inputDataAplicacao) {
+            inputProximaDose.setAttribute('min', inputDataAplicacao.value || '');
         }
     }
 }
@@ -247,7 +216,6 @@ if (formEditar) {
         
         const idRegistro = document.getElementById('edit_id_registro').value;
         const statusVal = document.getElementById('statusVacina').value;
-        const idVetEl = document.getElementById('selectVeterinario');
         const dataAppStr = document.getElementById('data_aplicacao').value;
         const dataProxStr = document.getElementById('data_proxima_dose').value;
         const dataHojeStr = new Date().toISOString().split('T')[0];
@@ -274,7 +242,7 @@ if (formEditar) {
             data_aplicacao: dataAppStr || null,
             data_proxima_dose: dataProxStr || null,
             status: statusVal,
-            id_veterinario: (statusVal === 'APLICADA' || statusVal === 'ATRASADA') && idVetEl ? idVetEl.value : null
+            id_usuario: usuario.id_usuario
         };
 
         try {
@@ -337,6 +305,5 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (inputAppDate) inputAppDate.setAttribute('max', dataHoje);
     
     await carregarFiltroVacinas();
-    await carregarVeterinarios();
     carregarHistorico();
 });
