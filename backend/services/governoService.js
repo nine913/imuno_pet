@@ -1,0 +1,130 @@
+const db = require('../db');
+
+async function dadosEpidemiologicos(query) {
+  const inicio = query.inicio || '2000-01-01';
+  const fim = query.fim || '2100-12-31';
+  const especie = query.especie || '';
+  const localidade = query.localidade || '';
+
+  let paramsRisco = [inicio, fim, inicio, fim];
+  let condicaoRisco = `WHERE (rv.data_aplicacao BETWEEN ? AND ? OR rv.data_proxima_dose BETWEEN ? AND ?)`;
+
+  if (especie) {
+    condicaoRisco += ` AND a.especie = ?`;
+    paramsRisco.push(especie);
+  }
+  if (localidade) {
+    condicaoRisco += ` AND (t.cidade LIKE ? OR t.bairro LIKE ?)`;
+    paramsRisco.push(`%${localidade}%`, `%${localidade}%`);
+  }
+
+  const queryRisco = `
+    SELECT t.bairro, t.cidade,
+           SUM(CASE WHEN rv.status = 'APLICADA' THEN 1 ELSE 0 END) as total_aplicadas,
+           SUM(CASE WHEN rv.status = 'ATRASADA' THEN 1 ELSE 0 END) as total_atrasadas,
+           SUM(CASE WHEN rv.status = 'PENDENTE' THEN 1 ELSE 0 END) as total_pendentes
+    FROM registro_vacinacao rv
+    JOIN animal a ON rv.id_animal = a.id_animal
+    JOIN tutor t ON a.id_tutor = t.id_tutor
+    ${condicaoRisco}
+    GROUP BY t.cidade, t.bairro
+    ORDER BY total_atrasadas DESC
+  `;
+  const [riscoRegiao] = await db.query(queryRisco, paramsRisco);
+
+  let paramsGeral = [inicio, fim];
+  let condicaoGeral = `WHERE rv.status = 'APLICADA' AND rv.data_aplicacao BETWEEN ? AND ?`;
+
+  if (localidade) {
+    condicaoGeral += ` AND (t.cidade LIKE ? OR t.bairro LIKE ?)`;
+    paramsGeral.push(`%${localidade}%`, `%${localidade}%`);
+  }
+  if (especie) {
+    condicaoGeral += ` AND a.especie = ?`;
+    paramsGeral.push(especie);
+  }
+
+  const queryEspecie = `
+    SELECT a.especie, COUNT(rv.id_registro) as total_vacinados
+    FROM registro_vacinacao rv
+    JOIN animal a ON rv.id_animal = a.id_animal
+    JOIN tutor t ON a.id_tutor = t.id_tutor
+    ${condicaoGeral}
+    GROUP BY a.especie
+    ORDER BY total_vacinados DESC
+  `;
+  const [coberturaEspecie] = await db.query(queryEspecie, paramsGeral);
+
+  const queryEvolucao = `
+    SELECT DATE_FORMAT(rv.data_aplicacao, '%Y-%m') AS mes, COUNT(rv.id_registro) AS quantidade
+    FROM registro_vacinacao rv
+    JOIN animal a ON rv.id_animal = a.id_animal
+    JOIN tutor t ON a.id_tutor = t.id_tutor
+    ${condicaoGeral}
+    GROUP BY mes
+    ORDER BY mes ASC
+  `;
+  const [evolucaoTemporal] = await db.query(queryEvolucao, paramsGeral);
+
+  const queryTopVacinas = `
+    SELECT v.nome_vacina, COUNT(rv.id_registro) AS quantidade
+    FROM registro_vacinacao rv
+    JOIN vacina v ON rv.id_vacina = v.id_vacina
+    JOIN animal a ON rv.id_animal = a.id_animal
+    JOIN tutor t ON a.id_tutor = t.id_tutor
+    ${condicaoGeral}
+    GROUP BY v.id_vacina, v.nome_vacina
+    ORDER BY quantidade DESC
+    LIMIT 5
+  `;
+  const [topVacinas] = await db.query(queryTopVacinas, paramsGeral);
+
+  return { riscoRegiao, coberturaEspecie, evolucaoTemporal, topVacinas };
+}
+
+async function relatoriosAvancados(query) {
+  const dataInicio = query.inicio || '2000-01-01';
+  const dataFim = query.fim || '2100-12-31';
+  const id_vacina = query.vacina || '';
+  const especie = query.especie || '';
+  const bairro = query.bairro || '';
+  const status = query.status || '';
+
+  let sql = `
+    SELECT rv.data_aplicacao, rv.data_proxima_dose, rv.status, v.nome_vacina, 
+           a.nome as nome_animal, a.especie, a.raca, 
+           t.nome_completo as nome_tutor, t.bairro, t.cidade, t.telefone
+    FROM registro_vacinacao rv
+    JOIN vacina v ON rv.id_vacina = v.id_vacina
+    JOIN animal a ON rv.id_animal = a.id_animal
+    JOIN tutor t ON a.id_tutor = t.id_tutor
+    WHERE (rv.data_aplicacao BETWEEN ? AND ? OR rv.data_proxima_dose BETWEEN ? AND ?)
+  `;
+  const params = [dataInicio, dataFim, dataInicio, dataFim];
+
+  if (id_vacina) {
+    sql += ` AND rv.id_vacina = ?`;
+    params.push(id_vacina);
+  }
+  if (especie) {
+    sql += ` AND a.especie = ?`;
+    params.push(especie);
+  }
+  if (bairro) {
+    sql += ` AND t.bairro LIKE ?`;
+    params.push(`%${bairro}%`);
+  }
+  if (status) {
+    sql += ` AND rv.status = ?`;
+    params.push(status);
+  }
+
+  sql += ` ORDER BY rv.data_aplicacao DESC, rv.data_proxima_dose DESC`;
+  const [relatorio] = await db.query(sql, params);
+  return relatorio;
+}
+
+module.exports = {
+  dadosEpidemiologicos,
+  relatoriosAvancados
+};
