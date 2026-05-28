@@ -99,7 +99,7 @@ async function editarRegistroVacina(req, res) {
 // GET: lista animais com vacinas atrasadas (sem params)
 async function animaisAtrasados(req, res) {
   try {
-    const atrasados = await vacinaService.animaisAtrasados();
+    const atrasados = await vacinaService.animaisAtrasados(req.query);
     res.status(200).json(atrasados);
   } catch (error) {
     res.status(error.status || 500).json({ erro: error.message || 'Erro ao buscar vacinas atrasadas' });

@@ -6,12 +6,13 @@ async function dadosDashboard(query) {
   // Defaults para o período caso query não venha preenchida
   const inicio = query.inicio || '2000-01-01';
   const fim = query.fim || '2100-12-31';
+  const id_clinica = query.id_clinica;
 
   // Parâmetros reutilizados nas condições de data_aplicacao/data_proxima_dose
-  const paramsGeral = [inicio, fim, inicio, fim];
+  const paramsGeral = [inicio, fim, inicio, fim, id_clinica];
 
   // Condição dinâmica (montada com template literal) usando placeholders (?)
-  const condicaoDatas = `(data_aplicacao BETWEEN ? AND ? OR data_proxima_dose BETWEEN ? AND ?)`;
+  const condicaoDatas = `(data_aplicacao BETWEEN ? AND ? OR data_proxima_dose BETWEEN ? AND ?) AND id_clinica = ?`;
 
   const queryKpis = `
     SELECT 
@@ -27,8 +28,8 @@ async function dadosDashboard(query) {
   const [kpis] = await db.query(queryKpis, paramsGeral);
 
   // Condição para apenas status "APLICADA"
-  const paramsAplicadas = [inicio, fim];
-  const condicaoAplicadas = `rv.status = 'APLICADA' AND rv.data_aplicacao BETWEEN ? AND ?`;
+  const paramsAplicadas = [inicio, fim, id_clinica];
+  const condicaoAplicadas = `rv.status = 'APLICADA' AND rv.data_aplicacao BETWEEN ? AND ? AND rv.id_clinica = ?`;
 
   // Top vacinas aplicadas (limit 5)
   const queryTopVacinas = `
@@ -77,6 +78,7 @@ async function dadosDashboard(query) {
 async function relatoriosAvancados(query) {
   const dataInicio = query.inicio || '2000-01-01';
   const dataFim = query.fim || '2100-12-31';
+  const id_clinica = query.id_clinica;
 
   // Filtros opcionais (strings vazias = sem filtro)
   const id_vacina = query.vacina || '';
@@ -96,10 +98,10 @@ async function relatoriosAvancados(query) {
     JOIN animal a ON rv.id_animal = a.id_animal
     JOIN tutor t ON a.id_tutor = t.id_tutor
     LEFT JOIN veterinario vet ON rv.id_veterinario = vet.id_veterinario
-    WHERE (rv.data_aplicacao BETWEEN ? AND ? OR rv.data_proxima_dose BETWEEN ? AND ?)
+    WHERE (rv.data_aplicacao BETWEEN ? AND ? OR rv.data_proxima_dose BETWEEN ? AND ?) AND rv.id_clinica = ?
   `;
 
-  const params = [dataInicio, dataFim, dataInicio, dataFim];
+  const params = [dataInicio, dataFim, dataInicio, dataFim, id_clinica];
 
   // Monta filtros adicionais dinamicamente
   if (id_vacina) {
@@ -134,21 +136,22 @@ async function relatoriosAvancados(query) {
 async function veterinariosLista(query) {
   // se termo vier, usa LIKE; senão, '%' para não filtrar
   const termo = query.termo ? `%${query.termo}%` : '%';
+  const id_clinica = query.id_clinica;
 
   const [vets] = await db.query(`
     SELECT v.id_veterinario, v.id_usuario, v.nome_completo, v.crmv, u.email
     FROM veterinario v
     JOIN usuario u ON v.id_usuario = u.id_usuario
-    WHERE v.nome_completo LIKE ? OR v.crmv LIKE ? OR u.email LIKE ?
+    WHERE (v.nome_completo LIKE ? OR v.crmv LIKE ? OR u.email LIKE ?) AND v.id_clinica = ?
     ORDER BY v.nome_completo ASC
-  `, [termo, termo, termo]);
+  `, [termo, termo, termo, id_clinica]);
 
   return vets;
 }
 
 // Cadastra veterinário: cria usuário (VETERINARIO) e depois cria registro na tabela veterinario
 async function cadastrarVet(data) {
-  const { nome_completo, crmv, email, senha } = data;
+  const { nome_completo, crmv, email, senha, id_clinica } = data;
 
   // Valida email único em usuario
   const [existente] = await db.query('SELECT * FROM usuario WHERE email = ?', [email]);
@@ -178,8 +181,8 @@ async function cadastrarVet(data) {
 
   // Insere registro de veterinário
   await db.query(
-    'INSERT INTO veterinario (id_usuario, id_clinica, nome_completo, crmv) VALUES (?, 1, ?, ?)', 
-    [idUsuario, nome_completo, crmv]
+    'INSERT INTO veterinario (id_usuario, id_clinica, nome_completo, crmv) VALUES (?, ?, ?, ?)', 
+    [idUsuario, id_clinica, nome_completo, crmv]
   );
 }
 

@@ -2,10 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 
-// Pool de conexões MySQL com Promise (async/await)
 const db = require('./db');
 
-// Rotas por módulo (Pet/Tutor/Vacina/Governo/Gestor)
 const petRoutes = require('./routes/petRoutes');
 const tutorRoutes = require('./routes/tutorRoutes');
 const vacinaRoutes = require('./routes/vacinaRoutes');
@@ -240,9 +238,11 @@ app.get('/tutor/animais/:id_usuario', async (req, res) => {
 
 app.get('/animais-atrasados', async (req, res) => {
     try {
+        const { id_clinica } = req.query;
+        
         // Data de hoje em formato YYYY-MM-DD (usado no UPDATE/SELECT)
         const hoje = new Date().toISOString().split('T')[0];
-        
+
         // Atualiza registros pendentes que já passaram do prazo para "ATRASADA"
         await db.query(`
             UPDATE registro_vacinacao 
@@ -250,8 +250,7 @@ app.get('/animais-atrasados', async (req, res) => {
             WHERE data_proxima_dose < ? AND status = 'PENDENTE'
         `, [hoje]);
 
-        // Consulta lista de atrasados com joins (vacina/animal/tutor)
-        const [atrasados] = await db.query(`
+        let query = `
             SELECT rv.id_registro, v.nome_vacina, rv.data_proxima_dose, 
                    a.nome as nome_animal, a.especie, t.nome_completo as nome_tutor, t.telefone
             FROM registro_vacinacao rv
@@ -259,8 +258,18 @@ app.get('/animais-atrasados', async (req, res) => {
             JOIN animal a ON rv.id_animal = a.id_animal
             JOIN tutor t ON a.id_tutor = t.id_tutor
             WHERE rv.status = 'ATRASADA'
-            ORDER BY rv.data_proxima_dose ASC
-        `);
+        `;
+        let params = [];
+
+        if (id_clinica) {
+            query += ` AND rv.id_clinica = ?`;
+            params.push(id_clinica);
+        }
+
+        query += ` ORDER BY rv.data_proxima_dose ASC`;
+
+        // Consulta lista de atrasados com joins (vacina/animal/tutor)
+        const [atrasados] = await db.query(query, params);
         res.status(200).json(atrasados);
     } catch (error) {
         res.status(500).json({ erro: 'Erro ao buscar vacinas atrasadas' });
@@ -310,11 +319,20 @@ app.get('/tutor/alertas/:id_usuario', async (req, res) => {
 
 app.get('/veterinarios', async (req, res) => {
     try {
-        // Lista todos os veterinários (id + nome)
-        const [veterinarios] = await db.query(`
+        const { id_clinica } = req.query;
+        let query = `
             SELECT id_veterinario, nome_completo 
             FROM veterinario
-        `);
+        `;
+        let params = [];
+
+        if (id_clinica) {
+            query += ` WHERE id_clinica = ?`;
+            params.push(id_clinica);
+        }
+
+        // Lista todos os veterinários (id + nome)
+        const [veterinarios] = await db.query(query, params);
 
         res.status(200).json(veterinarios);
     } catch (error) {

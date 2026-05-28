@@ -3,7 +3,7 @@ const db = require('../db'); // Pool de conexão MySQL (promises)
 // Registra uma vacinação (cria registro em registro_vacinacao)
 // Se status for "APLICADA" e houver id_usuario, tenta achar id_veterinario.
 async function registrarVacina(data) {
-  const { id_animal, id_vacina, data_aplicacao, data_proxima_dose, status, id_usuario } = data;
+  const { id_animal, id_vacina, data_aplicacao, data_proxima_dose, status, id_usuario, id_clinica } = data;
   let id_veterinario = null;
 
   // Determina id_veterinario quando a vacinação foi aplicada
@@ -16,9 +16,9 @@ async function registrarVacina(data) {
 
   // Insere o registro de vacinação
   await db.query(`
-    INSERT INTO registro_vacinacao (id_animal, id_vacina, data_aplicacao, data_proxima_dose, status, id_veterinario)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `, [id_animal, id_vacina, data_aplicacao, data_proxima_dose, status, id_veterinario]);
+    INSERT INTO registro_vacinacao (id_animal, id_vacina, id_clinica, data_aplicacao, data_proxima_dose, status, id_veterinario)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `, [id_animal, id_vacina, id_clinica, data_aplicacao, data_proxima_dose, status, id_veterinario]);
 }
 
 // Cadastra uma vacina (tabela vacina)
@@ -60,6 +60,7 @@ async function deletarVacina(id_vacina) {
 async function historicoPet(id_animal, query) {
   const termo = query.termo ? `%${query.termo}%` : '%';
   const status = query.status || '';
+  const id_clinica = query.id_clinica || '';
 
   let sql = `
     SELECT rv.id_registro, v.id_vacina, v.nome_vacina, v.doencas_prevenidas, rv.data_aplicacao, rv.data_proxima_dose, rv.status, rv.id_veterinario
@@ -73,6 +74,11 @@ async function historicoPet(id_animal, query) {
   if (status) {
     sql += ` AND rv.status = ?`;
     params.push(status);
+  }
+  
+  if (id_clinica) {
+    sql += ` AND rv.id_clinica = ?`;
+    params.push(id_clinica);
   }
 
   sql += ` ORDER BY rv.data_aplicacao DESC`;
@@ -92,6 +98,7 @@ async function relatorioVacinas(query) {
   const dataFim = query.fim || '2100-12-31';
   const status = query.status || '';
   const especie = query.especie || '';
+  const id_clinica = query.id_clinica || '';
 
   let sql = `
     SELECT v.nome_vacina, rv.data_aplicacao, rv.data_proxima_dose, rv.status, 
@@ -112,6 +119,10 @@ async function relatorioVacinas(query) {
   if (especie) {
     sql += ` AND a.especie = ?`;
     params.push(especie);
+  }
+  if (id_clinica) {
+    sql += ` AND rv.id_clinica = ?`;
+    params.push(id_clinica);
   }
 
   sql += ` ORDER BY rv.data_aplicacao DESC, rv.data_proxima_dose DESC`;
@@ -141,7 +152,9 @@ async function editarRegistroVacina(id_registro, dados) {
 }
 
 // Atualiza status pendente->atrasada e retorna atrasados
-async function animaisAtrasados() {
+async function animaisAtrasados(query) {
+  const id_clinica = query.id_clinica || '';
+  
   // Data atual no formato YYYY-MM-DD
   const hoje = new Date().toISOString().split('T')[0];
 
@@ -152,8 +165,7 @@ async function animaisAtrasados() {
     WHERE data_proxima_dose < ? AND status = 'PENDENTE'
   `, [hoje]);
 
-  // Busca registros agora marcados como ATRASADA
-  const [atrasados] = await db.query(`
+  let sql = `
     SELECT rv.id_registro, v.nome_vacina, rv.data_proxima_dose, 
            a.nome as nome_animal, a.especie, t.nome_completo as nome_tutor, t.telefone
     FROM registro_vacinacao rv
@@ -161,8 +173,18 @@ async function animaisAtrasados() {
     JOIN animal a ON rv.id_animal = a.id_animal
     JOIN tutor t ON a.id_tutor = t.id_tutor
     WHERE rv.status = 'ATRASADA'
-    ORDER BY rv.data_proxima_dose ASC
-  `);
+  `;
+  const params = [];
+  
+  if (id_clinica) {
+    sql += ` AND rv.id_clinica = ?`;
+    params.push(id_clinica);
+  }
+
+  sql += ` ORDER BY rv.data_proxima_dose ASC`;
+
+  // Busca registros agora marcados como ATRASADA
+  const [atrasados] = await db.query(sql, params);
 
   return atrasados;
 }
