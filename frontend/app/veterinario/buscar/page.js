@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function VetBuscar() {
@@ -29,6 +29,7 @@ export default function VetBuscar() {
   const [idParaExcluir, setIdParaExcluir] = useState(null);
 
   const router = useRouter();
+  const bottomRef = useRef(null);
   const hoje = new Date().toISOString().split('T')[0];
 
   useEffect(() => {
@@ -93,7 +94,11 @@ export default function VetBuscar() {
           cidade: dados.cidade || '',
           bairro: dados.bairro || ''
         });
+        setModalVacinaOpen(false);
         setModalEditarOpen(true);
+        setTimeout(() => {
+          bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
       }
     } catch (error) {
       console.error(error);
@@ -127,7 +132,11 @@ export default function VetBuscar() {
       data_proxima_dose: ''
     });
     setMsgVacina({ texto: '', cor: '' });
+    setModalEditarOpen(false);
     setModalVacinaOpen(true);
+    setTimeout(() => {
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
   };
 
   const calcularProximaDose = (id_vac, dt_app) => {
@@ -251,7 +260,6 @@ export default function VetBuscar() {
           ))}
         </div>
 
-        {/* Modal Editar */}
         {modalEditarOpen && (
           <div style={styles.modalContent}>
             <h3 style={{ color: '#0056b3' }}>✏️ Editar Dados do Paciente e Tutor</h3>
@@ -281,7 +289,6 @@ export default function VetBuscar() {
           </div>
         )}
 
-        {/* Modal Vacina */}
         {modalVacinaOpen && (
           <div style={styles.modalContent}>
             <h3 style={{ color: '#0056b3' }}>💉 Registrar Vacina para: {vacinaDados.nome_animal}</h3>
@@ -313,7 +320,6 @@ export default function VetBuscar() {
           </div>
         )}
 
-        {/* Modal Confirmação Exclusão */}
         {modalExclusaoOpen && (
           <div style={styles.modalOverlay}>
             <div style={styles.modalConfirmBox}>
@@ -326,6 +332,7 @@ export default function VetBuscar() {
             </div>
           </div>
         )}
+        <div ref={bottomRef} />
       </div>
     </div>
   );

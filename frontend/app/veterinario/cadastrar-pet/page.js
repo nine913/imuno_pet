@@ -3,76 +3,90 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-export default function VetCadastrarPet() {
-  const [usuario, setUsuario] = useState(null);
-  const [tutores, setTutores] = useState([]);
-  
-  const [idUsuarioTutor, setIdUsuarioTutor] = useState('');
-  const [nome, setNome] = useState('');
-  const [especie, setEspecie] = useState('');
-  const [raca, setRaca] = useState('');
-  const [dataNascimento, setDataNascimento] = useState('');
-  
-  const [mensagem, setMensagem] = useState({ texto: '', cor: '' });
-
+export default function CadastrarAnimal() {
   const router = useRouter();
-  const dataHoje = new Date().toISOString().split('T')[0];
+  const [usuario, setUsuario] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('usuarioImunoPet');
+      if (saved) return JSON.parse(saved);
+    }
+    return null;
+  });
+
+  const [especies, setEspecies] = useState([]);
+  const [racas, setRacas] = useState([]);
+  const [idEspecieSel, setIdEspecieSel] = useState('');
+
+  const [formDados, setFormDados] = useState({
+    id_tutor: '',
+    nome: '',
+    especie: '',
+    raca: '',
+    data_nascimento: ''
+  });
+  const [msg, setMsg] = useState({ texto: '', cor: '' });
 
   useEffect(() => {
-    const usuarioString = localStorage.getItem('usuarioImunoPet');
-    if (!usuarioString) {
+    if (!usuario) {
       router.push('/');
-      return;
-    }
-    const user = JSON.parse(usuarioString);
-    if (user.perfil !== 'VETERINARIO') {
+    } else if (usuario.perfil !== 'VETERINARIO' && usuario.perfil !== 'GESTOR_CLINICA') {
       router.push('/dashboard');
+    } else {
+      carregarEspecies();
+    }
+  }, [usuario, router]);
+
+  const carregarEspecies = async () => {
+    try {
+      const res = await fetch('http://localhost:3000/admin/especies');
+      if (res.ok) setEspecies(await res.json());
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleEspecieChange = async (e) => {
+    const value = e.target.value;
+    setIdEspecieSel(value);
+    
+    if (!value) {
+      setRacas([]);
+      setFormDados({ ...formDados, especie: '', raca: '' });
       return;
     }
-    setUsuario(user);
-    carregarTutores();
-  }, [router]);
 
-  const carregarTutores = async () => {
+    const especieObjeto = especies.find(esp => String(esp.id_especie) === String(value));
+    const nomeEspecie = especieObjeto ? especieObjeto.nome_especie : '';
+
+    setFormDados({ ...formDados, especie: nomeEspecie, raca: '' });
+
     try {
-      const resposta = await fetch('http://localhost:3000/tutores');
-      if (resposta.ok) {
-        setTutores(await resposta.json());
-      }
-    } catch (erro) {
-      setMensagem({ texto: 'Erro ao carregar lista de tutores.', cor: 'red' });
+      const res = await fetch(`http://localhost:3000/admin/racas?id_especie=${value}`);
+      if (res.ok) setRacas(await res.json());
+    } catch (err) {
+      console.error(err);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const resposta = await fetch('http://localhost:3000/cadastrar-pet', {
+      const res = await fetch('http://localhost:3000/cadastrar-animal', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id_usuario: idUsuarioTutor,
-          nome,
-          especie,
-          raca,
-          data_nascimento: dataNascimento
-        })
+        body: JSON.stringify(formDados)
       });
-
-      const dados = await resposta.json();
-
-      if (resposta.ok) {
-        setMensagem({ texto: dados.mensagem, cor: 'green' });
-        setIdUsuarioTutor('');
-        setNome('');
-        setEspecie('');
-        setRaca('');
-        setDataNascimento('');
+      const dados = await res.json();
+      if (res.ok) {
+        setMsg({ texto: 'Animal cadastrado com sucesso!', cor: 'green' });
+        setFormDados({ id_tutor: '', nome: '', especie: '', raca: '', data_nascimento: '' });
+        setIdEspecieSel('');
+        setRacas([]);
       } else {
-        setMensagem({ texto: dados.erro, cor: 'red' });
+        setMsg({ texto: dados.erro || 'Erro ao cadastrar animal.', cor: 'red' });
       }
-    } catch (erro) {
-      setMensagem({ texto: 'Erro ao conectar com o servidor.', cor: 'red' });
+    } catch (err) {
+      setMsg({ texto: 'Erro de conexão.', cor: 'red' });
     }
   };
 
@@ -81,131 +95,50 @@ export default function VetCadastrarPet() {
   return (
     <div style={styles.body}>
       <div style={styles.container}>
-        <h2 style={styles.h2}>Cadastrar Novo Animal</h2>
+        <button style={styles.btnVoltar} onClick={() => router.back()}>Voltar</button>
+        <h2 style={styles.h2}>Cadastrar Novo Paciente (Animal)</h2>
+
         <form onSubmit={handleSubmit}>
-          <select 
-            value={idUsuarioTutor} 
-            onChange={(e) => setIdUsuarioTutor(e.target.value)} 
-            required 
-            style={styles.input}
-          >
-            <option value="">Selecione o Tutor dono do pet...</option>
-            {tutores.map(tutor => (
-              <option key={tutor.id_usuario} value={tutor.id_usuario}>
-                {tutor.nome_completo} (CPF: {tutor.cpf})
-              </option>
+          <label style={styles.label}>ID do Tutor:</label>
+          <input type="number" value={formDados.id_tutor} onChange={e => setFormDados({...formDados, id_tutor: e.target.value})} required style={styles.input} />
+
+          <label style={styles.label}>Nome do Animal:</label>
+          <input type="text" value={formDados.nome} onChange={e => setFormDados({...formDados, nome: e.target.value})} required style={styles.input} />
+
+          <label style={styles.label}>Espécie:</label>
+          <select value={idEspecieSel} onChange={handleEspecieChange} required style={styles.input}>
+            <option value="">Selecione a espécie...</option>
+            {especies.map(e => (
+              <option key={e.id_especie} value={e.id_especie}>{e.nome_especie}</option>
             ))}
           </select>
-          
-          <input 
-            type="text" 
-            value={nome} 
-            onChange={(e) => setNome(e.target.value)} 
-            placeholder="Nome do Pet" 
-            required 
-            style={styles.input} 
-          />
-          
-          <select 
-            value={especie} 
-            onChange={(e) => setEspecie(e.target.value)} 
-            required 
-            style={styles.input}
-          >
-            <option value="">Selecione a Espécie...</option>
-            <option value="Cachorro">Cachorro</option>
-            <option value="Gato">Gato</option>
-            <option value="Outro">Outro</option>
+
+          <label style={styles.label}>Raça:</label>
+          <select value={formDados.raca} onChange={e => setFormDados({...formDados, raca: e.target.value})} required style={styles.input} disabled={!idEspecieSel}>
+            <option value="">Selecione a raça...</option>
+            {racas.map(r => (
+              <option key={r.id_raca} value={r.nome_raca}>{r.nome_raca}</option>
+            ))}
           </select>
-          
-          <input 
-            type="text" 
-            value={raca} 
-            onChange={(e) => setRaca(e.target.value)} 
-            placeholder="Raça" 
-            required 
-            style={styles.input} 
-          />
-          
-          <input 
-            type="date" 
-            value={dataNascimento} 
-            onChange={(e) => setDataNascimento(e.target.value)} 
-            max={dataHoje} 
-            required 
-            style={styles.input} 
-          />
-          
-          <button type="submit" style={styles.button}>Salvar Animal</button>
-          
-          <button 
-            type="button" 
-            style={{ ...styles.button, ...styles.btnVoltar }} 
-            onClick={() => router.push('/veterinario/buscar')}
-          >
-            Voltar ao Painel
-          </button>
+
+          <label style={styles.label}>Data de Nascimento:</label>
+          <input type="date" value={formDados.data_nascimento} onChange={e => setFormDados({...formDados, data_nascimento: e.target.value})} required style={styles.input} />
+
+          <button type="submit" style={styles.btnSub}>Salvar Cadastro</button>
         </form>
-        
-        {mensagem.texto && (
-          <div style={{ ...styles.mensagem, color: mensagem.cor }}>
-            {mensagem.texto}
-          </div>
-        )}
+
+        {msg.texto && <div style={{ textAlign: 'center', marginTop: '15px', fontWeight: 'bold', color: msg.cor }}>{msg.texto}</div>}
       </div>
     </div>
   );
 }
 
 const styles = {
-  body: {
-    fontFamily: 'Arial, sans-serif',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    minHeight: '100vh',
-    backgroundColor: '#f4f4f9',
-    margin: 0,
-    padding: '20px',
-    boxSizing: 'border-box'
-  },
-  container: {
-    background: 'white',
-    padding: '30px',
-    borderRadius: '8px',
-    boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
-    width: '400px'
-  },
-  h2: {
-    textAlign: 'center',
-    color: '#0056b3',
-    marginTop: 0
-  },
-  input: {
-    width: '100%',
-    padding: '10px',
-    margin: '10px 0',
-    border: '1px solid #ccc',
-    borderRadius: '4px',
-    boxSizing: 'border-box'
-  },
-  button: {
-    width: '100%',
-    padding: '10px',
-    backgroundColor: '#28a745',
-    color: 'white',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontSize: '16px',
-    marginTop: '10px'
-  },
-  btnVoltar: {
-    backgroundColor: '#6c757d'
-  },
-  mensagem: {
-    textAlign: 'center',
-    marginTop: '15px',
-    fontWeight: 'bold'
-  }
+  body: { fontFamily: 'Arial, sans-serif', backgroundColor: '#f4f4f9', margin: 0, padding: '20px', minHeight: '100vh' },
+  container: { maxWidth: '600px', margin: 'auto', background: 'white', padding: '30px', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' },
+  h2: { color: '#000000', marginTop: 0, marginBottom: '20px' },
+  btnVoltar: { backgroundColor: '#6c757d', color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', marginBottom: '20px' },
+  input: { width: '100%', padding: '10px', margin: '8px 0 15px 0', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box' },
+  label: { fontWeight: 'bold', color: '#333', fontSize: '14px' },
+  btnSub: { backgroundColor: '#28a745', color: 'white', border: 'none', padding: '12px', borderRadius: '4px', cursor: 'pointer', width: '100%', fontSize: '16px', fontWeight: 'bold' }
 };

@@ -30,51 +30,49 @@ app.use('/', gestorRoutes);
 // ========================
 app.post('/login', async (req, res) => {
     try {
-        // Dados enviados no corpo da requisição
         const { email, senha } = req.body;
 
-        // Busca o usuário pelo email
         const [rows] = await db.query('SELECT * FROM usuario WHERE email = ?', [email]);
 
-        // Se não existe usuário para o email, retorna 401
         if (rows.length === 0) {
             return res.status(401).json({ erro: 'Usuário não encontrado' });
         }
 
         const usuario = rows[0];
 
-        // Compara senha em hash com a senha enviada pelo usuário
         const senhaValida = await bcrypt.compare(senha, usuario.senha);
 
-        // Senha inválida => 401
         if (!senhaValida) {
             return res.status(401).json({ erro: 'Senha incorreta' });
         }
 
-        // Campos que dependem do "perfil" do usuário
         let id_clinica = null;
         let id_especifico = null;
         let nome_usuario = '';
 
-        // Para cada perfil, busca dados complementares em tabelas específicas
         if (usuario.perfil === 'VETERINARIO') {
             const [vet] = await db.query(
-                'SELECT id_veterinario, id_clinica, nome_completo FROM veterinario WHERE id_usuario = ?',
+                'SELECT v.id_veterinario, v.id_clinica, v.nome_completo, c.status FROM veterinario v JOIN clinica c ON v.id_clinica = c.id_clinica WHERE v.id_usuario = ?',
                 [usuario.id_usuario]
             );
             if (vet.length > 0) {
+                if (vet[0].status === 'INATIVA') {
+                    return res.status(403).json({ erro: 'Acesso bloqueado: Sua clínica está inativa no sistema.' });
+                }
                 id_clinica = vet[0].id_clinica;
                 id_especifico = vet[0].id_veterinario;
                 nome_usuario = vet[0].nome_completo;
             }
         } else if (usuario.perfil === 'GESTOR_CLINICA') {
             const [gestor] = await db.query(
-                'SELECT id_gestor, id_clinica, nome_completo FROM gestor WHERE id_usuario = ?',
+                'SELECT g.id_gestor, g.id_clinica, g.nome_completo, c.status FROM gestor g JOIN clinica c ON g.id_clinica = c.id_clinica WHERE g.id_usuario = ?',
                 [usuario.id_usuario]
             );
             if (gestor.length > 0) {
-                // #consertar -> comentário padrão JS
-                id_clinica = gestor[0].id_clinica; // consertar
+                if (gestor[0].status === 'INATIVA') {
+                    return res.status(403).json({ erro: 'Acesso bloqueado: Sua clínica está inativa no sistema.' });
+                }
+                id_clinica = gestor[0].id_clinica;
                 id_especifico = gestor[0].id_gestor;
                 nome_usuario = gestor[0].nome_completo;
             }
@@ -87,9 +85,17 @@ app.post('/login', async (req, res) => {
                 id_especifico = tutor[0].id_tutor;
                 nome_usuario = tutor[0].nome_completo;
             }
+        } else if (usuario.perfil === 'GOVERNO') {
+            const [gov] = await db.query(
+                'SELECT id_orgao, nome_instituicao FROM orgao_governamental WHERE id_usuario = ?',
+                [usuario.id_usuario]
+            );
+            if (gov.length > 0) {
+                id_especifico = gov[0].id_orgao;
+                nome_usuario = gov[0].nome_instituicao;
+            }
         }
 
-        // Responde com dados do login + dados específicos do perfil
         res.status(200).json({
             mensagem: 'Login efetuado com sucesso',
             perfil: usuario.perfil,
@@ -100,7 +106,6 @@ app.post('/login', async (req, res) => {
         });
 
     } catch (error) {
-        // Erro inesperado no servidor
         res.status(500).json({ erro: 'Erro interno do servidor' });
     }
 });
@@ -144,6 +149,30 @@ app.post('/cadastro', async (req, res) => {
   } catch (error) {
     res.status(500).json({ erro: 'Erro interno do servidor' });
   }
+});
+
+app.put('/redefinir-senha', async (req, res) => {
+    try {
+        const { email, nova_senha } = req.body;
+
+        if (!email || !nova_senha) {
+            return res.status(400).json({ erro: 'E-mail e nova senha são obrigatórios.' });
+        }
+
+        const [usuario] = await db.query('SELECT id_usuario FROM usuario WHERE email = ?', [email]);
+
+        if (usuario.length === 0) {
+            return res.status(404).json({ erro: 'E-mail não encontrado no sistema.' });
+        }
+
+        const hashNovaSenha = await bcrypt.hash(nova_senha, 10);
+
+        await db.query('UPDATE usuario SET senha = ? WHERE email = ?', [hashNovaSenha, email]);
+
+        res.status(200).json({ mensagem: 'Senha redefinida com sucesso.' });
+    } catch (error) {
+        res.status(500).json({ erro: 'Erro interno do servidor ao redefinir senha.' });
+    }
 });
 
 app.delete('/deletar-animal/:id_animal', async (req, res) => {
@@ -339,6 +368,19 @@ app.get('/veterinarios', async (req, res) => {
         res.status(500).json({ erro: 'Erro ao buscar veterinarios' });
     }
 });
+
+app.get('/avisos-ativos', async (req, res) => {
+    try {
+        const [avisos] = await db.query("SELECT * FROM aviso WHERE status = 'ATIVO' ORDER BY data_criacao DESC");
+        res.status(200).json(avisos);
+    } catch (error) {
+        res.status(500).json({ erro: 'Erro ao buscar avisos.' });
+    }
+});
+
+const adminRoutes = require('./routes/adminRoutes');
+
+app.use('/admin', adminRoutes);
 
 const PORT = process.env.PORT || 3000;
 

@@ -11,8 +11,8 @@ CREATE TABLE IF NOT EXISTS `imunopet`.`usuario` (
   `senha` VARCHAR(255) NOT NULL,
   `perfil` ENUM('TUTOR', 'VETERINARIO', 'GESTOR_CLINICA', 'GOVERNO', 'ADMINISTRADOR') NOT NULL,
   PRIMARY KEY (`id_usuario`),
-  UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE)
-ENGINE = InnoDB;
+  UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE
+) ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `imunopet`.`tutor` (
   `id_tutor` INT NOT NULL AUTO_INCREMENT,
@@ -31,8 +31,8 @@ CREATE TABLE IF NOT EXISTS `imunopet`.`tutor` (
     FOREIGN KEY (`id_usuario`)
     REFERENCES `imunopet`.`usuario` (`id_usuario`)
     ON DELETE CASCADE
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
+    ON UPDATE NO ACTION
+) ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `imunopet`.`clinica` (
   `id_clinica` INT NOT NULL AUTO_INCREMENT,
@@ -40,8 +40,9 @@ CREATE TABLE IF NOT EXISTS `imunopet`.`clinica` (
   `estado` VARCHAR(2) NOT NULL,
   `cidade` VARCHAR(100) NOT NULL,
   `bairro` VARCHAR(100) NOT NULL,
-  PRIMARY KEY (`id_clinica`))
-ENGINE = InnoDB;
+  `status` ENUM('ATIVA', 'INATIVA') NOT NULL DEFAULT 'ATIVA',
+  PRIMARY KEY (`id_clinica`)
+) ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `imunopet`.`veterinario` (
   `id_veterinario` INT NOT NULL AUTO_INCREMENT,
@@ -63,8 +64,8 @@ CREATE TABLE IF NOT EXISTS `imunopet`.`veterinario` (
     FOREIGN KEY (`id_clinica`)
     REFERENCES `imunopet`.`clinica` (`id_clinica`)
     ON DELETE CASCADE
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
+    ON UPDATE NO ACTION
+) ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `imunopet`.`orgao_governamental` (
   `id_orgao` INT NOT NULL AUTO_INCREMENT,
@@ -79,8 +80,8 @@ CREATE TABLE IF NOT EXISTS `imunopet`.`orgao_governamental` (
     FOREIGN KEY (`id_usuario`)
     REFERENCES `imunopet`.`usuario` (`id_usuario`)
     ON DELETE CASCADE
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
+    ON UPDATE NO ACTION
+) ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `imunopet`.`animal` (
   `id_animal` INT NOT NULL AUTO_INCREMENT,
@@ -95,8 +96,8 @@ CREATE TABLE IF NOT EXISTS `imunopet`.`animal` (
     FOREIGN KEY (`id_tutor`)
     REFERENCES `imunopet`.`tutor` (`id_tutor`)
     ON DELETE CASCADE
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
+    ON UPDATE NO ACTION
+) ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `imunopet`.`vacina` (
   `id_vacina` INT NOT NULL AUTO_INCREMENT,
@@ -104,8 +105,8 @@ CREATE TABLE IF NOT EXISTS `imunopet`.`vacina` (
   `fabricante` VARCHAR(100) NULL,
   `doencas_prevenidas` TEXT NOT NULL,
   `intervalo_doses_dias` INT NULL,
-  PRIMARY KEY (`id_vacina`))
-ENGINE = InnoDB;
+  PRIMARY KEY (`id_vacina`)
+) ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `imunopet`.`gestor` (
   `id_gestor` INT NOT NULL AUTO_INCREMENT,
@@ -160,51 +161,96 @@ CREATE TABLE IF NOT EXISTS `imunopet`.`registro_vacinacao` (
     FOREIGN KEY (`id_clinica`)
     REFERENCES `imunopet`.`clinica` (`id_clinica`)
     ON DELETE CASCADE
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
+    ON UPDATE NO ACTION
+) ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS `imunopet`.`especie` (
+  `id_especie` INT NOT NULL AUTO_INCREMENT,
+  `nome_especie` VARCHAR(50) NOT NULL,
+  PRIMARY KEY (`id_especie`),
+  UNIQUE INDEX `nome_especie_UNIQUE` (`nome_especie` ASC) VISIBLE
+) ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS `imunopet`.`raca` (
+  `id_raca` INT NOT NULL AUTO_INCREMENT,
+  `id_especie` INT NOT NULL,
+  `nome_raca` VARCHAR(100) NOT NULL,
+  PRIMARY KEY (`id_raca`),
+  INDEX `fk_raca_especie_idx` (`id_especie` ASC) VISIBLE,
+  CONSTRAINT `fk_raca_especie`
+    FOREIGN KEY (`id_especie`)
+    REFERENCES `imunopet`.`especie` (`id_especie`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION
+) ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS `imunopet`.`aviso` (
+  `id_aviso` INT NOT NULL AUTO_INCREMENT,
+  `titulo` VARCHAR(100) NOT NULL,
+  `mensagem` TEXT NOT NULL,
+  `tipo` ENUM('INFO', 'ALERTA', 'URGENTE') NOT NULL DEFAULT 'INFO',
+  `data_criacao` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `status` ENUM('ATIVO', 'INATIVO') NOT NULL DEFAULT 'ATIVO',
+  PRIMARY KEY (`id_aviso`)
+) ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS `imunopet`.`log_auditoria` (
+  `id_log` INT NOT NULL AUTO_INCREMENT,
+  `id_usuario` INT NOT NULL,
+  `acao` VARCHAR(255) NOT NULL,
+  `detalhes` TEXT,
+  `data_hora` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_log`),
+  CONSTRAINT `fk_log_usuario`
+    FOREIGN KEY (`id_usuario`) 
+    REFERENCES `imunopet`.`usuario` (`id_usuario`) 
+    ON DELETE CASCADE
+) ENGINE = InnoDB;
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
 
-INSERT INTO usuario (email, senha, perfil) VALUES
-('andre@email.com', '$2b$10$X7bH9asD82jK1lM2n3o4p5q6r7s8t9u0v1w2x3y4z5A6B7C8D9E01', 'GESTOR_CLINICA'),
-('bianca@email.com', '$2b$10$X7bH9asD82jK1lM2n3o4p5q6r7s8t9u0v1w2x3y4z5A6B7C8D9E01', 'VETERINARIO'),
-('davi@email.com', '$2b$10$X7bH9asD82jK1lM2n3o4p5q6r7s8t9u0v1w2x3y4z5A6B7C8D9E01', 'TUTOR'),
-('eduardo@email.com', '$2b$10$X7bH9asD82jK1lM2n3o4p5q6r7s8t9u0v1w2x3y4z5A6B7C8D9E01', 'GOVERNO'),
-('fernanda@email.com', '$2b$10$X7bH9asD82jK1lM2n3o4p5q6r7s8t9u0v1w2x3y4z5A6B7C8D9E01', 'VETERINARIO'),
-('marco@email.com', '$2b$10$X7bH9asD82jK1lM2n3o4p5q6r7s8t9u0v1w2x3y4z5A6B7C8D9E01', 'TUTOR'),
-('walace@email.com', '$2b$10$X7bH9asD82jK1lM2n3o4p5q6r7s8t9u0v1w2x3y4z5A6B7C8D9E01', 'TUTOR');
+INSERT INTO `imunopet`.`usuario` (`email`, `senha`, `perfil`) VALUES 
+('admin@imunopet.com.br', '$2b$10$W5eC.H0D.Lw9iL1/t2B50e6VzQ4uQhP9J8sQ2m/fW3sFj7P9rR.kK', 'ADMINISTRADOR');
 
+INSERT INTO `imunopet`.`especie` (`nome_especie`) VALUES 
+('Cachorro'), 
+('Gato');
+
+INSERT INTO `imunopet`.`raca` (`id_especie`, `nome_raca`) VALUES 
+(1, 'Sem Raça Definida (SRD)'),
+(1, 'Poodle'),
+(1, 'Golden Retriever'),
+(1, 'Bulldog Francês'),
+(1, 'Shih Tzu'),
+(2, 'Sem Raça Definida (SRD)'),
+(2, 'Siamês'),
+(2, 'Persa'),
+(2, 'Maine Coon'),
+(2, 'Sphynx');
+
+INSERT INTO `imunopet`.`aviso` (`titulo`, `mensagem`, `tipo`, `status`) VALUES 
+('Bem-vindo ao ImunoPet', 'O sistema foi atualizado com sucesso. Navegue pelos novos módulos de auditoria e catálogo de vacinas.', 'INFO', 'ATIVO');
+-- usuarios:
 INSERT INTO clinica (nome_fantasia, estado, cidade, bairro) VALUES
-('ImunoPet Matriz', 'PA', 'Ananindeua', 'Centro'),
-('ImunoPet Filial', 'PA', 'Belém', 'Marco');
+('Clínica ImunoPet Central', 'PA', 'Belém', 'Centro');
+
+INSERT INTO usuario (email, senha, perfil) VALUES
+('andre@email.com', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjGsGGZOSm', 'ADMINISTRADOR'),
+('gestor@email.com', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjGsGGZOSm', 'GESTOR_CLINICA'),
+('veterinario@email.com', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjGsGGZOSm', 'VETERINARIO'),
+('tutor@email.com', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjGsGGZOSm', 'TUTOR'),
+('governo@email.com', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjGsGGZOSm', 'GOVERNO');
 
 INSERT INTO gestor (id_usuario, id_clinica, nome_completo) VALUES
-(1, 1, 'André Vitor Costa Figueira');
+((SELECT id_usuario FROM usuario WHERE email = 'gestor@email.com'), 1, 'gestor');
 
 INSERT INTO veterinario (id_usuario, id_clinica, nome_completo, crmv) VALUES
-(2, 1, 'Bianca da Silva Ramos', 'CRMV-PA 1111'),
-(5, 2, 'Fernanda de Souza Miranda', 'CRMV-PA 2222');
-
-INSERT INTO orgao_governamental (id_usuario, nome_instituicao, esfera, estado_atuacao, cidade_atuacao) VALUES
-(4, 'Secretaria de Saúde - Eduardo Bezerra Portilho Magalhães', 'MUNICIPAL', 'PA', 'Ananindeua');
+((SELECT id_usuario FROM usuario WHERE email = 'veterinario@email.com'), 1, 'veterinario', 'CRMV-12345');
 
 INSERT INTO tutor (id_usuario, nome_completo, cpf, telefone, estado, cidade, bairro) VALUES
-(3, 'Davi Tiago de Souza Ribeiro', '111.111.111-11', '(91) 98888-8888', 'PA', 'Ananindeua', 'Cidade Nova'),
-(6, 'Marco de Oliveira Vidal', '222.222.222-22', '(91) 97777-7777', 'PA', 'Belém', 'Nazaré'),
-(7, 'Walace Alves Pinheiro da Silva', '333.333.333-33', '(91) 96666-6666', 'PA', 'Ananindeua', 'Guanabara');
+((SELECT id_usuario FROM usuario WHERE email = 'tutor@email.com'), 'tutor', '111.111.111-11', '11888888888', 'PA', 'Belém', 'Centro');
 
-INSERT INTO animal (id_tutor, nome, especie, raca, data_nascimento) VALUES
-(1, 'Thor', 'Cachorro', 'Golden Retriever', '2022-01-15'),
-(2, 'Luna', 'Gato', 'Siamês', '2023-04-20'),
-(3, 'Bob', 'Cachorro', 'Pug', '2021-10-05');
-
-INSERT INTO vacina (nome_vacina, fabricante, doencas_prevenidas, intervalo_doses_dias) VALUES
-('Antirrábica', 'Zoetis', 'Raiva', 365),
-('V10', 'Vanguard', 'Cinomose, Parvovirose', 365);
-
-INSERT INTO registro_vacinacao (id_animal, id_vacina, id_clinica, id_veterinario, data_aplicacao, data_proxima_dose, status) VALUES
-(1, 1, 1, 1, '2025-05-10', '2026-05-10', 'APLICADA'),
-(2, 2, 2, 2, NULL, '2026-11-20', 'PENDENTE'),
-(3, 1, 1, 1, '2024-01-10', '2025-01-10', 'ATRASADA');
+INSERT INTO orgao_governamental (id_usuario, nome_instituicao, esfera, estado_atuacao, cidade_atuacao) VALUES
+((SELECT id_usuario FROM usuario WHERE email = 'governo@email.com'), 'Vigilância Sanitária', 'MUNICIPAL', 'PA', 'Belém');

@@ -44,6 +44,8 @@ export default function Dashboard() {
         .btn-gestor:hover { background-color: #520dc2; }
         .btn-governo { background-color: #fd7e14; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 16px; margin-right: 10px; margin-top: 10px; font-weight: bold; }
         .btn-governo:hover { background-color: #eaa75a; }
+        .btn-admin { background-color: #eb0d0d; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 16px; margin-right: 10px; margin-top: 10px; font-weight: bold; }
+        .btn-admin:hover { background-color: #c70b0b; }
       `}</style>
 
       <div className="navbar">
@@ -90,6 +92,14 @@ export default function Dashboard() {
             <p>Monitoramento epidemiológico e controle de endemias por região:</p>
             <button className="btn-governo" onClick={() => router.push('/governo/dashboard')}>Monitoramento Epidemiológico</button>
             <button className="btn-governo" onClick={() => router.push('/governo/relatorios')} style={{ backgroundColor: '#274aaa' }}>Relatórios Avançados</button>
+          </div>
+        )}
+
+         {perfilUsuario === 'ADMINISTRADOR' && (
+          <div>
+            <h2>Painel Administrativo</h2>
+            <p>Gerenciamento geral do sistema:</p>
+            <button className="btn-admin" onClick={() => router.push('/admin/dashboard')}>Dashboard Admin</button>
           </div>
         )}
       </div>

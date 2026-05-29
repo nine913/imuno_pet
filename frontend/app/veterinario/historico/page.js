@@ -9,7 +9,7 @@ function HistoricoConteudo() {
   const [vacinasBase, setVacinasBase] = useState([]);
   const [termoBusca, setTermoBusca] = useState('');
   const [statusFiltro, setStatusFiltro] = useState('');
-  
+
   const [modalEditar, setModalEditar] = useState(false);
   const [editDados, setEditDados] = useState({ id_registro: '', id_vacina: '', status: 'APLICADA', data_aplicacao: '', data_proxima_dose: '' });
   const [msgEditar, setMsgEditar] = useState({ texto: '', cor: '' });
@@ -20,6 +20,7 @@ function HistoricoConteudo() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const idAnimal = searchParams.get('id');
+  const dataHoje = new Date().toISOString().split('T')[0];
 
   useEffect(() => {
     const usuarioString = localStorage.getItem('usuarioImunoPet');
@@ -41,7 +42,9 @@ function HistoricoConteudo() {
     try {
       const res = await fetch('http://localhost:3000/vacinas');
       if (res.ok) setVacinasBase(await res.json());
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      setMsgEditar({ texto: 'Erro de conexão.', cor: 'red' });
+    }
   };
 
   const buscarHistorico = async () => {
@@ -50,7 +53,9 @@ function HistoricoConteudo() {
       const res = await fetch(`http://localhost:3000/historico-pet/${idAnimal}?termo=${termoBusca}&status=${statusFiltro}`);
       if (res.ok) setHistorico(await res.json());
       else setHistorico([]);
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      setMsgEditar({ texto: 'Erro de conexão.', cor: 'red' });
+    }
   };
 
   const calcularProxima = (idVac, dataApp) => {
@@ -58,9 +63,13 @@ function HistoricoConteudo() {
     const vacina = vacinasBase.find(v => String(v.id_vacina) === String(idVac));
     const intervalo = vacina ? parseInt(vacina.intervalo_doses_dias || vacina.intervalo_dose_dias || 0) : 0;
     if (intervalo > 0) {
-      const data = new Date(dataApp);
-      data.setDate(data.getDate() + intervalo);
-      return data.toISOString().split('T')[0];
+      const partes = dataApp.split('-');
+      const dataBaseObj = new Date(partes[0], partes[1] - 1, partes[2]);
+      dataBaseObj.setDate(dataBaseObj.getDate() + intervalo);
+      const ano = dataBaseObj.getFullYear();
+      const mes = String(dataBaseObj.getMonth() + 1).padStart(2, '0');
+      const dia = String(dataBaseObj.getDate()).padStart(2, '0');
+      return `${ano}-${mes}-${dia}`;
     }
     return '';
   };
@@ -77,13 +86,61 @@ function HistoricoConteudo() {
     setModalEditar(true);
   };
 
+  const handleChangeStatus = (e) => {
+    const novoStatus = e.target.value;
+    setEditDados(prev => {
+      const atualizado = { ...prev, status: novoStatus };
+      if (novoStatus === 'PENDENTE' || novoStatus === 'ATRASADA') {
+        atualizado.data_aplicacao = '';
+      }
+      return atualizado;
+    });
+  };
+
+  const handleChangeVacina = (e) => {
+    const novaVacina = e.target.value;
+    setEditDados(prev => ({
+      ...prev,
+      id_vacina: novaVacina,
+      data_proxima_dose: prev.status !== 'PENDENTE' ? calcularProxima(novaVacina, prev.data_aplicacao) : prev.data_proxima_dose
+    }));
+  };
+
+  const handleChangeDataAplicacao = (e) => {
+    const novaData = e.target.value;
+    setEditDados(prev => ({
+      ...prev,
+      data_aplicacao: novaData,
+      data_proxima_dose: calcularProxima(prev.id_vacina, novaData)
+    }));
+  };
+
   const submitEditar = async (e) => {
     e.preventDefault();
+
+    if (editDados.status === 'PENDENTE' && editDados.data_proxima_dose < dataHoje) {
+      setMsgEditar({ texto: 'A data de vencimento não pode estar no passado.', cor: 'red' });
+      return;
+    }
+
+    if (editDados.data_aplicacao && editDados.data_proxima_dose && editDados.data_proxima_dose < editDados.data_aplicacao) {
+      setMsgEditar({ texto: 'A próxima dose não pode ser anterior à aplicação.', cor: 'red' });
+      return;
+    }
+
     try {
+      const payload = {
+        id_vacina: editDados.id_vacina,
+        data_aplicacao: editDados.data_aplicacao || null,
+        data_proxima_dose: editDados.data_proxima_dose || null,
+        status: editDados.status,
+        id_usuario: usuario.id_usuario
+      };
+
       const res = await fetch(`http://localhost:3000/editar-registro-vacina/${editDados.id_registro}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...editDados, id_usuario: usuario.id_usuario })
+        body: JSON.stringify(payload)
       });
       if (res.ok) {
         setMsgEditar({ texto: 'Atualizado com sucesso!', cor: 'green' });
@@ -91,14 +148,18 @@ function HistoricoConteudo() {
       } else {
         setMsgEditar({ texto: 'Erro ao atualizar.', cor: 'red' });
       }
-    } catch (e) { setMsgEditar({ texto: 'Erro de conexão.', cor: 'red' }); }
+    } catch (e) {
+      setMsgEditar({ texto: 'Erro de conexão.', cor: 'red' });
+    }
   };
 
   const confirmarExcluir = async () => {
     try {
       const res = await fetch(`http://localhost:3000/deletar-registro-vacina/${idExcluir}`, { method: 'DELETE' });
       if (res.ok) { setModalExcluir(false); buscarHistorico(); }
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      setMsgEditar({ texto: 'Erro de conexão.', cor: 'red' });
+    }
   };
 
   if (!usuario) return null;
@@ -107,29 +168,31 @@ function HistoricoConteudo() {
     <div style={styles.body}>
       <div style={styles.container}>
         <button style={styles.btnVoltar} onClick={() => router.push('/veterinario/buscar')}>Voltar para Busca</button>
-        <h2>Histórico de Vacinação do Paciente</h2>
-        
+        <h2 style={styles.h2}>Histórico de Vacinação do Paciente</h2>
+
         <div style={styles.filterBar}>
-          <input type="text" value={termoBusca} onChange={e => setTermoBusca(e.target.value)} placeholder="Buscar por nome da vacina..." style={styles.input} />
-          <select value={statusFiltro} onChange={e => setStatusFiltro(e.target.value)} style={styles.input}>
-            <option value="">Status da Vacina: Todos</option>
-            <option value="APLICADA">Aplicada</option>
-            <option value="PENDENTE">Pendente (Agendada)</option>
-            <option value="ATRASADA">Atrasada</option>
-          </select>
-          <button style={styles.btnPesquisar} onClick={buscarHistorico}>Pesquisar</button>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <input type="text" value={termoBusca} onChange={e => setTermoBusca(e.target.value)} placeholder="Buscar por nome da vacina..." style={{...styles.input, flex: 2, margin: 0}} />
+            <select value={statusFiltro} onChange={e => setStatusFiltro(e.target.value)} style={{...styles.input, flex: 1, margin: 0}}>
+              <option value="">Status da Vacina: Todos</option>
+              <option value="APLICADA">Aplicada</option>
+              <option value="PENDENTE">Pendente (Agendada)</option>
+              <option value="ATRASADA">Atrasada</option>
+            </select>
+            <button style={{...styles.btnPesquisar, flex: 1}} onClick={buscarHistorico}>Pesquisar</button>
+          </div>
         </div>
 
         <div>
-          {historico.map(reg => (
+          {historico.length === 0 ? <p>Nenhum registro encontrado.</p> : historico.map(reg => (
             <div key={reg.id_registro} style={styles.card}>
               <div>
-                <h3>💉 {reg.nome_vacina}</h3>
-                <p><strong>Status:</strong> <span style={{ color: reg.status === 'APLICADA' ? 'green' : 'red', fontWeight: 'bold' }}>{reg.status}</span></p>
-                <p><strong>Aplicação:</strong> {reg.data_aplicacao ? new Date(reg.data_aplicacao).toLocaleDateString() : '-'} | <strong>Próxima:</strong> {reg.data_proxima_dose ? new Date(reg.data_proxima_dose).toLocaleDateString() : '-'}</p>
+                <h3 style={styles.h3}>💉 {reg.nome_vacina}</h3>
+                <p><strong>Status:</strong> <span style={{ color: reg.status === 'APLICADA' ? 'green' : reg.status === 'ATRASADA' ? 'red' : 'orange', fontWeight: 'bold' }}>{reg.status}</span></p>
+                <p><strong>Aplicação:</strong> {reg.data_aplicacao ? new Date(reg.data_aplicacao).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-'} | <strong>Próxima:</strong> {reg.data_proxima_dose ? new Date(reg.data_proxima_dose).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-'}</p>
               </div>
               <div style={{ display: 'flex', gap: '10px', flexDirection: 'column' }}>
-                <button style={{...styles.btnAcao, backgroundColor: '#ffc107'}} onClick={() => abrirEditar(reg)}>✏️ Editar</button>
+                <button style={{...styles.btnAcao, backgroundColor: '#ffc107', color: 'black'}} onClick={() => abrirEditar(reg)}>✏️ Editar</button>
                 <button style={{...styles.btnAcao, backgroundColor: '#dc3545'}} onClick={() => { setIdExcluir(reg.id_registro); setModalExcluir(true); }}>🗑️ Excluir</button>
               </div>
             </div>
@@ -140,24 +203,48 @@ function HistoricoConteudo() {
       {modalEditar && (
         <div style={styles.overlay}>
           <div style={styles.modal}>
-            <h3>✏️ Editar Registro</h3>
+            <h3 style={styles.h3}>✏️ Editar Registro</h3>
             <form onSubmit={submitEditar}>
-              <select value={editDados.id_vacina} onChange={e => setEditDados({...editDados, id_vacina: e.target.value})} style={styles.input}>
+              <label style={styles.label}>Vacina:</label>
+              <select value={editDados.id_vacina} onChange={handleChangeVacina} style={styles.input} required>
+                <option value="">Selecione a vacina...</option>
                 {vacinasBase.map(v => <option key={v.id_vacina} value={v.id_vacina}>{v.nome_vacina}</option>)}
               </select>
-              <select value={editDados.status} onChange={e => setEditDados({...editDados, status: e.target.value})} style={styles.input}>
+
+              <label style={styles.label}>Status:</label>
+              <select value={editDados.status} onChange={handleChangeStatus} style={styles.input} required>
                 <option value="APLICADA">Aplicada</option>
-                <option value="PENDENTE">Pendente</option>
+                <option value="PENDENTE">Agendada (Pendente)</option>
+                {editDados.status === 'ATRASADA' && <option value="ATRASADA">Atrasada (Automático)</option>}
               </select>
-              <input type="date" value={editDados.data_aplicacao} onChange={e => {
-                const novaApp = e.target.value;
-                setEditDados({...editDados, data_aplicacao: novaApp, data_proxima_dose: calcularProxima(editDados.id_vacina, novaApp)});
-              }} style={styles.input} />
-              <input type="date" value={editDados.data_proxima_dose} onChange={e => setEditDados({...editDados, data_proxima_dose: e.target.value})} style={styles.input} />
-              <button type="submit" style={styles.btnAcao}>Salvar Alterações</button>
-              <button type="button" onClick={() => setModalEditar(false)} style={{...styles.btnVoltar, width: '100%'}}>Cancelar</button>
+
+              <label style={styles.label}>Data de Aplicação:</label>
+              <input
+                type="date"
+                value={editDados.data_aplicacao}
+                onChange={handleChangeDataAplicacao}
+                style={styles.input}
+                disabled={editDados.status === 'PENDENTE' || editDados.status === 'ATRASADA'}
+                required={editDados.status === 'APLICADA'}
+                max={dataHoje}
+              />
+
+              <label style={styles.label}>Data da Próxima Dose / Vencimento:</label>
+              <input
+                type="date"
+                value={editDados.data_proxima_dose}
+                onChange={e => setEditDados({...editDados, data_proxima_dose: e.target.value})}
+                style={styles.input}
+                min={editDados.status === 'PENDENTE' ? dataHoje : (editDados.data_aplicacao || '')}
+                required
+              />
+
+              <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+                <button type="submit" style={{ ...styles.btnAcao, backgroundColor: '#28a745', margin: 0, width: '100%' }}>Salvar Alterações</button>
+                <button type="button" onClick={() => setModalEditar(false)} style={{...styles.btnVoltar, width: '100%', margin: 0}}>Cancelar</button>
+              </div>
             </form>
-            {msgEditar.texto && <p style={{color: msgEditar.cor, textAlign: 'center'}}>{msgEditar.texto}</p>}
+            {msgEditar.texto && <div style={{ textAlign: 'center', marginTop: '10px', fontWeight: 'bold', color: msgEditar.cor }}>{msgEditar.texto}</div>}
           </div>
         </div>
       )}
@@ -165,10 +252,12 @@ function HistoricoConteudo() {
       {modalExcluir && (
         <div style={styles.overlay}>
           <div style={styles.modalSmall}>
-            <h3>Atenção!</h3>
-            <p>Deseja excluir este registro?</p>
-            <button style={{backgroundColor: '#dc3545', color: 'white', border: 'none', padding: '10px 20px', width: '100%'}} onClick={confirmarExclusao}>Sim, Excluir</button>
-            <button style={{backgroundColor: '#6c757d', color: 'white', border: 'none', padding: '10px 20px', width: '100%', marginTop: '10px'}} onClick={() => setModalExcluir(false)}>Cancelar</button>
+            <h3 style={{ color: '#dc3545', marginTop: 0 }}>Atenção!</h3>
+            <p>Tem certeza que deseja excluir este registro de vacina do histórico?</p>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '20px' }}>
+              <button style={{ backgroundColor: '#dc3545', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '4px', cursor: 'pointer' }} onClick={confirmarExcluir}>Sim, Excluir</button>
+              <button style={{ backgroundColor: '#6c757d', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '4px', cursor: 'pointer' }} onClick={() => setModalExcluir(false)}>Cancelar</button>
+            </div>
           </div>
         </div>
       )}
@@ -187,13 +276,16 @@ export default function Historico() {
 const styles = {
   body: { fontFamily: 'Arial, sans-serif', backgroundColor: '#f4f4f9', margin: 0, padding: '20px', minHeight: '100vh' },
   container: { maxWidth: '800px', margin: 'auto', background: 'white', padding: '30px', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' },
-  input: { width: '100%', padding: '10px', margin: '10px 0', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box' },
-  filterBar: { display: 'flex', gap: '10px', flexDirection: 'column', backgroundColor: '#e9ecef', padding: '15px', borderRadius: '8px' },
-  btnPesquisar: { padding: '10px 15px', backgroundColor: '#0056b3', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' },
+  h2: { color: '#0056b3', marginTop: 0 },
+  h3: { color: '#0056b3', margin: '0 0 10px 0' },
+  label: { display: 'block', fontSize: '14px', fontWeight: 'bold', marginBottom: '5px', color: '#333' },
+  input: { width: '100%', padding: '10px', margin: '0 0 15px 0', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box' },
+  filterBar: { backgroundColor: '#e9ecef', padding: '15px', borderRadius: '8px', marginBottom: '20px' },
+  btnPesquisar: { padding: '10px 15px', backgroundColor: '#0056b3', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', margin: 0 },
   btnVoltar: { backgroundColor: '#6c757d', color: 'white', border: 'none', padding: '10px 15px', borderRadius: '4px', cursor: 'pointer', marginBottom: '20px' },
-  btnAcao: { padding: '10px', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', marginBottom: '5px' },
-  card: { border: '1px solid #ccc', padding: '15px', borderRadius: '8px', marginTop: '15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+  btnAcao: { padding: '10px 15px', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '14px' },
+  card: { border: '1px solid #ccc', padding: '15px', borderRadius: '8px', marginTop: '15px', backgroundColor: '#fdfdfd', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
   overlay: { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center' },
-  modal: { background: 'white', padding: '20px', borderRadius: '8px', width: '400px' },
-  modalSmall: { background: 'white', padding: '20px', borderRadius: '8px', width: '300px', textAlign: 'center' }
+  modal: { background: '#e9ecef', padding: '20px', borderRadius: '8px', width: '400px', boxShadow: '0 4px 10px rgba(0,0,0,0.2)' },
+  modalSmall: { background: 'white', padding: '20px', borderRadius: '8px', width: '300px', textAlign: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.2)' }
 };
