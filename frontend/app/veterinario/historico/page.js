@@ -29,7 +29,7 @@ function HistoricoConteudo() {
       return;
     }
     const user = JSON.parse(usuarioString);
-    if (user.perfil !== 'VETERINARIO') {
+    if (user.perfil !== 'VETERINARIO' && user.perfil !== 'GESTOR_CLINICA' && user.perfil !== 'ADMINISTRADOR') {
       router.push('/dashboard');
       return;
     }
@@ -102,7 +102,7 @@ function HistoricoConteudo() {
     setEditDados(prev => ({
       ...prev,
       id_vacina: novaVacina,
-      data_proxima_dose: prev.status !== 'PENDENTE' ? calcularProxima(novaVacina, prev.data_aplicacao) : prev.data_proxima_dose
+      data_proxima_dose: prev.status === 'APLICADA' ? calcularProxima(novaVacina, prev.data_aplicacao) : prev.data_proxima_dose
     }));
   };
 
@@ -119,19 +119,24 @@ function HistoricoConteudo() {
     e.preventDefault();
 
     if (editDados.status === 'PENDENTE' && editDados.data_proxima_dose < dataHoje) {
-      setMsgEditar({ texto: 'A data de vencimento não pode estar no passado.', cor: 'red' });
+      setMsgEditar({ texto: 'A data do agendamento não pode estar no passado.', cor: 'red' });
       return;
     }
 
-    if (editDados.data_aplicacao && editDados.data_proxima_dose && editDados.data_proxima_dose < editDados.data_aplicacao) {
-      setMsgEditar({ texto: 'A próxima dose não pode ser anterior à aplicação.', cor: 'red' });
+    if (editDados.status === 'APLICADA' && editDados.data_aplicacao > dataHoje) {
+      setMsgEditar({ texto: 'A data de aplicação não pode estar no futuro.', cor: 'red' });
+      return;
+    }
+
+    if (editDados.status === 'APLICADA' && editDados.data_aplicacao && editDados.data_proxima_dose && editDados.data_proxima_dose < editDados.data_aplicacao) {
+      setMsgEditar({ texto: 'A data de vencimento não pode ser menor que a data de aplicação.', cor: 'red' });
       return;
     }
 
     try {
       const payload = {
         id_vacina: editDados.id_vacina,
-        data_aplicacao: editDados.data_aplicacao || null,
+        data_aplicacao: editDados.status === 'APLICADA' ? editDados.data_aplicacao : null,
         data_proxima_dose: editDados.data_proxima_dose || null,
         status: editDados.status,
         id_usuario: usuario.id_usuario

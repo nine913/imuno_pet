@@ -34,7 +34,7 @@ async function carregarAtrasados() {
                 <div>
                     <strong style="font-size: 18px;">🐾 ${item.nome_animal} (${item.especie})</strong><br>
                     <span>Vacina: <strong>${item.nome_vacina}</strong> (Venceu em: ${dataVenc})</span><br>
-                    <span style="font-size: 13px; color: #555;">Tutor: ${item.nome_tutor} | Contato: ${item.telefone}</span>
+                    <span style="font-size: 13px; color: #333;">Tutor: ${item.nome_tutor} | Contato: ${item.telefone}</span>
                 </div>
                 <a href="${linkWhats}" target="_blank" class="btn-contato">📱 Entrar em Contato</a>
             `;

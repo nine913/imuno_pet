@@ -6,13 +6,8 @@ import { useRouter } from 'next/navigation';
 export default function AdminDashboard() {
   const router = useRouter();
 
-  const [usuario, setUsuario] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('usuarioImunoPet');
-      if (saved) return JSON.parse(saved);
-    }
-    return null;
-  });
+  const [isMounted, setIsMounted] = useState(false);
+  const [usuario, setUsuario] = useState(null);
 
   const [estatisticas, setEstatisticas] = useState({
     total_clinicas: 0,
@@ -21,12 +16,22 @@ export default function AdminDashboard() {
   });
 
   useEffect(() => {
-    if (!usuario) {
-      router.push('/');
-    } else if (usuario.perfil.toUpperCase() !== 'ADMINISTRADOR') {
-      router.push('/dashboard');
+    setIsMounted(true);
+    const saved = localStorage.getItem('usuarioImunoPet');
+    if (saved) {
+      setUsuario(JSON.parse(saved));
     } else {
-      carregarEstatisticas();
+      router.push('/');
+    }
+  }, [router]);
+
+  useEffect(() => {
+    if (usuario) {
+      if (usuario.perfil.toUpperCase() !== 'ADMINISTRADOR') {
+        router.push('/dashboard');
+      } else {
+        carregarEstatisticas();
+      }
     }
   }, [usuario, router]);
 
@@ -42,17 +47,22 @@ export default function AdminDashboard() {
     }
   };
 
-  if (!usuario) return null;
+  const handleLogout = () => {
+    localStorage.removeItem('usuarioImunoPet');
+    router.push('/');
+  };
+
+  if (!isMounted || !usuario) return null;
 
   return (
     <div style={styles.body}>
       <div style={styles.container}>
-        <button style={styles.btnVoltar} onClick={() => router.push('/dashboard')}>
-          Voltar ao Menu Principal
+        <button style={styles.btnVoltar} onClick={handleLogout}>
+          Sair
         </button>
         
         <h2 style={styles.h2}>Painel do Administrador (Super Admin)</h2>
-        <p style={{ marginBottom: '30px', color: '#555' }}>
+        <p style={{ marginBottom: '30px', color: '#333' }}>
           Visão geral e gerenciamento estrutural da plataforma ImunoPet.
         </p>
 
@@ -101,7 +111,7 @@ const styles = {
   body: { fontFamily: 'Arial, sans-serif', backgroundColor: '#f4f4f9', margin: 0, padding: '20px', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'flex-start' },
   container: { maxWidth: '900px', width: '100%', background: 'white', padding: '30px', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)', marginTop: '40px' },
   h2: { color: '#000000', marginTop: 0, fontSize: '28px' },
-  btnVoltar: { backgroundColor: '#6c757d', color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px', marginBottom: '20px' },
+  btnVoltar: { backgroundColor: '#dc3545', color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px', marginBottom: '20px', fontWeight: 'bold' },
   kpiGrid: { display: 'flex', gap: '20px', marginBottom: '30px', flexWrap: 'wrap' },
   kpiCard: { flex: 1, minWidth: '150px', padding: '20px', borderRadius: '8px', color: 'white', textAlign: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' },
   kpiTitle: { margin: 0, fontSize: '14px', textTransform: 'uppercase', color: 'white' },
@@ -109,5 +119,5 @@ const styles = {
   grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px' },
   card: { backgroundColor: '#fdfdfd', border: '1px solid #e3e3e3', borderRadius: '8px', padding: '20px', cursor: 'pointer', transition: 'transform 0.2s, boxShadow 0.2s' },
   cardTitle: { color: '#0056b3', margin: '0 0 10px 0', fontSize: '18px' },
-  cardText: { color: '#555', margin: 0, fontSize: '14px', lineHeight: '1.5' }
+  cardText: { color: '#333', margin: 0, fontSize: '14px', lineHeight: '1.5' }
 };

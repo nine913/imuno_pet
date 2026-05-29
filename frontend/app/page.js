@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import AvisosGlobais from './components/AvisosGlobais';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -35,16 +36,16 @@ export default function Login() {
             router.push('/admin/dashboard');
             break;
           case 'GESTOR_CLINICA':
-            router.push('/gestor/dashboard');
+            router.push('/dashboard');
             break;
           case 'VETERINARIO':
-            router.push('/veterinario/buscar');
+            router.push('/dashboard');
             break;
           case 'TUTOR':
-            router.push('/tutor/dashboard');
+            router.push('/dashboard');
             break;
           case 'GOVERNO':
-            router.push('/governo/dashboard');
+            router.push('/dashboard');
             break;
           default:
             router.push('/dashboard');
@@ -136,7 +137,7 @@ export default function Login() {
         <div style={styles.modalOverlay}>
           <div style={styles.modalContent}>
             <h3 style={{ marginTop: 0, color: '#333' }}>Redefinir Senha</h3>
-            <p style={{ fontSize: '14px', color: '#666' }}>
+            <p style={{ fontSize: '14px', color: '#333' }}>
               Digite seu e-mail cadastrado e a nova senha que deseja utilizar.
             </p>
             
@@ -180,7 +181,7 @@ const styles = {
   container: { display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', backgroundColor: '#f0f2f5' },
   loginBox: { backgroundColor: 'white', padding: '40px', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', width: '100%', maxWidth: '400px' },
   title: { textAlign: 'center', color: '#0056b3', marginBottom: '10px', marginTop: 0 },
-  subtitle: { textAlign: 'center', color: '#666', marginBottom: '30px' },
+  subtitle: { textAlign: 'center', color: '#333', marginBottom: '30px' },
   form: { display: 'flex', flexDirection: 'column' },
   input: { padding: '12px', marginBottom: '15px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '16px', width: '100%', boxSizing: 'border-box' },
   button: { padding: '12px', backgroundColor: '#0056b3', color: 'white', border: 'none', borderRadius: '4px', fontSize: '16px', cursor: 'pointer', fontWeight: 'bold' },

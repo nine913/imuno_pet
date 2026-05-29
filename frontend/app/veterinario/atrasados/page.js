@@ -76,7 +76,7 @@ export default function VetAtrasados() {
                   <div>
                     <strong style={{ fontSize: '18px' }}>🐾 {item.nome_animal} ({item.especie})</strong><br />
                     <span>Vacina: <strong>{item.nome_vacina}</strong> (Venceu em: {dataVenc})</span><br />
-                    <span style={{ fontSize: '13px', color: '#555' }}>Tutor: {item.nome_tutor} | Contato: {item.telefone}</span>
+                    <span style={{ fontSize: '13px', color: '#333' }}>Tutor: {item.nome_tutor} | Contato: {item.telefone}</span>
                   </div>
                   <a href={linkWhats} target="_blank" rel="noopener noreferrer" style={styles.btnContato}>
                     📱 Entrar em Contato

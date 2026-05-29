@@ -112,7 +112,7 @@ export default function MeusAnimaisTutor() {
               <div key={pet.id_animal} style={styles.petCard}>
                 <div>
                   <strong style={{ fontSize: '20px', color: '#0056b3' }}>🐾 {pet.nome}</strong><br />
-                  <span style={{ fontSize: '15px', color: '#555' }}>
+                  <span style={{ fontSize: '15px', color: '#333' }}>
                     Espécie: {pet.especie} | Raça: {pet.raca || 'Não informada'}
                   </span>
                 </div>

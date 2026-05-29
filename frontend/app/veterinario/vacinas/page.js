@@ -149,7 +149,7 @@ export default function VetVacinas() {
               <div key={v.id_vacina} style={styles.card}>
                 <div style={{ flex: 1 }}>
                   <strong>{v.nome_vacina}</strong><br/>
-                  <span style={{ fontSize: '14px', color: '#555' }}>
+                  <span style={{ fontSize: '14px', color: '#333' }}>
                     <strong>Previne:</strong> {v.doencas_prevenidas}<br/>
                     <strong>Fabricante:</strong> {v.fabricante} | <strong>Intervalo:</strong> {textoIntervalo}
                   </span>

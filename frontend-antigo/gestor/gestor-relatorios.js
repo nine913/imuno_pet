@@ -69,7 +69,7 @@ async function gerarRelatorio() {
             const dataBase = item.status === 'APLICADA' ? item.data_aplicacao : item.data_proxima_dose;
             const dataExibicao = dataBase ? new Date(dataBase).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-';
             const corStatus = item.status === 'APLICADA' ? 'green' : (item.status === 'ATRASADA' ? 'red' : 'orange');
-            const infoVet = item.nome_vet ? `${item.nome_vet}<br><span style="font-size: 12px; color: #555;">${item.crmv_vet}</span>` : '-';
+            const infoVet = item.nome_vet ? `${item.nome_vet}<br><span style="font-size: 12px; color: #333;">${item.crmv_vet}</span>` : '-';
             
             const tr = document.createElement('tr');
             tr.innerHTML = `

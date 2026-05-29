@@ -129,7 +129,7 @@ export default function AdminAvisos() {
             <div key={aviso.id_aviso} style={{ ...styles.card, borderLeft: `5px solid ${aviso.tipo === 'URGENTE' ? '#dc3545' : aviso.tipo === 'ALERTA' ? '#ffc107' : '#17a2b8'}` }}>
               <div>
                 <h3 style={{ marginTop: 0, color: '#333' }}>{aviso.titulo}</h3>
-                <p style={{ margin: '5px 0', color: '#555' }}>{aviso.mensagem}</p>
+                <p style={{ margin: '5px 0', color: '#333' }}>{aviso.mensagem}</p>
                 <div style={{ display: 'flex', gap: '10px', marginTop: '10px', fontSize: '12px' }}>
                   <span style={{ backgroundColor: '#e9ecef', padding: '4px 8px', borderRadius: '4px' }}>Tipo: <strong>{aviso.tipo}</strong></span>
                   <span style={{ backgroundColor: aviso.status === 'ATIVO' ? '#d4edda' : '#f8d7da', color: aviso.status === 'ATIVO' ? '#155724' : '#721c24', padding: '4px 8px', borderRadius: '4px' }}>Status: <strong>{aviso.status}</strong></span>

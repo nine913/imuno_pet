@@ -77,7 +77,7 @@ export default function AdminAuditoria() {
             <tbody>
               {logsFiltrados.length === 0 ? (
                 <tr>
-                  <td colSpan="5" style={{ padding: '15px', textAlign: 'center', color: '#666' }}>Nenhum registro encontrado.</td>
+                  <td colSpan="5" style={{ padding: '15px', textAlign: 'center', color: '#333' }}>Nenhum registro encontrado.</td>
                 </tr>
               ) : (
                 logsFiltrados.map(log => (
@@ -90,7 +90,7 @@ export default function AdminAuditoria() {
                       </span>
                     </td>
                     <td style={styles.td}>{log.acao}</td>
-                    <td style={styles.td}><span style={{ color: '#555', fontStyle: 'italic' }}>{log.detalhes || '-'}</span></td>
+                    <td style={styles.td}><span style={{ color: '#333', fontStyle: 'italic' }}>{log.detalhes || '-'}</span></td>
                   </tr>
                 ))
               )}

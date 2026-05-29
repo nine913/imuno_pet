@@ -225,7 +225,7 @@ export default function GestorRelatorios() {
                         {item.nome_vet ? (
                           <>
                             {item.nome_vet}<br/>
-                            <span style={{ fontSize: '12px', color: '#555' }}>{item.crmv_vet}</span>
+                            <span style={{ fontSize: '12px', color: '#333' }}>{item.crmv_vet}</span>
                           </>
                         ) : '-'}
                       </td>

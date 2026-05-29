@@ -159,7 +159,7 @@ function HistoricoConteudo() {
                   <div key={reg.id_registro} style={styles.historicoItem}>
                     <div>
                       <strong style={{ fontSize: '18px', color: '#0056b3' }}>{reg.nome_vacina}</strong> - <span style={{ fontWeight: 'bold', color: corStatus }}>{reg.status}</span><br />
-                      <span style={{ fontSize: '14px', color: '#555' }}>
+                      <span style={{ fontSize: '14px', color: '#333' }}>
                         <strong>Data de Aplicação:</strong> {dataApp} | <strong>Próxima Dose:</strong> {dataProx}<br />
                         <strong>Imunização contra:</strong> {reg.doencas_prevenidas}
                       </span>

@@ -49,7 +49,7 @@ async function carregarHistoricoTutor() {
             item.innerHTML = `
                 <div>
                     <strong style="font-size: 18px; color: #0056b3;">${reg.nome_vacina}</strong> - <span style="font-weight: bold; color: ${corStatus};">${reg.status}</span><br>
-                    <span style="font-size: 14px; color: #555;">
+                    <span style="font-size: 14px; color: #333;">
                         <strong>Data de Aplicação:</strong> ${dataApp} | <strong>Próxima Dose:</strong> ${dataProx}<br>
                         <strong>Imunização contra:</strong> ${reg.doencas_prevenidas}
                     </span>

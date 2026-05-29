@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 
 export default function GestorDashboard() {
   const [usuario, setUsuario] = useState(null);
+  const [clinica, setClinica] = useState(null);
   const [filtros, setFiltros] = useState({ inicio: '', fim: '' });
   const [kpis, setKpis] = useState({ total_aplicadas: 0, total_atrasadas: 0, total_pendentes: 0, total_animais: 0 });
   const [chartDataEvolucao, setChartDataEvolucao] = useState([]);
@@ -42,8 +43,22 @@ export default function GestorDashboard() {
     const initialFim = hoje.toISOString().split('T')[0];
     setFiltros({ inicio: initialInicio, fim: initialFim });
 
+    carregarClinica(user.id_clinica);
     carregarDadosGestor(initialInicio, initialFim);
   }, [router]);
+
+  const carregarClinica = async (id_clinica) => {
+    if (!id_clinica) return;
+    try {
+      const resposta = await fetch(`http://localhost:3000/admin/clinicas/${id_clinica}`);
+      if (resposta.ok) {
+        const dados = await resposta.json();
+        setClinica(dados);
+      }
+    } catch (erro) {
+      console.error("Erro ao carregar dados da clínica:", erro);
+    }
+  };
 
   const carregarDadosGestor = async (inicio, fim) => {
     let url = 'http://localhost:3000/gestor/dados-dashboard?';
@@ -154,6 +169,15 @@ export default function GestorDashboard() {
         
         <h2 style={styles.h2}>Visão Estratégica da Clínica</h2>
 
+        {clinica && (
+          <div style={styles.clinicaCard}>
+            <h3 style={{ margin: '0 0 10px 0', color: '#0056b3' }}>🏥 {clinica.nome_clinica}</h3>
+            <p style={{ margin: '5px 0' }}><strong>CNPJ:</strong> {clinica.cnpj}</p>
+            <p style={{ margin: '5px 0' }}><strong>Endereço:</strong> {clinica.endereco}, {clinica.bairro} - {clinica.cidade}/{clinica.estado}</p>
+            <p style={{ margin: '5px 0' }}><strong>Telefone:</strong> {clinica.telefone}</p>
+          </div>
+        )}
+
         <div style={styles.filtrosBox}>
           <div style={styles.filtroItem}>
             <label style={styles.label}>Data Início:</label>
@@ -212,6 +236,7 @@ const styles = {
   container: { maxWidth: '1100px', margin: 'auto', background: 'white', padding: '30px', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' },
   h2: { color: '#000000', marginTop: 0 },
   btnVoltar: { backgroundColor: '#6c757d', color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px', marginBottom: '20px' },
+  clinicaCard: { backgroundColor: '#e9ecef', padding: '20px', borderRadius: '8px', marginBottom: '25px', borderLeft: '5px solid #0056b3' },
   filtrosBox: { display: 'flex', gap: '15px', backgroundColor: '#e9ecef', padding: '15px', borderRadius: '8px', marginBottom: '25px', alignItems: 'flex-end', flexWrap: 'wrap' },
   filtroItem: { flex: 1, minWidth: '150px' },
   label: { display: 'block', fontSize: '14px', fontWeight: 'bold', color: '#333', marginBottom: '5px' },

@@ -9,6 +9,7 @@ const tutorRoutes = require('./routes/tutorRoutes');
 const vacinaRoutes = require('./routes/vacinaRoutes');
 const governoRoutes = require('./routes/governoRoutes');
 const gestorRoutes = require('./routes/gestorRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use('/', tutorRoutes);
 app.use('/', vacinaRoutes);
 app.use('/', governoRoutes);
 app.use('/', gestorRoutes);
+app.use('/admin', adminRoutes);
 
 // ========================
 // Autenticação e cadastro
@@ -378,9 +380,14 @@ app.get('/avisos-ativos', async (req, res) => {
     }
 });
 
-const adminRoutes = require('./routes/adminRoutes');
-
-app.use('/admin', adminRoutes);
+app.get('/tutores', async (req, res) => {
+    try {
+        const [tutores] = await db.query('SELECT id_tutor, nome_completo, cpf FROM tutor ORDER BY nome_completo ASC');
+        res.status(200).json(tutores);
+    } catch (error) {
+        res.status(500).json({ erro: 'Erro ao buscar tutores.' });
+    }
+});
 
 const PORT = process.env.PORT || 3000;
 

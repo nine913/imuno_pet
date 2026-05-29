@@ -150,7 +150,7 @@ export default function AdminEspeciesRacas() {
             <ul style={{ listStyle: 'none', padding: 0, marginTop: '20px', maxHeight: '300px', overflowY: 'auto' }}>
               {racas.map(r => (
                 <li key={r.id_raca} style={styles.listItem}>
-                  <span>{r.nome_raca} <small style={{ color: '#666' }}>({r.nome_especie})</small></span>
+                  <span>{r.nome_raca} <small style={{ color: '#333' }}>({r.nome_especie})</small></span>
                   <button onClick={() => deletarRaca(r.id_raca)} style={styles.btnDelete}>X</button>
                 </li>
               ))}

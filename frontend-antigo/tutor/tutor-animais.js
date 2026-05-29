@@ -67,7 +67,7 @@ function renderizarPets(lista) {
         card.innerHTML = `
             <div>
                 <strong style="font-size: 20px; color: #0056b3;">🐾 ${pet.nome}</strong><br>
-                <span style="font-size: 15px; color: #555;">Espécie: ${pet.especie} | Raça: ${pet.raca}</span>
+                <span style="font-size: 15px; color: #333;">Espécie: ${pet.especie} | Raça: ${pet.raca}</span>
             </div>
             <button class="btn-historico" onclick="window.location.href='tutor-historico.html?id=${pet.id_animal}'">📋 Carteira de Vacinação</button>
         `;

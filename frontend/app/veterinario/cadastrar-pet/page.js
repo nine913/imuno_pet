@@ -15,6 +15,7 @@ export default function CadastrarAnimal() {
 
   const [especies, setEspecies] = useState([]);
   const [racas, setRacas] = useState([]);
+  const [tutores, setTutores] = useState([]);
   const [idEspecieSel, setIdEspecieSel] = useState('');
 
   const [formDados, setFormDados] = useState({
@@ -32,14 +33,17 @@ export default function CadastrarAnimal() {
     } else if (usuario.perfil !== 'VETERINARIO' && usuario.perfil !== 'GESTOR_CLINICA') {
       router.push('/dashboard');
     } else {
-      carregarEspecies();
+      carregarDadosBase();
     }
   }, [usuario, router]);
 
-  const carregarEspecies = async () => {
+  const carregarDadosBase = async () => {
     try {
-      const res = await fetch('http://localhost:3000/admin/especies');
-      if (res.ok) setEspecies(await res.json());
+      const resEspecies = await fetch('http://localhost:3000/admin/especies');
+      if (resEspecies.ok) setEspecies(await resEspecies.json());
+
+      const resTutores = await fetch('http://localhost:3000/tutores');
+      if (resTutores.ok) setTutores(await resTutores.json());
     } catch (e) {
       console.error(e);
     }
@@ -99,8 +103,16 @@ export default function CadastrarAnimal() {
         <h2 style={styles.h2}>Cadastrar Novo Paciente (Animal)</h2>
 
         <form onSubmit={handleSubmit}>
-          <label style={styles.label}>ID do Tutor:</label>
-          <input type="number" value={formDados.id_tutor} onChange={e => setFormDados({...formDados, id_tutor: e.target.value})} required style={styles.input} />
+          
+          <label style={styles.label}>Tutor Responsável:</label>
+          <select value={formDados.id_tutor} onChange={e => setFormDados({...formDados, id_tutor: e.target.value})} required style={styles.input}>
+            <option value="">Selecione o tutor...</option>
+            {tutores.map((tutor, index) => (
+              <option key={tutor.id_tutor || `tutor-${index}`} value={tutor.id_tutor}>
+                {tutor.nome_completo} (CPF: {tutor.cpf})
+              </option>
+            ))}
+          </select>
 
           <label style={styles.label}>Nome do Animal:</label>
           <input type="text" value={formDados.nome} onChange={e => setFormDados({...formDados, nome: e.target.value})} required style={styles.input} />
@@ -108,16 +120,16 @@ export default function CadastrarAnimal() {
           <label style={styles.label}>Espécie:</label>
           <select value={idEspecieSel} onChange={handleEspecieChange} required style={styles.input}>
             <option value="">Selecione a espécie...</option>
-            {especies.map(e => (
-              <option key={e.id_especie} value={e.id_especie}>{e.nome_especie}</option>
+            {especies.map((e, index) => (
+              <option key={e.id_especie || `esp-${index}`} value={e.id_especie}>{e.nome_especie}</option>
             ))}
           </select>
 
           <label style={styles.label}>Raça:</label>
           <select value={formDados.raca} onChange={e => setFormDados({...formDados, raca: e.target.value})} required style={styles.input} disabled={!idEspecieSel}>
             <option value="">Selecione a raça...</option>
-            {racas.map(r => (
-              <option key={r.id_raca} value={r.nome_raca}>{r.nome_raca}</option>
+            {racas.map((r, index) => (
+              <option key={r.id_raca || `raca-${index}`} value={r.nome_raca}>{r.nome_raca}</option>
             ))}
           </select>
 

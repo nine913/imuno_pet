@@ -42,7 +42,7 @@ async function realizarBusca(termo = '') {
             card.innerHTML = `
                 <div style="flex: 1;">
                     <strong>${tutor.nome_completo}</strong><br>
-                    <span style="font-size: 14px; color: #555;">
+                    <span style="font-size: 14px; color: #333;">
                         <strong>CPF:</strong> ${tutor.cpf} | <strong>Email:</strong> ${tutor.email}<br>
                         <strong>Telefone:</strong> ${tutor.telefone}<br>
                         <strong>Endereço:</strong> ${tutor.bairro}, ${tutor.cidade} - ${tutor.estado}

@@ -37,7 +37,7 @@ async function realizarBusca(termo = '') {
             card.innerHTML = `
                 <div style="flex: 1;">
                     <strong>${v.nome_vacina}</strong><br>
-                    <span style="font-size: 14px; color: #555;">
+                    <span style="font-size: 14px; color: #333;">
                         <strong>Previne:</strong> ${v.doencas_prevenidas}<br>
                         <strong>Fabricante:</strong> ${v.fabricante} | <strong>Intervalo:</strong> ${textoIntervalo}
                     </span>
