@@ -44,7 +44,7 @@ export default function GestorDashboard() {
     setFiltros({ inicio: initialInicio, fim: initialFim });
 
     carregarClinica(user.id_clinica);
-    carregarDadosGestor(initialInicio, initialFim);
+    carregarDadosGestor(initialInicio, initialFim, user.id_clinica);
   }, [router]);
 
   const carregarClinica = async (id_clinica) => {
@@ -60,8 +60,11 @@ export default function GestorDashboard() {
     }
   };
 
-  const carregarDadosGestor = async (inicio, fim) => {
-    let url = 'http://localhost:3000/gestor/dados-dashboard?';
+  const carregarDadosGestor = async (inicio, fim, idClinica) => {
+    const targetClinica = idClinica || (usuario ? usuario.id_clinica : null);
+    if (!targetClinica) return;
+
+    let url = `http://localhost:3000/gestor/dados-dashboard?id_clinica=${targetClinica}&`;
     if (inicio) url += `inicio=${inicio}&`;
     if (fim) url += `fim=${fim}`;
 
@@ -80,7 +83,7 @@ export default function GestorDashboard() {
   };
 
   const handleFiltrar = () => {
-    carregarDadosGestor(filtros.inicio, filtros.fim);
+    carregarDadosGestor(filtros.inicio, filtros.fim, usuario?.id_clinica);
   };
 
   useEffect(() => {
@@ -169,12 +172,14 @@ export default function GestorDashboard() {
         
         <h2 style={styles.h2}>Visão Estratégica da Clínica</h2>
 
-        {clinica && (
+       {clinica && (
           <div style={styles.clinicaCard}>
-            <h3 style={{ margin: '0 0 10px 0', color: '#0056b3' }}>🏥 {clinica.nome_clinica}</h3>
-            <p style={{ margin: '5px 0' }}><strong>CNPJ:</strong> {clinica.cnpj}</p>
-            <p style={{ margin: '5px 0' }}><strong>Endereço:</strong> {clinica.endereco}, {clinica.bairro} - {clinica.cidade}/{clinica.estado}</p>
-            <p style={{ margin: '5px 0' }}><strong>Telefone:</strong> {clinica.telefone}</p>
+            <h3 style={{ margin: '0 0 10px 0', color: '#0056b3' }}>🏥 {clinica.nome_fantasia || 'Clínica Sem Nome'}</h3>
+            <p style={{ margin: '5px 0', color: '#333' }}><strong>CNPJ:</strong> {clinica.cnpj || 'Não cadastrado'}</p>
+            <p style={{ margin: '5px 0', color: '#333' }}>
+              <strong>Endereço:</strong> {clinica.endereco ? `${clinica.endereco}, ` : ''}{clinica.bairro || ''} {clinica.cidade ? `- ${clinica.cidade}` : ''}{clinica.estado ? `/${clinica.estado}` : ''}
+            </p>
+            <p style={{ margin: '5px 0', color: '#333' }}><strong>Telefone:</strong> {clinica.telefone || 'Não cadastrado'}</p>
           </div>
         )}
 

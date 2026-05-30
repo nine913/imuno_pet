@@ -12,7 +12,7 @@ export default function VetCadastrarVacina() {
     doencas_prevenidas: '',
     fabricante: '',
     tipo_dose: '',
-    intervalo_dose_dias: ''
+    intervalo_doses_dias: ''
   });
 
   const [mensagem, setMensagem] = useState({ texto: '', cor: '' });
@@ -24,7 +24,7 @@ export default function VetCadastrarVacina() {
       return;
     }
     const user = JSON.parse(usuarioString);
-    if (user.perfil !== 'VETERINARIO') {
+    if (user.perfil !== 'VETERINARIO' && user.perfil !== 'GESTOR_CLINICA' && user.perfil !== 'ADMINISTRADOR') {
       router.push('/dashboard');
       return;
     }
@@ -36,13 +36,13 @@ export default function VetCadastrarVacina() {
     setForm({
       ...form,
       tipo_dose: value,
-      intervalo_dose_dias: value === 'intervalo' ? form.intervalo_dose_dias : ''
+      intervalo_doses_dias: value === 'intervalo' ? form.intervalo_doses_dias : ''
     });
   };
 
   const handleIntervaloChange = (e) => {
     const v = e.target.value.replace(/\D/g, "");
-    setForm({ ...form, intervalo_dose_dias: v });
+    setForm({ ...form, intervalo_doses_dias: v });
   };
 
   const handleSubmit = async (e) => {
@@ -52,11 +52,11 @@ export default function VetCadastrarVacina() {
       nome_vacina: form.nome_vacina,
       doencas_prevenidas: form.doencas_prevenidas,
       fabricante: form.fabricante,
-      intervalo_dose_dias: form.tipo_dose === 'intervalo' ? form.intervalo_dose_dias : 0
+      intervalo_doses_dias: form.tipo_dose === 'intervalo' ? form.intervalo_doses_dias : 0
     };
 
     try {
-      const resposta = await fetch('http://localhost:3000/cadastrar-vacina', {
+      const resposta = await fetch('http://localhost:3000/admin/cadastrar-vacina', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -65,7 +65,7 @@ export default function VetCadastrarVacina() {
       const dados = await resposta.json();
 
       if (resposta.ok) {
-        setMensagem({ texto: dados.mensagem, cor: 'green' });
+        setMensagem({ texto: dados.mensagem || 'Vacina salva com sucesso!', cor: 'green' });
         setTimeout(() => {
           router.push('/veterinario/vacinas');
         }, 1500);
@@ -84,65 +84,70 @@ export default function VetCadastrarVacina() {
       <div style={styles.container}>
         <h2 style={styles.h2}>Cadastrar Nova Vacina</h2>
         <form onSubmit={handleSubmit}>
+          
+          <label style={styles.label}>Nome da Vacina:</label>
           <input 
             type="text" 
             value={form.nome_vacina} 
             onChange={(e) => setForm({ ...form, nome_vacina: e.target.value })} 
-            placeholder="Nome da Vacina (Ex: V10, Antirrábica)" 
             required 
             style={styles.input} 
           />
           
-          <textarea 
-            value={form.doencas_prevenidas} 
-            onChange={(e) => setForm({ ...form, doencas_prevenidas: e.target.value })} 
-            placeholder="Doenças Prevenidas (Ex: Cinomose, Parvovirose...)" 
-            rows="4" 
-            required 
-            style={styles.input} 
-          />
-          
+          <label style={styles.label}>Fabricante:</label>
           <input 
             type="text" 
             value={form.fabricante} 
             onChange={(e) => setForm({ ...form, fabricante: e.target.value })} 
-            placeholder="Fabricante" 
+            required 
+            style={styles.input} 
+          />
+
+          <label style={styles.label}>Doenças Prevenidas:</label>
+          <textarea 
+            value={form.doencas_prevenidas} 
+            onChange={(e) => setForm({ ...form, doencas_prevenidas: e.target.value })} 
+            rows="3" 
             required 
             style={styles.input} 
           />
           
+          <label style={styles.label}>Tipo de Dose:</label>
           <select 
             value={form.tipo_dose} 
             onChange={handleTipoDoseChange} 
             required 
             style={styles.input}
           >
-            <option value="">Selecione o Tipo de Dose...</option>
+            <option value="">Selecione...</option>
             <option value="unica">Dose Única</option>
             <option value="intervalo">Múltiplas Doses (Com Intervalo)</option>
           </select>
 
           {form.tipo_dose === 'intervalo' && (
-            <input 
-              type="number" 
-              value={form.intervalo_dose_dias} 
-              onChange={handleIntervaloChange} 
-              placeholder="Intervalo entre doses (em dias)" 
-              min="0" 
-              required 
-              style={styles.input} 
-            />
+            <>
+              <label style={styles.label}>Intervalo entre doses (em dias):</label>
+              <input 
+                type="number" 
+                value={form.intervalo_doses_dias} 
+                onChange={handleIntervaloChange} 
+                min="0" 
+                required 
+                style={styles.input} 
+              />
+            </>
           )}
           
-          <button type="submit" style={styles.button}>Salvar Vacina</button>
-          
-          <button 
-            type="button" 
-            style={{ ...styles.button, ...styles.btnVoltar }} 
-            onClick={() => router.push('/veterinario/vacinas')}
-          >
-            Cancelar / Voltar
-          </button>
+          <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+            <button type="submit" style={styles.btnSalvar}>Salvar Dados</button>
+            <button 
+              type="button" 
+              style={styles.btnVoltar} 
+              onClick={() => router.push('/veterinario/vacinas')}
+            >
+              Cancelar
+            </button>
+          </div>
         </form>
         
         {mensagem.texto && (
@@ -172,35 +177,50 @@ const styles = {
     padding: '30px',
     borderRadius: '8px',
     boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
-    width: '400px'
+    width: '450px'
   },
   h2: {
-    textAlign: 'center',
-    color: '#0056b3',
-    marginTop: 0
+    color: '#000000',
+    marginTop: 0,
+    marginBottom: '20px'
+  },
+  label: {
+    display: 'block',
+    fontWeight: 'bold',
+    marginBottom: '5px',
+    color: '#333',
+    fontSize: '14px'
   },
   input: {
     width: '100%',
     padding: '10px',
-    margin: '10px 0',
+    margin: '0 0 15px 0',
     border: '1px solid #ccc',
     borderRadius: '4px',
-    boxSizing: 'border-box'
+    boxSizing: 'border-box',
+    color: '#333'
   },
-  button: {
-    width: '100%',
-    padding: '10px',
+  btnSalvar: {
+    flex: 1,
+    padding: '12px',
     backgroundColor: '#28a745',
     color: 'white',
     border: 'none',
     borderRadius: '4px',
     cursor: 'pointer',
     fontSize: '16px',
-    marginTop: '10px',
     fontWeight: 'bold'
   },
   btnVoltar: {
-    backgroundColor: '#6c757d'
+    flex: 1,
+    padding: '12px',
+    backgroundColor: '#6c757d',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '16px',
+    fontWeight: 'bold'
   },
   mensagem: {
     textAlign: 'center',

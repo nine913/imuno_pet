@@ -37,6 +37,9 @@ CREATE TABLE IF NOT EXISTS `imunopet`.`tutor` (
 CREATE TABLE IF NOT EXISTS `imunopet`.`clinica` (
   `id_clinica` INT NOT NULL AUTO_INCREMENT,
   `nome_fantasia` VARCHAR(150) NOT NULL,
+  `cnpj` VARCHAR(20) NULL,
+  `endereco` VARCHAR(255) NULL,
+  `telefone` VARCHAR(20) NULL,
   `estado` VARCHAR(2) NOT NULL,
   `cidade` VARCHAR(100) NOT NULL,
   `bairro` VARCHAR(100) NOT NULL,
@@ -211,8 +214,31 @@ SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
 
-INSERT INTO `imunopet`.`usuario` (`email`, `senha`, `perfil`) VALUES 
-('admin@imunopet.com.br', '$2b$10$W5eC.H0D.Lw9iL1/t2B50e6VzQ4uQhP9J8sQ2m/fW3sFj7P9rR.kK', 'ADMINISTRADOR');
+-- usuarios:
+
+INSERT INTO clinica (nome_fantasia, estado, cidade, bairro) VALUES
+('Clínica ImunoPet Central', 'PA', 'Belém', 'Centro');
+
+INSERT INTO usuario (email, senha, perfil) VALUES
+('admin@imunopet.com.br', '$2b$10$W5eC.H0D.Lw9iL1/t2B50e6VzQ4uQhP9J8sQ2m/fW3sFj7P9rR.kK', 'ADMINISTRADOR'),
+('gestor@email.com', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjGsGGZOSm', 'GESTOR_CLINICA'),
+('veterinario@email.com', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjGsGGZOSm', 'VETERINARIO'),
+('tutor@email.com', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjGsGGZOSm', 'TUTOR'),
+('governo@email.com', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjGsGGZOSm', 'GOVERNO');
+
+INSERT INTO gestor (id_usuario, id_clinica, nome_completo) VALUES
+((SELECT id_usuario FROM usuario WHERE email = 'gestor@email.com'), 1, 'gestor');
+
+INSERT INTO veterinario (id_usuario, id_clinica, nome_completo, crmv) VALUES
+((SELECT id_usuario FROM usuario WHERE email = 'veterinario@email.com'), 1, 'veterinario', 'CRMV-12345');
+
+INSERT INTO tutor (id_usuario, nome_completo, cpf, telefone, estado, cidade, bairro) VALUES
+((SELECT id_usuario FROM usuario WHERE email = 'tutor@email.com'), 'tutor', '111.111.111-11', '11888888888', 'PA', 'Belém', 'Centro');
+
+INSERT INTO orgao_governamental (id_usuario, nome_instituicao, esfera, estado_atuacao, cidade_atuacao) VALUES
+((SELECT id_usuario FROM usuario WHERE email = 'governo@email.com'), 'Vigilância Sanitária', 'MUNICIPAL', 'PA', 'Belém');
+
+-- populamento de tabelas:
 
 INSERT INTO `imunopet`.`especie` (`nome_especie`) VALUES 
 ('Cachorro'), 
@@ -232,25 +258,3 @@ INSERT INTO `imunopet`.`raca` (`id_especie`, `nome_raca`) VALUES
 
 INSERT INTO `imunopet`.`aviso` (`titulo`, `mensagem`, `tipo`, `status`) VALUES 
 ('Bem-vindo ao ImunoPet', 'O sistema foi atualizado com sucesso. Navegue pelos novos módulos de auditoria e catálogo de vacinas.', 'INFO', 'ATIVO');
--- usuarios:
-INSERT INTO clinica (nome_fantasia, estado, cidade, bairro) VALUES
-('Clínica ImunoPet Central', 'PA', 'Belém', 'Centro');
-
-INSERT INTO usuario (email, senha, perfil) VALUES
-('andre@email.com', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjGsGGZOSm', 'ADMINISTRADOR'),
-('gestor@email.com', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjGsGGZOSm', 'GESTOR_CLINICA'),
-('veterinario@email.com', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjGsGGZOSm', 'VETERINARIO'),
-('tutor@email.com', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjGsGGZOSm', 'TUTOR'),
-('governo@email.com', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjGsGGZOSm', 'GOVERNO');
-
-INSERT INTO gestor (id_usuario, id_clinica, nome_completo) VALUES
-((SELECT id_usuario FROM usuario WHERE email = 'gestor@email.com'), 1, 'gestor');
-
-INSERT INTO veterinario (id_usuario, id_clinica, nome_completo, crmv) VALUES
-((SELECT id_usuario FROM usuario WHERE email = 'veterinario@email.com'), 1, 'veterinario', 'CRMV-12345');
-
-INSERT INTO tutor (id_usuario, nome_completo, cpf, telefone, estado, cidade, bairro) VALUES
-((SELECT id_usuario FROM usuario WHERE email = 'tutor@email.com'), 'tutor', '111.111.111-11', '11888888888', 'PA', 'Belém', 'Centro');
-
-INSERT INTO orgao_governamental (id_usuario, nome_instituicao, esfera, estado_atuacao, cidade_atuacao) VALUES
-((SELECT id_usuario FROM usuario WHERE email = 'governo@email.com'), 'Vigilância Sanitária', 'MUNICIPAL', 'PA', 'Belém');

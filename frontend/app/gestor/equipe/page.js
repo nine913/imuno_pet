@@ -37,12 +37,15 @@ export default function GestorEquipe() {
       return;
     }
     setUsuario(user);
-    buscarEquipe('');
+    buscarEquipe('', user.id_clinica);
   }, [router]);
 
-  const buscarEquipe = async (termo = termoBusca) => {
+  const buscarEquipe = async (termo = termoBusca, idClinicaOverride = null) => {
+    const idClinica = idClinicaOverride || (usuario ? usuario.id_clinica : null);
+    if (!idClinica) return;
+
     try {
-      const resposta = await fetch(`http://localhost:3000/gestor/veterinarios-lista?termo=${termo}`);
+      const resposta = await fetch(`http://localhost:3000/gestor/veterinarios-lista?id_clinica=${idClinica}&termo=${termo}`);
       if (resposta.ok) {
         setEquipe(await resposta.json());
       } else {
@@ -51,6 +54,17 @@ export default function GestorEquipe() {
     } catch (erro) {
       console.error(erro);
     }
+  };
+
+  const formatarCRMV = (valor) => {
+    let limpo = valor.replace(/[^a-zA-Z0-9]/g, '');
+    let uf = limpo.substring(0, 2).replace(/[^a-zA-Z]/g, '').toUpperCase();
+    let numeros = limpo.substring(2).replace(/[^0-9]/g, '');
+    
+    if (limpo.length > 2) {
+      return `${uf}-${numeros.substring(0, 5)}`;
+    }
+    return uf;
   };
 
   const abrirModalCadastro = () => {
@@ -93,7 +107,8 @@ export default function GestorEquipe() {
     const payload = {
       nome_completo: formDados.nome_completo,
       crmv: formDados.crmv,
-      email: formDados.email
+      email: formDados.email,
+      id_clinica: usuario.id_clinica
     };
 
     let url = 'http://localhost:3000/gestor/cadastrar-vet';
@@ -175,11 +190,11 @@ export default function GestorEquipe() {
         </div>
 
         <div>
-          {equipe.length === 0 ? <p>Nenhum veterinário encontrado.</p> : equipe.map(vet => (
+          {equipe.length === 0 ? <p style={{ color: '#333' }}>Nenhum veterinário encontrado.</p> : equipe.map(vet => (
             <div key={vet.id_veterinario} style={styles.card}>
               <div>
                 <h3 style={{ marginTop: 0, color: '#007bff' }}>🩺 {vet.nome_completo}</h3>
-                <p><strong>CRMV:</strong> {vet.crmv} | <strong>E-mail:</strong> {vet.email}</p>
+                <p style={{ color: '#333' }}><strong>CRMV:</strong> {vet.crmv} | <strong>E-mail:</strong> {vet.email}</p>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
                 <button style={{ ...styles.btnAcao, backgroundColor: '#ffc107', color: 'black' }} onClick={() => abrirModalEdicao(vet)}>✏️ Editar</button>
@@ -195,18 +210,26 @@ export default function GestorEquipe() {
           <div style={styles.modalContent}>
             <h3 style={{ color: '#000000', marginTop: 0 }}>{isEdicao ? '✏️ Editar Veterinário' : 'Cadastrar Novo Veterinário'}</h3>
             <form onSubmit={submitForm}>
-              <label>Nome Completo:</label>
+              <label style={styles.label}>Nome Completo:</label>
               <input type="text" value={formDados.nome_completo} onChange={e => setFormDados({...formDados, nome_completo: e.target.value})} required style={styles.input} />
 
-              <label>CRMV:</label>
-              <input type="text" value={formDados.crmv} onChange={e => setFormDados({...formDados, crmv: e.target.value})} required style={styles.input} />
+              <label style={styles.label}>CRMV:</label>
+              <input 
+                type="text" 
+                value={formDados.crmv} 
+                onChange={e => setFormDados({...formDados, crmv: formatarCRMV(e.target.value)})} 
+                required 
+                style={styles.input} 
+                placeholder="Ex: PA-12345"
+                maxLength="8"
+              />
 
-              <label>E-mail de Acesso:</label>
+              <label style={styles.label}>E-mail de Acesso:</label>
               <input type="email" value={formDados.email} onChange={e => setFormDados({...formDados, email: e.target.value})} required style={styles.input} />
 
               {!isEdicao && (
                 <div>
-                  <label>Senha de Acesso (Criação):</label>
+                  <label style={styles.label}>Senha de Acesso (Criação):</label>
                   <input type="password" value={formDados.senha} onChange={e => setFormDados({...formDados, senha: e.target.value})} required style={styles.input} />
                 </div>
               )}
@@ -225,7 +248,7 @@ export default function GestorEquipe() {
         <div style={styles.modalOverlay}>
           <div style={{ background: 'white', padding: '20px', borderRadius: '8px', textAlign: 'center', width: '320px', boxShadow: '0 4px 10px rgba(0,0,0,0.2)' }}>
             <h3 style={{ color: '#dc3545', marginTop: 0 }}>Atenção!</h3>
-            <p>Confirma a exclusão deste veterinário e de seu acesso ao sistema?</p>
+            <p style={{ color: '#333' }}>Confirma a exclusão deste veterinário e de seu acesso ao sistema?</p>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '20px' }}>
               <button style={{ backgroundColor: '#dc3545', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '4px', cursor: 'pointer' }} onClick={confirmarExclusao}>Sim, Excluir</button>
               <button style={{ backgroundColor: '#6c757d', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '4px', cursor: 'pointer' }} onClick={fecharModais}>Cancelar</button>
@@ -240,11 +263,12 @@ export default function GestorEquipe() {
 const styles = {
   body: { fontFamily: 'Arial, sans-serif', backgroundColor: '#f4f4f9', margin: 0, padding: '20px', minHeight: '100vh' },
   container: { maxWidth: '800px', margin: 'auto', background: 'white', padding: '30px', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' },
-  input: { width: '100%', padding: '10px', margin: '10px 0', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box' },
+  label: { color: '#333', fontWeight: 'bold', fontSize: '14px', display: 'block', marginBottom: '5px' },
+  input: { width: '100%', padding: '10px', margin: '0 0 15px 0', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box', color: '#333' },
   btnVoltar: { backgroundColor: '#6c757d', color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px', marginBottom: '20px' },
   btnAcao: { backgroundColor: '#28a745', color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px', width: '100%' },
   btnVet: { backgroundColor: '#007bff', color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px', margin: 0 },
   card: { border: '1px solid #ccc', padding: '15px', borderRadius: '8px', marginTop: '15px', backgroundColor: '#fdfdfd', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
-  modalOverlay: { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center' },
+  modalOverlay: { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 },
   modalContent: { backgroundColor: '#e9ecef', padding: '20px', borderRadius: '8px', width: '400px', boxShadow: '0 4px 10px rgba(0,0,0,0.2)' }
 };

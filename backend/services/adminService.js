@@ -6,8 +6,8 @@ const adminService = {
     let sql = 'SELECT * FROM clinica';
     const params = [];
     if (termo) {
-      sql += ' WHERE nome_fantasia LIKE ?';
-      params.push(`%${termo}%`);
+      sql += ' WHERE nome_fantasia LIKE ? OR cnpj LIKE ?';
+      params.push(`%${termo}%`, `%${termo}%`);
     }
     sql += ' ORDER BY nome_fantasia ASC';
     const [linhas] = await db.query(sql, params);
@@ -15,15 +15,15 @@ const adminService = {
   },
 
   cadastrarClinica: async (dados) => {
-    const sql = 'INSERT INTO clinica (nome_fantasia, estado, cidade, bairro) VALUES (?, ?, ?, ?)';
-    const params = [dados.nome_fantasia, dados.estado, dados.cidade, dados.bairro];
+    const sql = 'INSERT INTO clinica (nome_fantasia, cnpj, endereco, estado, cidade, bairro, telefone) VALUES (?, ?, ?, ?, ?, ?, ?)';
+    const params = [dados.nome_fantasia, dados.cnpj, dados.endereco, dados.estado, dados.cidade, dados.bairro, dados.telefone];
     const [resultado] = await db.query(sql, params);
     return resultado.insertId;
   },
 
   editarClinica: async (id_clinica, dados) => {
-    const sql = 'UPDATE clinica SET nome_fantasia = ?, estado = ?, cidade = ?, bairro = ? WHERE id_clinica = ?';
-    const params = [dados.nome_fantasia, dados.estado, dados.cidade, dados.bairro, id_clinica];
+    const sql = 'UPDATE clinica SET nome_fantasia = ?, cnpj = ?, endereco = ?, estado = ?, cidade = ?, bairro = ?, telefone = ? WHERE id_clinica = ?';
+    const params = [dados.nome_fantasia, dados.cnpj, dados.endereco, dados.estado, dados.cidade, dados.bairro, dados.telefone, id_clinica];
     const [resultado] = await db.query(sql, params);
     return resultado.affectedRows;
   },
@@ -183,7 +183,43 @@ const adminService = {
     `;
     const [linhas] = await db.query(sql);
     return linhas;
-  }
+  },
+
+  obterClinicaPorId: async (id) => {
+    const [linhas] = await db.query('SELECT * FROM clinica WHERE id_clinica = ?', [id]);
+    return linhas.length > 0 ? linhas[0] : null;
+  },
+
+  listarVacinas: async (termo) => {
+    let sql = 'SELECT * FROM vacina';
+    const params = [];
+    if (termo) {
+      sql += ' WHERE nome_vacina LIKE ? OR doencas_prevenidas LIKE ?';
+      params.push(`%${termo}%`, `%${termo}%`);
+    }
+    sql += ' ORDER BY nome_vacina ASC';
+    const [linhas] = await db.query(sql, params);
+    return linhas;
+  },
+
+  cadastrarVacina: async (dados) => {
+    const sql = 'INSERT INTO vacina (nome_vacina, fabricante, doencas_prevenidas, intervalo_doses_dias) VALUES (?, ?, ?, ?)';
+    const params = [dados.nome_vacina, dados.fabricante, dados.doencas_prevenidas, dados.intervalo_doses_dias];
+    await db.query(sql, params);
+  },
+
+  editarVacina: async (id_vacina, dados) => {
+    const sql = 'UPDATE vacina SET nome_vacina = ?, fabricante = ?, doencas_prevenidas = ?, intervalo_doses_dias = ? WHERE id_vacina = ?';
+    const params = [dados.nome_vacina, dados.fabricante, dados.doencas_prevenidas, dados.intervalo_doses_dias, id_vacina];
+    await db.query(sql, params);
+  },
+
+  deletarVacina: async (id_vacina) => {
+    const sql = 'DELETE FROM vacina WHERE id_vacina = ?';
+    await db.query(sql, [id_vacina]);
+  },
+
+
 };
 
 module.exports = adminService;

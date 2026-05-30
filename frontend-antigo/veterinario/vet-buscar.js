@@ -46,7 +46,7 @@ function calcularProximaDose() {
 
     if (idVacina && dataApp && inputProxDose) {
         const vacinaSelecionada = todasAsVacinas.find(v => String(v.id_vacina) === String(idVacina));
-        const intervalo = vacinaSelecionada ? parseInt(vacinaSelecionada.intervalo_doses_dias || vacinaSelecionada.intervalo_dose_dias || 0) : 0;
+        const intervalo = vacinaSelecionada ? parseInt(vacinaSelecionada.intervalo_doses_dias || vacinaSelecionada.intervalo_doses_dias || 0) : 0;
 
         if (intervalo > 0) {
             const partes = dataApp.split('-');

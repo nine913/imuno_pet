@@ -10,7 +10,7 @@ export default function VetVacinas() {
 
   const [modalEditarOpen, setModalEditarOpen] = useState(false);
   const [editDados, setEditDados] = useState({
-    id_vacina: '', nome_vacina: '', doencas_prevenidas: '', fabricante: '', tipo_dose: '', intervalo_dose_dias: ''
+    id_vacina: '', nome_vacina: '', doencas_prevenidas: '', fabricante: '', tipo_dose: '', intervalo_doses_dias: ''
   });
   const [mensagemEditar, setMensagemEditar] = useState({ texto: '', cor: '' });
 
@@ -49,14 +49,14 @@ export default function VetVacinas() {
   };
 
   const abrirModalEditar = (vacina) => {
-    const valorIntervalo = vacina.intervalo_doses_dias || vacina.intervalo_dose_dias || 0;
+    const valorIntervalo = vacina.intervalo_doses_dias || vacina.intervalo_doses_dias || 0;
     setEditDados({
       id_vacina: vacina.id_vacina,
       nome_vacina: vacina.nome_vacina,
       doencas_prevenidas: vacina.doencas_prevenidas,
       fabricante: vacina.fabricante || '',
       tipo_dose: valorIntervalo > 0 ? 'intervalo' : 'unica',
-      intervalo_dose_dias: valorIntervalo > 0 ? valorIntervalo : ''
+      intervalo_doses_dias: valorIntervalo > 0 ? valorIntervalo : ''
     });
     setMensagemEditar({ texto: '', cor: '' });
     setModalEditarOpen(true);
@@ -67,13 +67,13 @@ export default function VetVacinas() {
     setEditDados({
       ...editDados,
       tipo_dose: value,
-      intervalo_dose_dias: value === 'intervalo' ? editDados.intervalo_dose_dias : ''
+      intervalo_doses_dias: value === 'intervalo' ? editDados.intervalo_doses_dias : ''
     });
   };
 
   const handleIntervaloChange = (e) => {
     const v = e.target.value.replace(/\D/g, "");
-    setEditDados({ ...editDados, intervalo_dose_dias: v });
+    setEditDados({ ...editDados, intervalo_doses_dias: v });
   };
 
   const submitEditar = async (e) => {
@@ -82,7 +82,7 @@ export default function VetVacinas() {
       nome_vacina: editDados.nome_vacina,
       doencas_prevenidas: editDados.doencas_prevenidas,
       fabricante: editDados.fabricante,
-      intervalo_doses_dias: editDados.tipo_dose === 'intervalo' ? editDados.intervalo_dose_dias : 0
+      intervalo_doses_dias: editDados.tipo_dose === 'intervalo' ? editDados.intervalo_doses_dias : 0
     };
 
     try {
@@ -142,7 +142,7 @@ export default function VetVacinas() {
 
         <div>
           {vacinas.length === 0 ? <p>Nenhuma vacina encontrada.</p> : vacinas.map(v => {
-            const valorIntervalo = v.intervalo_doses_dias || v.intervalo_dose_dias || 0;
+            const valorIntervalo = v.intervalo_doses_dias || v.intervalo_doses_dias || 0;
             const textoIntervalo = valorIntervalo > 0 ? `${valorIntervalo} dias` : 'Dose Única';
             
             return (
@@ -179,7 +179,7 @@ export default function VetVacinas() {
               </select>
 
               {editDados.tipo_dose === 'intervalo' && (
-                <input type="number" value={editDados.intervalo_dose_dias} onChange={handleIntervaloChange} placeholder="Intervalo entre doses (em dias)" min="0" required style={styles.input} />
+                <input type="number" value={editDados.intervalo_doses_dias} onChange={handleIntervaloChange} placeholder="Intervalo entre doses (em dias)" min="0" required style={styles.input} />
               )}
               
               <button type="submit" style={{ ...styles.btnAcao, backgroundColor: '#28a745', marginTop: '10px' }}>Salvar Alterações</button>

@@ -11,13 +11,26 @@ const adminController = {
     }
   },
 
+  obterClinicaPorId: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const clinica = await adminService.obterClinicaPorId(id);
+      if (!clinica) {
+        return res.status(404).json({ erro: 'Clínica não encontrada.' });
+      }
+      res.status(200).json(clinica);
+    } catch (erro) {
+      res.status(500).json({ erro: 'Erro ao buscar dados da clínica.' });
+    }
+  },
+
   cadastrarClinica: async (req, res) => {
     try {
-      const { nome_fantasia, estado, cidade, bairro } = req.body;
+      const { nome_fantasia, cnpj, endereco, estado, cidade, bairro, telefone } = req.body;
       if (!nome_fantasia || !estado || !cidade || !bairro) {
-        return res.status(400).json({ erro: 'Todos os campos são obrigatórios.' });
+        return res.status(400).json({ erro: 'Campos essenciais são obrigatórios.' });
       }
-      await adminService.cadastrarClinica({ nome_fantasia, estado, cidade, bairro });
+      await adminService.cadastrarClinica({ nome_fantasia, cnpj, endereco, estado, cidade, bairro, telefone });
       res.status(201).json({ mensagem: 'Clínica cadastrada com sucesso!' });
     } catch (erro) {
       res.status(500).json({ erro: 'Erro ao cadastrar a clínica.' });
@@ -27,11 +40,11 @@ const adminController = {
   editarClinica: async (req, res) => {
     try {
       const { id } = req.params;
-      const { nome_fantasia, estado, cidade, bairro } = req.body;
+      const { nome_fantasia, cnpj, endereco, estado, cidade, bairro, telefone } = req.body;
       if (!nome_fantasia || !estado || !cidade || !bairro) {
-        return res.status(400).json({ erro: 'Todos os campos são obrigatórios.' });
+        return res.status(400).json({ erro: 'Campos essenciais são obrigatórios.' });
       }
-      const linhasAfetadas = await adminService.editarClinica(id, { nome_fantasia, estado, cidade, bairro });
+      const linhasAfetadas = await adminService.editarClinica(id, { nome_fantasia, cnpj, endereco, estado, cidade, bairro, telefone });
       if (linhasAfetadas === 0) {
         return res.status(404).json({ erro: 'Clínica não encontrada.' });
       }
@@ -269,7 +282,6 @@ const adminController = {
     }
   },
 
-
   listarAvisos: async (req, res) => {
     try {
       const avisos = await adminService.listarAvisos();
@@ -317,9 +329,7 @@ const adminController = {
     } catch (erro) {
       res.status(500).json({ erro: 'Erro ao buscar logs de auditoria.' });
     }
-  },
-
-  
+  }
 };
 
 module.exports = adminController;

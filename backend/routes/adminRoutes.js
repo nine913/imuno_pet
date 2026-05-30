@@ -3,6 +3,7 @@ const router = express.Router();
 const adminController = require('../controllers/adminController');
 
 router.get('/clinicas', adminController.listarClinicas);
+router.get('/clinicas/:id', adminController.obterClinicaPorId);
 router.post('/cadastrar-clinica', adminController.cadastrarClinica);
 router.put('/editar-clinica/:id', adminController.editarClinica);
 router.delete('/deletar-clinica/:id', adminController.deletarClinica);

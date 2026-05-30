@@ -149,7 +149,7 @@ window.addEventListener('DOMContentLoaded', () => {
             
             let intervalo_doses_dias = 0;
             if (tipo_dose === 'intervalo') {
-                intervalo_doses_dias = document.getElementById('edit_intervalo_dose_dias').value;
+                intervalo_doses_dias = document.getElementById('edit_intervalo_doses_dias').value;
             }
 
             const divMensagem = document.getElementById('mensagemEditar');

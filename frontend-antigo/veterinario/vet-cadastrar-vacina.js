@@ -10,7 +10,7 @@ if (!usuarioString) {
 }
 
 const selectTipoDose = document.getElementById('tipo_dose');
-const inputIntervalo = document.getElementById('intervalo_dose_dias');
+const inputIntervalo = document.getElementById('intervalo_doses_dias');
 
 selectTipoDose.addEventListener('change', function() {
     if (this.value === 'intervalo') {
@@ -35,10 +35,10 @@ document.getElementById('cadastroVacinaForm').addEventListener('submit', async (
     const fabricante = document.getElementById('fabricante').value;
     const tipo_dose = document.getElementById('tipo_dose').value;
     
-    let intervalo_dose_dias = 0;
+    let intervalo_doses_dias = 0;
     
     if (tipo_dose === 'intervalo') {
-        intervalo_dose_dias = document.getElementById('intervalo_dose_dias').value;
+        intervalo_doses_dias = document.getElementById('intervalo_doses_dias').value;
     }
 
     const divMensagem = document.getElementById('mensagemCadastro');
@@ -47,7 +47,7 @@ document.getElementById('cadastroVacinaForm').addEventListener('submit', async (
         const resposta = await fetch('http://localhost:3000/cadastrar-vacina', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nome_vacina, doencas_prevenidas, fabricante, intervalo_dose_dias })
+            body: JSON.stringify({ nome_vacina, doencas_prevenidas, fabricante, intervalo_doses_dias })
         });
 
         const dados = await resposta.json();
