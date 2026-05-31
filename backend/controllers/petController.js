@@ -13,6 +13,25 @@ const criarPet = async (req, res) => {
   }
 };
 
+const cadastrarAnimalVet = async (req, res) => {
+  try {
+    await petService.cadastrarAnimalVet(req.body);
+    res.status(201).json({ mensagem: 'Paciente cadastrado com sucesso!' });
+  } catch (error) {
+    res.status(500).json({ erro: 'Erro ao cadastrar animal.' });
+  }
+};
+
+const cadastrarTutor = async (req, res) => {
+  try {
+    await petService.cadastrarTutorEPet(req.body);
+    res.status(201).json({ mensagem: 'Tutor e Pet cadastrados com sucesso!' });
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ erro: error.message || 'Erro interno' });
+  }
+};
+
 const buscarAnimais = async (req, res) => {
   try {
     const animais = await petService.buscarAnimais(req.query);
@@ -64,6 +83,8 @@ const deletarAnimal = async (req, res) => {
 
 module.exports = {
   criarPet,
+  cadastrarAnimalVet,
+  cadastrarTutor,
   buscarAnimais,
   detalhesAnimal,
   editarPetTutor,

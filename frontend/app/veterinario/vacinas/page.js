@@ -26,7 +26,7 @@ export default function VetVacinas() {
       return;
     }
     const user = JSON.parse(usuarioString);
-    if (user.perfil !== 'VETERINARIO') {
+    if (user.perfil !== 'VETERINARIO' && user.perfil !== 'GESTOR_CLINICA' && user.perfil !== 'ADMINISTRADOR') {
       router.push('/dashboard');
       return;
     }
@@ -128,35 +128,33 @@ export default function VetVacinas() {
       <div style={styles.container}>
         <button style={styles.btnVoltar} onClick={() => router.push('/dashboard')}>Voltar ao Painel</button>
         
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-          <h2 style={{ margin: 0, color: '#0056b3' }}>Consultar Vacinas</h2>
-          <button style={{ backgroundColor: '#28a745', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '4px', cursor: 'pointer' }} onClick={() => router.push('/veterinario/cadastrar-vacina')}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <h2 style={{ margin: 0, color: '#000000' }}>Consultar Vacinas</h2>
+          <button style={{ backgroundColor: '#28a745', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }} onClick={() => router.push('/veterinario/cadastrar-vacina')}>
             + Cadastrar Nova Vacina
           </button>
         </div>
 
         <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-          <input type="text" value={termoBusca} onChange={(e) => setTermoBusca(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && realizarBusca()} placeholder="Pesquisar por nome, doenças ou fabricante..." style={styles.input} />
-          <button style={styles.btnBuscar} onClick={() => realizarBusca()}>Pesquisar</button>
+          <input type="text" value={termoBusca} onChange={(e) => setTermoBusca(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && realizarBusca()} placeholder="Pesquisar por nome, doenças ou fabricante..." style={{ ...styles.input, margin: 0, flex: 1 }} />
+          <button style={{...styles.btnBuscar, margin: 0, width: 'auto'}} onClick={() => realizarBusca()}>Pesquisar</button>
         </div>
 
         <div>
-          {vacinas.length === 0 ? <p>Nenhuma vacina encontrada.</p> : vacinas.map(v => {
+          {vacinas.length === 0 ? <p style={{ color: '#333' }}>Nenhuma vacina encontrada.</p> : vacinas.map(v => {
             const valorIntervalo = v.intervalo_doses_dias || v.intervalo_doses_dias || 0;
             const textoIntervalo = valorIntervalo > 0 ? `${valorIntervalo} dias` : 'Dose Única';
             
             return (
               <div key={v.id_vacina} style={styles.card}>
                 <div style={{ flex: 1 }}>
-                  <strong>{v.nome_vacina}</strong><br/>
-                  <span style={{ fontSize: '14px', color: '#333' }}>
-                    <strong>Previne:</strong> {v.doencas_prevenidas}<br/>
-                    <strong>Fabricante:</strong> {v.fabricante} | <strong>Intervalo:</strong> {textoIntervalo}
-                  </span>
+                  <h3 style={{ margin: '0 0 10px 0', color: '#0056b3' }}>💉 {v.nome_vacina}</h3>
+                  <p style={{ margin: '5px 0', color: '#333' }}><strong>Previne:</strong> {v.doencas_prevenidas}</p>
+                  <p style={{ margin: '5px 0', color: '#333' }}><strong>Fabricante:</strong> {v.fabricante} | <strong>Intervalo:</strong> {textoIntervalo}</p>
                 </div>
-                <div style={{ display: 'flex', gap: '10px', flexDirection: 'column' }}>
-                  <button style={{ ...styles.btnAcao, backgroundColor: '#ffc107', color: '#333' }} onClick={() => abrirModalEditar(v)}>Editar Vacina</button>
-                  <button style={{ ...styles.btnAcao, backgroundColor: '#dc3545' }} onClick={() => { setVacinaParaExcluir(v.id_vacina); setModalExclusaoOpen(true); }}>Excluir</button>
+                <div style={{ display: 'flex', gap: '10px', flexDirection: 'column', minWidth: '150px' }}>
+                  <button style={{ ...styles.btnAcao, backgroundColor: '#ffc107', color: '#333' }} onClick={() => abrirModalEditar(v)}>✏️ Editar</button>
+                  <button style={{ ...styles.btnAcao, backgroundColor: '#dc3545' }} onClick={() => { setVacinaParaExcluir(v.id_vacina); setModalExclusaoOpen(true); }}>🗑️ Excluir</button>
                 </div>
               </div>
             );
@@ -169,21 +167,33 @@ export default function VetVacinas() {
           <div style={styles.modalContent}>
             <h3 style={{ color: '#0056b3', marginTop: 0 }}>Editar Vacina</h3>
             <form onSubmit={submitEditar}>
-              <input type="text" value={editDados.nome_vacina} onChange={e => setEditDados({...editDados, nome_vacina: e.target.value})} placeholder="Nome da Vacina" required style={styles.input} />
-              <textarea value={editDados.doencas_prevenidas} onChange={e => setEditDados({...editDados, doencas_prevenidas: e.target.value})} placeholder="Doenças Prevenidas" rows="3" required style={styles.input} />
-              <input type="text" value={editDados.fabricante} onChange={e => setEditDados({...editDados, fabricante: e.target.value})} placeholder="Fabricante" style={styles.input} />
               
+              <label style={styles.label}>Nome da Vacina:</label>
+              <input type="text" value={editDados.nome_vacina} onChange={e => setEditDados({...editDados, nome_vacina: e.target.value})} required style={styles.input} />
+              
+              <label style={styles.label}>Doenças Prevenidas:</label>
+              <textarea value={editDados.doencas_prevenidas} onChange={e => setEditDados({...editDados, doencas_prevenidas: e.target.value})} rows="3" required style={styles.input} />
+              
+              <label style={styles.label}>Fabricante:</label>
+              <input type="text" value={editDados.fabricante} onChange={e => setEditDados({...editDados, fabricante: e.target.value})} style={styles.input} />
+              
+              <label style={styles.label}>Tipo de Dose:</label>
               <select value={editDados.tipo_dose} onChange={handleTipoDoseChange} required style={styles.input}>
                 <option value="unica">Dose Única</option>
                 <option value="intervalo">Múltiplas Doses (Com Intervalo)</option>
               </select>
 
               {editDados.tipo_dose === 'intervalo' && (
-                <input type="number" value={editDados.intervalo_doses_dias} onChange={handleIntervaloChange} placeholder="Intervalo entre doses (em dias)" min="0" required style={styles.input} />
+                <>
+                  <label style={styles.label}>Intervalo entre doses (em dias):</label>
+                  <input type="number" value={editDados.intervalo_doses_dias} onChange={handleIntervaloChange} min="0" required style={styles.input} />
+                </>
               )}
               
-              <button type="submit" style={{ ...styles.btnAcao, backgroundColor: '#28a745', marginTop: '10px' }}>Salvar Alterações</button>
-              <button type="button" onClick={() => setModalEditarOpen(false)} style={{ ...styles.btnVoltar, width: '100%', margin: '10px 0 0 0' }}>Cancelar</button>
+              <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+                <button type="submit" style={{ ...styles.btnAcao, backgroundColor: '#28a745', flex: 1, margin: 0 }}>Salvar Alterações</button>
+                <button type="button" onClick={() => setModalEditarOpen(false)} style={{ ...styles.btnVoltar, flex: 1, margin: 0, width: 'auto' }}>Cancelar</button>
+              </div>
             </form>
             {mensagemEditar.texto && <div style={{ textAlign: 'center', marginTop: '10px', fontWeight: 'bold', color: mensagemEditar.cor }}>{mensagemEditar.texto}</div>}
           </div>
@@ -194,10 +204,10 @@ export default function VetVacinas() {
         <div style={styles.modalOverlay}>
           <div style={styles.modalContentSmall}>
             <h3 style={{ color: '#dc3545', marginTop: 0 }}>Atenção!</h3>
-            <p>Deseja excluir esta vacina? Isso apagará este registro de todos os animais vacinados com ela.</p>
+            <p style={{ color: '#333' }}>Deseja excluir esta vacina? Isso apagará este registro de todos os animais vacinados com ela.</p>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '20px' }}>
-              <button style={{ backgroundColor: '#dc3545', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '4px', cursor: 'pointer' }} onClick={confirmarExclusao}>Sim, Excluir</button>
-              <button style={{ backgroundColor: '#6c757d', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '4px', cursor: 'pointer' }} onClick={() => setModalExclusaoOpen(false)}>Cancelar</button>
+              <button style={{ backgroundColor: '#dc3545', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }} onClick={confirmarExclusao}>Sim, Excluir</button>
+              <button style={{ backgroundColor: '#6c757d', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }} onClick={() => setModalExclusaoOpen(false)}>Cancelar</button>
             </div>
           </div>
         </div>
@@ -208,13 +218,14 @@ export default function VetVacinas() {
 
 const styles = {
   body: { fontFamily: 'Arial, sans-serif', backgroundColor: '#f4f4f9', margin: 0, padding: '20px', minHeight: '100vh' },
-  container: { maxWidth: '800px', margin: 'auto', background: 'white', padding: '30px', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' },
-  input: { padding: '10px', margin: '10px 0', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box', width: '100%' },
-  btnBuscar: { padding: '10px 15px', backgroundColor: '#0056b3', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px', margin: '10px 0' },
-  btnVoltar: { backgroundColor: '#6c757d', color: 'white', border: 'none', padding: '10px 15px', borderRadius: '4px', cursor: 'pointer', fontSize: '16px', marginBottom: '20px' },
-  btnAcao: { padding: '10px 15px', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px', width: '100%' },
-  card: { border: '1px solid #ccc', padding: '15px', borderRadius: '8px', marginTop: '15px', backgroundColor: '#fdfdfd', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
-  modalOverlay: { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center' },
-  modalContent: { background: 'white', padding: '20px', borderRadius: '8px', width: '400px', boxShadow: '0 4px 10px rgba(0,0,0,0.2)' },
+  container: { maxWidth: '900px', margin: 'auto', background: 'white', padding: '30px', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' },
+  input: { padding: '10px', margin: '0 0 15px 0', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box', width: '100%', color: '#333' },
+  label: { display: 'block', fontWeight: 'bold', marginBottom: '5px', color: '#333', fontSize: '14px' },
+  btnBuscar: { padding: '10px 15px', backgroundColor: '#0056b3', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px', margin: '10px 0', fontWeight: 'bold' },
+  btnVoltar: { backgroundColor: '#6c757d', color: 'white', border: 'none', padding: '10px 15px', borderRadius: '4px', cursor: 'pointer', fontSize: '16px', marginBottom: '20px', fontWeight: 'bold' },
+  btnAcao: { padding: '10px 15px', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px', width: '100%', fontWeight: 'bold' },
+  card: { border: '1px solid #e3e3e3', padding: '20px', borderRadius: '8px', marginTop: '15px', backgroundColor: '#fdfdfd', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' },
+  modalOverlay: { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 },
+  modalContent: { background: 'white', padding: '30px', borderRadius: '8px', width: '450px', boxShadow: '0 4px 20px rgba(0,0,0,0.2)', maxHeight: '90vh', overflowY: 'auto' },
   modalContentSmall: { background: 'white', padding: '20px', borderRadius: '8px', width: '300px', textAlign: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.2)' }
 };

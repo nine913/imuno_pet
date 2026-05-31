@@ -4,16 +4,23 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function Dashboard() {
+  const [isMounted, setIsMounted] = useState(false);
   const [usuario, setUsuario] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
+    setIsMounted(true);
     const usuarioString = localStorage.getItem('usuarioImunoPet');
     
     if (!usuarioString) {
       router.push('/');
     } else {
-      setUsuario(JSON.parse(usuarioString));
+      const user = JSON.parse(usuarioString);
+      if (user.perfil.toUpperCase() === 'ADMINISTRADOR') {
+        router.push('/admin/dashboard');
+      } else {
+        setUsuario(user);
+      }
     }
   }, [router]);
 
@@ -22,77 +29,118 @@ export default function Dashboard() {
     router.push('/');
   };
 
-  if (!usuario) {
-    return <h1 style={{ padding: '20px', fontFamily: 'Arial' }}>Carregando...</h1>;
+  if (!isMounted || !usuario) {
+    return null;
   }
 
   const perfilUsuario = usuario.perfil.toUpperCase();
+  const nomeExibicao = usuario.nome_completo || usuario.nome || 'Usuário';
 
   return (
-    <>
-      <style>{`
-        body { font-family: Arial, sans-serif; background-color: #f4f4f9; margin: 0; padding: 20px; }
-        .navbar { background-color: #0056b3; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-radius: 8px; }
-        .navbar button { background-color: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        .navbar button:hover { background-color: #c82333; }
-        .content { margin-top: 20px; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .btn-vet { background-color: #28a745; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 16px; margin-right: 10px; margin-top: 10px; font-weight: bold; }
-        .btn-vet:hover { background-color: #218838; }
-        .btn-tutor { background-color: #17a2b8; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 16px; margin-right: 10px; margin-top: 10px; font-weight: bold; }
-        .btn-tutor:hover { background-color: #138496; }
-        .btn-gestor { background-color: #6610f2; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 16px; margin-right: 10px; margin-top: 10px; font-weight: bold; }
-        .btn-gestor:hover { background-color: #520dc2; }
-        .btn-governo { background-color: #fd7e14; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 16px; margin-right: 10px; margin-top: 10px; font-weight: bold; }
-        .btn-governo:hover { background-color: #eaa75a; }
-      `}</style>
-
-      <div className="navbar">
-        <h2 style={{ margin: 0 }}>ImunoPet Brasil</h2>
-        <button onClick={handleLogout}>Sair</button>
-      </div>
-
-      <div className="content">
-        <h1>Bem-vindo, {usuario.nome}! Você está logado como: {usuario.perfil}</h1>
+    <div style={styles.body}>
+      <div style={styles.container}>
         
-        {perfilUsuario === 'TUTOR' && (
+        <div style={styles.header}>
           <div>
-            <h2>Painel do Tutor</h2>
-            <p>Acesse as informações dos seus animais e carteiras de vacinação:</p>
-            <button className="btn-tutor" onClick={() => router.push('/tutor/animais')}>Meus Pets e Vacinas</button>
+            <h2 style={styles.h2}>Olá, {nomeExibicao}! 👋</h2>
+            <p style={{ margin: '5px 0 0 0', color: '#666' }}>
+              Você está logado como: <strong>{perfilUsuario.replace('_', ' ')}</strong>
+            </p>
           </div>
-        )}
+          <button style={styles.btnSair} onClick={handleLogout}>
+            Sair do Sistema
+          </button>
+        </div>
 
-        {perfilUsuario === 'VETERINARIO' && (
-          <div>
-            <h2>Painel do Veterinário</h2>
-            <p>Selecione uma ação abaixo:</p>
-            <button className="btn-vet" onClick={() => router.push('/veterinario/buscar')}>Gerenciar Animais</button>
-            <button className="btn-vet" onClick={() => router.push('/veterinario/tutores')}>Gerenciar Tutores</button>
-            <button className="btn-vet" onClick={() => router.push('/veterinario/vacinas')}>Gerenciar Vacinas</button>
-            <button className="btn-vet" onClick={() => router.push('/veterinario/relatorio')} style={{ backgroundColor: '#17a2b8' }}>Relatório de Vacinação</button>
-            <button className="btn-vet" onClick={() => router.push('/veterinario/atrasados')} style={{ backgroundColor: '#dc3545' }}>Vacinas Atrasadas</button>
-          </div>
-        )}
+        <p style={{ marginBottom: '30px', color: '#333', fontSize: '16px' }}>
+          Selecione uma das opções abaixo para acessar os módulos do seu painel:
+        </p>
 
-        {(perfilUsuario === 'GESTOR' || perfilUsuario === 'GESTOR_CLINICA') && (
-          <div>
-            <h2>Painel do Gestor</h2>
-            <p>Visão estratégica e administrativa da clínica:</p>
-            <button className="btn-gestor" onClick={() => router.push('/gestor/dashboard')}>Visão Geral (Métricas)</button>
-            <button className="btn-gestor" onClick={() => router.push('/gestor/relatorios')}>Relatórios Avançados</button>
-            <button className="btn-gestor" onClick={() => router.push('/gestor/equipe')}>Gerenciar Equipe</button>
-          </div>
-        )}
+        <div style={styles.grid}>
+          
+          {perfilUsuario === 'TUTOR' && (
+            <div style={styles.card} onClick={() => router.push('/tutor/animais')}>
+              <h3 style={styles.cardTitle}>🐾 Meus Pets e Vacinas</h3>
+              <p style={styles.cardText}>Acesse as informações dos seus animais e consulte as carteirinhas de vacinação.</p>
+            </div>
+          )}
 
-        {perfilUsuario === 'GOVERNO' && (
-          <div>
-            <h2>Painel Governamental (Vigilância Sanitária)</h2>
-            <p>Monitoramento epidemiológico e controle de endemias por região:</p>
-            <button className="btn-governo" onClick={() => router.push('/governo/dashboard')}>Monitoramento Epidemiológico</button>
-            <button className="btn-governo" onClick={() => router.push('/governo/relatorios')} style={{ backgroundColor: '#274aaa' }}>Relatórios Avançados</button>
-          </div>
-        )}
+          {perfilUsuario === 'VETERINARIO' && (
+            <>
+              <div style={styles.card} onClick={() => router.push('/veterinario/buscar')}>
+                <h3 style={styles.cardTitle}>🐾 Gerenciar Pacientes</h3>
+                <p style={styles.cardText}>Busque, cadastre e edite os perfis dos animais atendidos na clínica.</p>
+              </div>
+              
+              <div style={styles.card} onClick={() => router.push('/veterinario/tutores')}>
+                <h3 style={styles.cardTitle}>👤 Gerenciar Tutores</h3>
+                <p style={styles.cardText}>Acesse e gerencie o cadastro dos responsáveis pelos animais.</p>
+              </div>
+              
+              <div style={styles.card} onClick={() => router.push('/veterinario/vacinas')}>
+                <h3 style={styles.cardTitle}>💉 Catálogo de Vacinas</h3>
+                <p style={styles.cardText}>Consulte e cadastre os imunizantes disponíveis para aplicação.</p>
+              </div>
+              
+              <div style={styles.card} onClick={() => router.push('/veterinario/relatorio')}>
+                <h3 style={{...styles.cardTitle, color: '#17a2b8'}}>📊 Relatórios de Vacinação</h3>
+                <p style={styles.cardText}>Extraia relatórios e consulte o histórico de vacinas aplicadas.</p>
+              </div>
+              
+              <div style={styles.card} onClick={() => router.push('/veterinario/atrasados')}>
+                <h3 style={{...styles.cardTitle, color: '#dc3545'}}>⚠️ Vacinas Atrasadas</h3>
+                <p style={styles.cardText}>Verifique rapidamente os pacientes com doses pendentes ou em atraso.</p>
+              </div>
+            </>
+          )}
+
+          {(perfilUsuario === 'GESTOR' || perfilUsuario === 'GESTOR_CLINICA') && (
+            <>
+              <div style={styles.card} onClick={() => router.push('/gestor/dashboard')}>
+                <h3 style={styles.cardTitle}>📈 Visão Geral (Métricas)</h3>
+                <p style={styles.cardText}>Acompanhe o desempenho e as estatísticas gerais de atendimento da clínica.</p>
+              </div>
+              
+              <div style={styles.card} onClick={() => router.push('/gestor/relatorios')}>
+                <h3 style={styles.cardTitle}>📑 Relatórios Avançados</h3>
+                <p style={styles.cardText}>Filtre e exporte dados estratégicos detalhados sobre as vacinações.</p>
+              </div>
+              
+              <div style={styles.card} onClick={() => router.push('/gestor/equipe')}>
+                <h3 style={styles.cardTitle}>👥 Gerenciar Equipe</h3>
+                <p style={styles.cardText}>Cadastre e edite os perfis dos médicos veterinários da sua clínica.</p>
+              </div>
+            </>
+          )}
+
+          {perfilUsuario === 'GOVERNO' && (
+            <>
+              <div style={styles.card} onClick={() => router.push('/governo/dashboard')}>
+                <h3 style={styles.cardTitle}>🦠 Monitoramento Epidemiológico</h3>
+                <p style={styles.cardText}>Acompanhe as métricas globais de vacinação e controle de endemias na sua região.</p>
+              </div>
+              
+              <div style={styles.card} onClick={() => router.push('/governo/relatorios')}>
+                <h3 style={styles.cardTitle}>📊 Relatórios Avançados</h3>
+                <p style={styles.cardText}>Gere documentos analíticos baseados nos dados sanitários unificados.</p>
+              </div>
+            </>
+          )}
+
+        </div>
       </div>
-    </>
+    </div>
   );
 }
+
+const styles = {
+  body: { fontFamily: 'Arial, sans-serif', backgroundColor: '#f4f4f9', margin: 0, padding: '20px', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'flex-start' },
+  container: { maxWidth: '1000px', width: '100%', background: 'white', padding: '40px', borderRadius: '8px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', marginTop: '40px' },
+  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #f4f4f9', paddingBottom: '20px', marginBottom: '30px' },
+  h2: { color: '#0056b3', margin: 0, fontSize: '28px' },
+  btnSair: { backgroundColor: '#dc3545', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold' },
+  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' },
+  card: { backgroundColor: '#fdfdfd', border: '1px solid #e3e3e3', borderRadius: '8px', padding: '25px', cursor: 'pointer', transition: 'transform 0.2s, boxShadow 0.2s' },
+  cardTitle: { color: '#0056b3', margin: '0 0 10px 0', fontSize: '18px' },
+  cardText: { color: '#444', margin: 0, fontSize: '14px', lineHeight: '1.5' }
+};

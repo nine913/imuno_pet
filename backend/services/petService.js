@@ -1,4 +1,5 @@
 const db = require('../db');
+const bcrypt = require('bcrypt');
 
 async function getTutorIdByUsuario(id_usuario) {
   const [tutor] = await db.query(
@@ -22,6 +23,46 @@ async function criarPet(data) {
   await db.query(
     'INSERT INTO animal (id_tutor, nome, especie, raca, data_nascimento) VALUES (?, ?, ?, ?, ?)',
     [id_tutor, nome, especie, raca, data_nascimento]
+  );
+}
+
+async function cadastrarAnimalVet(data) {
+  const { id_tutor, nome, especie, raca, data_nascimento } = data;
+  
+  await db.query(
+    'INSERT INTO animal (id_tutor, nome, especie, raca, data_nascimento) VALUES (?, ?, ?, ?, ?)',
+    [id_tutor, nome, especie, raca || null, data_nascimento]
+  );
+}
+
+async function cadastrarTutorEPet(dados) {
+  const { email, senha, nome_completo, cpf, telefone, estado, cidade, bairro, nome_pet, especie, raca, data_nascimento } = dados;
+
+  const [userExistente] = await db.query('SELECT * FROM usuario WHERE email = ?', [email]);
+  if (userExistente.length > 0) throw new Error('E-mail já cadastrado no sistema.');
+
+  const [cpfExistente] = await db.query('SELECT * FROM tutor WHERE cpf = ?', [cpf]);
+  if (cpfExistente.length > 0) throw new Error('CPF já cadastrado em outra conta.');
+
+  const hashSenha = await bcrypt.hash(senha, 10);
+
+  const [resUser] = await db.query(
+    'INSERT INTO usuario (email, senha, perfil) VALUES (?, ?, "TUTOR")',
+    [email, hashSenha]
+  );
+  
+  const idUsuario = resUser.insertId;
+
+  const [resTutor] = await db.query(
+    'INSERT INTO tutor (id_usuario, nome_completo, cpf, telefone, estado, cidade, bairro) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    [idUsuario, nome_completo, cpf, telefone, estado, cidade, bairro]
+  );
+  
+  const idTutor = resTutor.insertId;
+
+  await db.query(
+    'INSERT INTO animal (id_tutor, nome, especie, raca, data_nascimento) VALUES (?, ?, ?, ?, ?)',
+    [idTutor, nome_pet, especie, raca || null, data_nascimento]
   );
 }
 
@@ -99,6 +140,8 @@ async function deletarAnimal(id_animal) {
 module.exports = {
   getTutorIdByUsuario,
   criarPet,
+  cadastrarAnimalVet,
+  cadastrarTutorEPet,
   buscarAnimais,
   detalhesAnimal,
   editarPetTutor,

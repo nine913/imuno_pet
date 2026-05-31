@@ -66,7 +66,7 @@ export default function BuscarAnimal() {
 
   const carregarTutores = async () => {
     try {
-      const res = await fetch('http://localhost:3000/tutores');
+      const res = await fetch('http://localhost:3000/listar-tutores');
       if (res.ok) setTutores(await res.json());
     } catch (e) {
       console.error(e);
@@ -233,15 +233,16 @@ export default function BuscarAnimal() {
             type="text"
             value={termoBusca}
             onChange={(e) => setTermoBusca(e.target.value)}
-            placeholder="Pesquisar paciente..."
-            style={{ ...styles.input, margin: 0, flex: 1, color: '#333' }}
+            onKeyDown={(e) => e.key === 'Enter' && buscarAnimais()}
+            placeholder="Pesquisar por nome do pet ou CPF do tutor..."
+            style={{ ...styles.input, margin: 0, flex: 1 }}
           />
-          <button style={{ ...styles.btnAcao, width: 'auto' }} onClick={buscarAnimais}>Pesquisar</button>
+          <button style={{ ...styles.btnAcao, width: 'auto', margin: 0 }} onClick={buscarAnimais}>Pesquisar</button>
         </div>
 
         <div>
-          {animais.length === 0 ? <p style={{color: '#333'}}>Nenhum paciente encontrado.</p> : animais.map(animal => (
-            <div key={animal.id_animal} style={styles.card}>
+          {animais.length === 0 ? <p style={{color: '#333'}}>Nenhum paciente encontrado.</p> : animais.map((animal, idx) => (
+            <div key={`animal-${animal.id_animal || idx}`} style={styles.card}>
               <div style={{ flex: 1 }}>
                 <h3 style={{ margin: '0 0 10px 0', color: '#0056b3' }}>🐾 {animal.nome || animal.nome_animal}</h3>
                 <p style={{ margin: '5px 0', color: '#333' }}><strong>Tutor:</strong> {animal.nome_tutor} (CPF: {animal.cpf})</p>
@@ -263,7 +264,7 @@ export default function BuscarAnimal() {
       {modalFormOpen && (
         <div style={styles.modalOverlay}>
           <div style={styles.modalContent}>
-            <h3 style={{ marginTop: 0, color: '#333' }}>{isEdicao ? 'Editar Paciente' : 'Cadastrar Novo Paciente'}</h3>
+            <h3 style={{ marginTop: 0, color: '#333', marginBottom: '20px' }}>{isEdicao ? '✏️ Editar Paciente' : 'Cadastrar Novo Paciente'}</h3>
             <form onSubmit={submitForm}>
               
               <label style={styles.label}>Tutor do Paciente:</label>
@@ -275,8 +276,8 @@ export default function BuscarAnimal() {
                 disabled={isEdicao}
               >
                 <option value="">Selecione o tutor...</option>
-                {tutores.map(tutor => (
-                  <option key={tutor.id_tutor} value={tutor.id_tutor}>
+                {tutores.map((tutor, idx) => (
+                  <option key={`tutor-${tutor.id_tutor || idx}`} value={tutor.id_tutor}>
                     {tutor.nome_completo} (CPF: {tutor.cpf})
                   </option>
                 ))}
@@ -288,16 +289,16 @@ export default function BuscarAnimal() {
               <label style={styles.label}>Espécie:</label>
               <select value={idEspecieSel} onChange={handleEspecieChange} required style={styles.input}>
                 <option value="">Selecione a espécie...</option>
-                {especies.map((e, index) => (
-                  <option key={e.id_especie || `esp-${index}`} value={String(e.id_especie)}>{e.nome_especie}</option>
+                {especies.map((e, idx) => (
+                  <option key={`esp-${e.id_especie || idx}`} value={String(e.id_especie)}>{e.nome_especie}</option>
                 ))}
               </select>
 
               <label style={styles.label}>Raça:</label>
               <select value={formDados.raca} onChange={e => setFormDados({...formDados, raca: e.target.value})} required style={styles.input} disabled={!idEspecieSel}>
                 <option value="">Selecione a raça...</option>
-                {racas.map((r, index) => (
-                  <option key={r.id_raca || `raca-${index}`} value={String(r.nome_raca)}>{r.nome_raca}</option>
+                {racas.map((r, idx) => (
+                  <option key={`raca-${r.id_raca || idx}`} value={String(r.nome_raca)}>{r.nome_raca}</option>
                 ))}
               </select>
 
@@ -306,7 +307,7 @@ export default function BuscarAnimal() {
 
               <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
                 <button type="submit" style={{ ...styles.btnAcao, flex: 1, margin: 0 }}>{isEdicao ? 'Salvar Alterações' : 'Cadastrar'}</button>
-                <button type="button" onClick={() => setModalFormOpen(false)} style={{ ...styles.btnVoltar, flex: 1, margin: 0 }}>Cancelar</button>
+                <button type="button" onClick={() => setModalFormOpen(false)} style={{ ...styles.btnVoltar, flex: 1, margin: 0, width: 'auto' }}>Cancelar</button>
               </div>
             </form>
             {mensagemForm.texto && <div style={{ textAlign: 'center', marginTop: '10px', fontWeight: 'bold', color: mensagemForm.cor }}>{mensagemForm.texto}</div>}
@@ -316,14 +317,14 @@ export default function BuscarAnimal() {
 
       {modalDeleteOpen && (
         <div style={styles.modalOverlay}>
-          <div style={styles.modalContent}>
-            <h3 style={{ marginTop: 0, color: '#dc3545' }}>Confirmar Exclusão</h3>
+          <div style={styles.modalContentSmall}>
+            <h3 style={{ marginTop: 0, color: '#dc3545' }}>Atenção!</h3>
             <p style={{ color: '#333' }}>Tem certeza que deseja excluir o paciente <strong>{animalToDelete?.nome}</strong>?</p>
             <p style={{ fontSize: '14px', color: '#333' }}>O histórico de vacinas e todos os registros associados também serão apagados permanentemente.</p>
             
             <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
               <button onClick={confirmarDelecao} style={{ ...styles.btnAcao, backgroundColor: '#dc3545', flex: 1, margin: 0 }}>Sim, excluir</button>
-              <button onClick={() => setModalDeleteOpen(false)} style={{ ...styles.btnVoltar, flex: 1, margin: 0 }}>Cancelar</button>
+              <button onClick={() => setModalDeleteOpen(false)} style={{ ...styles.btnVoltar, flex: 1, margin: 0, width: 'auto' }}>Cancelar</button>
             </div>
           </div>
         </div>
@@ -336,13 +337,14 @@ const styles = {
   body: { fontFamily: 'Arial, sans-serif', backgroundColor: '#f4f4f9', margin: 0, padding: '20px', minHeight: '100vh' },
   container: { maxWidth: '900px', margin: 'auto', background: 'white', padding: '30px', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' },
   h2: { color: '#000000', margin: 0 },
-  btnVoltar: { backgroundColor: '#6c757d', color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', marginBottom: '20px' },
-  input: { width: '100%', padding: '10px', margin: '8px 0 15px 0', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box', color: '#333' },
-  label: { fontWeight: 'bold', color: '#333', fontSize: '14px' },
-  btnAcao: { backgroundColor: '#28a745', color: 'white', border: 'none', padding: '10px 15px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' },
+  btnVoltar: { backgroundColor: '#6c757d', color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', marginBottom: '20px', fontWeight: 'bold' },
+  input: { width: '100%', padding: '10px', margin: '0 0 15px 0', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box', color: '#333' },
+  label: { display: 'block', fontWeight: 'bold', marginBottom: '5px', color: '#333', fontSize: '14px', textAlign: 'left' },
+  btnAcao: { backgroundColor: '#28a745', color: 'white', border: 'none', padding: '10px 15px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', width: '100%' },
   btnCard: { color: 'white', border: 'none', padding: '10px 15px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', width: '100%' },
   card: { border: '1px solid #e3e3e3', padding: '20px', borderRadius: '8px', marginBottom: '15px', backgroundColor: '#fdfdfd', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' },
   actionGroup: { display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '150px' },
   modalOverlay: { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 },
-  modalContent: { backgroundColor: '#fff', padding: '30px', borderRadius: '8px', width: '400px', boxShadow: '0 4px 20px rgba(0,0,0,0.2)' }
+  modalContent: { backgroundColor: '#fff', padding: '30px', borderRadius: '8px', width: '450px', boxShadow: '0 4px 20px rgba(0,0,0,0.2)', maxHeight: '90vh', overflowY: 'auto' },
+  modalContentSmall: { background: 'white', padding: '20px', borderRadius: '8px', width: '320px', textAlign: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.2)' }
 };

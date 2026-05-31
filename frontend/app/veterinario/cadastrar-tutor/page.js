@@ -73,6 +73,25 @@ export default function CadastrarTutor() {
     } catch (err) {}
   };
 
+  const formatarCPF = (valor) => {
+    let v = valor.replace(/\D/g, "");
+    v = v.replace(/(\d{3})(\d)/, "$1.$2");
+    v = v.replace(/(\d{3})(\d)/, "$1.$2");
+    v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+    return v;
+  };
+
+  const formatarTelefone = (valor) => {
+    let v = valor.replace(/\D/g, "");
+    v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
+    v = v.replace(/(\d)(\d{4})$/, "$1-$2");
+    return v;
+  };
+
+  const formatarEstado = (valor) => {
+    return valor.replace(/[^a-zA-Z]/g, "").toUpperCase();
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -110,18 +129,41 @@ export default function CadastrarTutor() {
           <div style={{ display: 'flex', gap: '10px' }}>
             <div style={{ flex: 1 }}>
               <label style={styles.label}>CPF:</label>
-              <input type="text" value={formDados.cpf} onChange={e => setFormDados({...formDados, cpf: e.target.value})} required style={styles.input} />
+              <input 
+                type="text" 
+                value={formDados.cpf} 
+                onChange={e => setFormDados({...formDados, cpf: formatarCPF(e.target.value)})} 
+                required 
+                maxLength="14"
+                placeholder="000.000.000-00"
+                style={styles.input} 
+              />
             </div>
             <div style={{ flex: 1 }}>
               <label style={styles.label}>Telefone:</label>
-              <input type="text" value={formDados.telefone} onChange={e => setFormDados({...formDados, telefone: e.target.value})} style={styles.input} />
+              <input 
+                type="tel" 
+                value={formDados.telefone} 
+                onChange={e => setFormDados({...formDados, telefone: formatarTelefone(e.target.value)})} 
+                maxLength="15"
+                placeholder="(00) 00000-0000"
+                style={styles.input} 
+              />
             </div>
           </div>
 
           <div style={{ display: 'flex', gap: '10px' }}>
             <div style={{ flex: 1 }}>
               <label style={styles.label}>Estado (UF):</label>
-              <input type="text" maxLength="2" value={formDados.estado} onChange={e => setFormDados({...formDados, estado: e.target.value})} required style={styles.input} />
+              <input 
+                type="text" 
+                maxLength="2" 
+                value={formDados.estado} 
+                onChange={e => setFormDados({...formDados, estado: formatarEstado(e.target.value)})} 
+                required 
+                placeholder="Ex: PA"
+                style={styles.input} 
+              />
             </div>
             <div style={{ flex: 2 }}>
               <label style={styles.label}>Cidade:</label>
@@ -176,8 +218,8 @@ const styles = {
   container: { maxWidth: '700px', margin: 'auto', background: 'white', padding: '30px', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' },
   h2: { color: '#000000', marginTop: 0, marginBottom: '20px' },
   sectionTitle: { color: '#0056b3', marginTop: '25px', borderBottom: '2px solid #e9ecef', paddingBottom: '5px' },
-  btnVoltar: { backgroundColor: '#6c757d', color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', marginBottom: '20px' },
-  input: { width: '100%', padding: '10px', margin: '8px 0 15px 0', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box' },
+  btnVoltar: { backgroundColor: '#6c757d', color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', marginBottom: '20px', fontWeight: 'bold' },
+  input: { width: '100%', padding: '10px', margin: '8px 0 15px 0', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box', color: '#333' },
   label: { fontWeight: 'bold', color: '#333', fontSize: '14px' },
   btnSub: { backgroundColor: '#28a745', color: 'white', border: 'none', padding: '15px', borderRadius: '4px', cursor: 'pointer', width: '100%', fontSize: '16px', fontWeight: 'bold', marginTop: '20px' }
 };
