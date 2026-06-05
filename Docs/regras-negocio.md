@@ -6,8 +6,10 @@
 - [x] Toda senha deve ser armazenada com hash bcrypt
 - [x] Usuários devem possuir perfil definido
 - [x] Apenas usuários autenticados podem acessar o dashboard
-- [ ] Sessões devem possuir expiração
-- [ ] Rotas protegidas devem validar autenticação
+- [x] Sessões devem possuir expiração
+
+- [x] Rotas protegidas devem validar autenticação
+
 - [ ] JWT deve ser obrigatório futuramente
 
 ---
@@ -19,9 +21,11 @@
 - [x] Tutores podem visualizar apenas seus próprios pets
 - [x] Veterinários podem registrar vacinas
 - [x] Veterinários podem cadastrar animais e tutores
-- [ ] Administradores terão acesso total
-- [ ] Governo terá acesso apenas a dados institucionais
-- [ ] Gestores terão acesso apenas à sua clínica
+- [x] Administradores terão acesso total
+
+- [x] Governo terá acesso apenas a dados institucionais
+
+- [x] Gestores terão acesso apenas à sua clínica
 
 ---
 
@@ -30,9 +34,10 @@
 - [x] Todo tutor deve possuir CPF único
 - [x] Todo tutor deve estar vinculado a um usuário
 - [x] Um tutor pode possuir múltiplos animais
-- [ ] Tutor não pode ser removido caso possua pets vinculados
+- [x] Tutor não pode ser removido caso possua pets vinculados
+
 - [ ] CPF deve possuir validação futura
-- [ ] Telefone deve seguir padrão nacional
+- [x] Telefone deve seguir padrão nacional
 
 ---
 
@@ -42,9 +47,10 @@
 - [x] Todo animal deve possuir nome
 - [x] Todo animal deve possuir espécie cadastrada
 - [x] Animal pode possuir múltiplos registros vacinais
-- [ ] Data de nascimento não pode ser futura
+- [x] Data de nascimento não pode ser futura
+
 - [ ] Animal não pode existir sem tutor válido
-- [ ] Exclusão de animal deve validar histórico vacinal
+- [x] Exclusão de animal deve validar histórico vacinal
 
 ---
 
@@ -55,9 +61,11 @@
 - [x] Vacinas possuem intervalo de doses
 - [x] Registro vacinal deve possuir status
 - [x] Registro vacinal pode possuir próxima dose
-- [ ] Vacinas duplicadas devem ser evitadas
-- [ ] Intervalo vacinal deve ser validado automaticamente
-- [ ] Sistema deve alertar vacinas pendentes
+- [x] Vacinas duplicadas devem ser evitadas
+
+- [x] Intervalo vacinal deve ser validado automaticamente
+
+- [x] Sistema deve alertar vacinas pendentes
 
 ---
 
@@ -70,9 +78,11 @@
   - APLICADA
   - PENDENTE
   - ATRASADA
-- [ ] Data da aplicação não pode ser futura
-- [ ] Próxima dose deve respeitar intervalo da vacina
-- [ ] Histórico vacinal não deve ser perdido
+- [x] Data da aplicação não pode ser futura
+
+- [x] Próxima dose deve respeitar intervalo da vacina
+
+- [x] Histórico vacinal não deve ser perdido
 
 ---
 
@@ -82,8 +92,9 @@
 - [x] Tutor visualiza seus pets
 - [x] Tutor visualiza histórico vacinal
 - [x] Veterinário visualiza painel operacional
-- [ ] Administrador possuirá painel completo
-- [ ] Governo possuirá painel analítico
+- [x] Administrador possuirá painel completo
+
+- [x] Governo possuirá painel analítico
 
 ---
 
@@ -92,8 +103,9 @@
 - [x] Sistema permite busca por nome do animal
 - [x] Sistema permite busca por CPF
 - [x] Sistema permite busca por nome do tutor
-- [ ] Busca deverá possuir filtros avançados
-- [ ] Busca deverá possuir paginação futura
+- [x] Busca deverá possuir filtros avançados
+
+- [x] Busca deverá possuir paginação futura
 
 ---
 
@@ -117,7 +129,7 @@
 - [x] Senhas não devem ser armazenadas em texto puro
 - [ ] Rotas deverão possuir middleware de autenticação
 - [ ] Sistema deverá possuir autorização por perfil
-- [ ] Sessões deverão ser protegidas
+- [x] Sessões deverão ser protegidas
 
 ---
 

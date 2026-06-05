@@ -71,7 +71,9 @@
 - [ ] Estatísticas vacinais
 - [ ] Notificações de vacinação
 - [ ] Calendário vacinal
+
 - [ ] Gestão institucional
+
 
 ---
 

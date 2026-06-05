@@ -35,7 +35,7 @@
 - [x] Implementar histórico vacinal
 - [x] Implementar busca integrada
 - [x] Criar estrutura institucional inicial
-- [ ] Melhorar dashboard
+- [x] Melhorar dashboard
 - [ ] Melhorar organização visual
 
 ---

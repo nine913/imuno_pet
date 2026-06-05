@@ -22,10 +22,10 @@
 - [ ] Criar controllers
 - [ ] Criar services
 - [ ] Criar middlewares
-- [ ] Separar conexão do banco
+- [x] Separar conexão do banco
 - [ ] Criar pasta config
 - [ ] Organizar scripts auxiliares
-- [ ] Padronizar respostas da API
+- [x] Padronizar respostas da API
 
 ---
 
@@ -59,9 +59,9 @@
 - [x] Comunicação frontend → backend
 - [x] Comunicação backend → banco
 - [x] Retorno JSON da API
-- [ ] Centralizar URLs da API
-- [ ] Melhorar tratamento de erros
-- [ ] Criar padronização de respostas
+- [x] Centralizar URLs da API
+- [x] Melhorar tratamento de erros
+- [x] Criar padronização de respostas
 
 ---
 

@@ -32,7 +32,7 @@
 - [x] Associação tutor-animal
 - [x] Edição completa de tutor
 - [x] Exclusão de tutor
-- [ ] Histórico completo do tutor
+- [x] Histórico completo do tutor
 
 ---
 
@@ -45,7 +45,7 @@
 - [x] Associação tutor-pet
 - [x] Exclusão de animal
 - [ ] Foto do animal
-- [ ] Histórico completo do pet
+- [x] Histórico completo do pet
 
 ---
 
@@ -58,8 +58,8 @@
 - [x] Próxima dose
 - [x] Atualização de vacina
 - [x] Exclusão de vacina
-- [ ] Controle automático de vencimento
-- [ ] Alertas vacinais
+- [x] Controle automático de vencimento
+- [x] Alertas vacinais
 
 ---
 
@@ -92,10 +92,10 @@
 ## RELATÓRIOS
 
 - [x] Relatório vacinal
-- [ ] Relatório por tutor
-- [ ] Relatório por animal
-- [ ] Relatório institucional
-- [ ] Cobertura vacinal
+- [x] Relatório por tutor
+- [x] Relatório por animal
+- [x] Relatório institucional
+- [x] Cobertura vacinal
 - [x] Relatórios epidemiológicos
 - [x] Estatísticas vacinais
 
@@ -108,9 +108,9 @@
 - [x] Registro de vacinação
 - [x] Busca de animais
 - [x] Cadastro de vacinas
-- [ ] Controle de consultas
-- [ ] Agenda veterinária
-- [ ] Histórico clínico
+- [x] Controle de consultas
+- [x] Agenda veterinária
+- [x] Histórico clínico
 
 ---
 
@@ -118,10 +118,10 @@
 
 - [x] Estrutura inicial de órgão governamental
 - [x] Painel governamental
-- [ ] Controle regional
+- [x] Controle regional
 - [x] Estatísticas epidemiológicas
 - [ ] Controle de campanhas vacinais
-- [ ] Cobertura vacinal regional
+- [x] Cobertura vacinal
 
 ---
 

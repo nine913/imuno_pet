@@ -93,7 +93,7 @@
 
 ## PERFIS DO SISTEMA
 
-- [ ] ADMINISTRADOR (em planejamento)
+- [X] ADMINISTRADOR
 - [x] TUTOR
 - [x] VETERINARIO
 - [x] GESTOR_CLINICA
@@ -115,7 +115,7 @@
 - [x] Dashboard do tutor
 - [x] Dashboard do veterinário
 - [x] Persistência de sessão
-- [ ] Dashboard administrativo
+- [x] Dashboard administrativo
 - [x] Dashboard governamental
 - [x] Relatórios avançados
 
@@ -158,10 +158,10 @@
 
 ## PONTOS DE MELHORIA BACKEND
 
-- [ ] Separação de rotas por recursos
-- [ ] Controllers e services implementados
+- [x] Separação de rotas
+- [x] Controllers e services implementados
 - [ ] Middleware de autenticação e autorização
-- [ ] Padronização de respostas JSON
+- [x] Padronização de respostas JSON
 - [ ] Validação centralizada de dados de entrada
 - [ ] Estrutura modular
 
