@@ -214,17 +214,19 @@ SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
 
+-- INSERTS
+
 -- usuarios:
 
 INSERT INTO clinica (nome_fantasia, estado, cidade, bairro) VALUES
 ('Clínica ImunoPet Central', 'PA', 'Belém', 'Centro');
 
 INSERT INTO usuario (email, senha, perfil) VALUES
-('admin@imunopet.com.br', '$2b$10$W5eC.H0D.Lw9iL1/t2B50e6VzQ4uQhP9J8sQ2m/fW3sFj7P9rR.kK', 'ADMINISTRADOR'),
-('gestor@email.com', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjGsGGZOSm', 'GESTOR_CLINICA'),
-('veterinario@email.com', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjGsGGZOSm', 'VETERINARIO'),
-('tutor@email.com', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjGsGGZOSm', 'TUTOR'),
-('governo@email.com', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjGsGGZOSm', 'GOVERNO');
+('admin@email.com', '$2b$10$nPc3uhv9Z.kQArojCY0FrO2JSJ0BKbD7cU.OCdmw5HoT7mJHbhwMq', 'ADMINISTRADOR'),
+('gestor@email.com', '$2b$10$nPc3uhv9Z.kQArojCY0FrO2JSJ0BKbD7cU.OCdmw5HoT7mJHbhwMq', 'GESTOR_CLINICA'),
+('veterinario@email.com', '$2b$10$nPc3uhv9Z.kQArojCY0FrO2JSJ0BKbD7cU.OCdmw5HoT7mJHbhwMq', 'VETERINARIO'),
+('tutor@email.com', '$2b$10$nPc3uhv9Z.kQArojCY0FrO2JSJ0BKbD7cU.OCdmw5HoT7mJHbhwMq', 'TUTOR'),
+('governo@email.com', '$2b$10$nPc3uhv9Z.kQArojCY0FrO2JSJ0BKbD7cU.OCdmw5HoT7mJHbhwMq', 'GOVERNO');
 
 INSERT INTO gestor (id_usuario, id_clinica, nome_completo) VALUES
 ((SELECT id_usuario FROM usuario WHERE email = 'gestor@email.com'), 1, 'gestor');
