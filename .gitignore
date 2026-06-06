@@ -1,1 +1,4 @@
 .env
+next.config.mjs
+node_modules
+dist
