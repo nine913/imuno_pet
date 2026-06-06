@@ -7,7 +7,7 @@
 - [x] Controle básico por perfil
 - [x] Persistência de sessão com localStorage
 - [ ] Logout global padronizado
-- [ ] Recuperação de senha
+- [x] Recuperação de senha (redefinir-senha)
 - [ ] Expiração de sessão
 - [ ] Autenticação JWT
 
@@ -15,7 +15,7 @@
 
 ## PERFIS DE USUÁRIOS
 
-- [ ] Perfil ADMINISTRADOR
+- [x] Perfil ADMINISTRADOR
 - [x] Perfil TUTOR
 - [x] Perfil VETERINARIO
 - [x] Perfil GESTOR_CLINICA

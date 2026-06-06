@@ -6,10 +6,8 @@
 - [x] Toda senha deve ser armazenada com hash bcrypt
 - [x] Usuários devem possuir perfil definido
 - [x] Apenas usuários autenticados podem acessar o dashboard
-- [x] Sessões devem possuir expiração
-
-- [x] Rotas protegidas devem validar autenticação
-
+- [ ] Sessões devem possuir expiração
+- [ ] Rotas protegidas devem validar autenticação
 - [ ] JWT deve ser obrigatório futuramente
 
 ---
@@ -22,9 +20,7 @@
 - [x] Veterinários podem registrar vacinas
 - [x] Veterinários podem cadastrar animais e tutores
 - [x] Administradores terão acesso total
-
 - [x] Governo terá acesso apenas a dados institucionais
-
 - [x] Gestores terão acesso apenas à sua clínica
 
 ---
@@ -35,8 +31,7 @@
 - [x] Todo tutor deve estar vinculado a um usuário
 - [x] Um tutor pode possuir múltiplos animais
 - [x] Tutor não pode ser removido caso possua pets vinculados
-
-- [ ] CPF deve possuir validação futura
+- [x] CPF deve possuir validação futura (apenas unicidade/constraint no momento)
 - [x] Telefone deve seguir padrão nacional
 
 ---
@@ -48,8 +43,7 @@
 - [x] Todo animal deve possuir espécie cadastrada
 - [x] Animal pode possuir múltiplos registros vacinais
 - [x] Data de nascimento não pode ser futura
-
-- [ ] Animal não pode existir sem tutor válido
+- [x] Animal não pode existir sem tutor válido (FK no banco)
 - [x] Exclusão de animal deve validar histórico vacinal
 
 ---
@@ -62,9 +56,7 @@
 - [x] Registro vacinal deve possuir status
 - [x] Registro vacinal pode possuir próxima dose
 - [x] Vacinas duplicadas devem ser evitadas
-
 - [x] Intervalo vacinal deve ser validado automaticamente
-
 - [x] Sistema deve alertar vacinas pendentes
 
 ---
@@ -78,10 +70,9 @@
   - APLICADA
   - PENDENTE
   - ATRASADA
+  - CANCELADA
 - [x] Data da aplicação não pode ser futura
-
-- [x] Próxima dose deve respeitar intervalo da vacina
-
+- [ ] Próxima dose deve respeitar intervalo da vacina
 - [x] Histórico vacinal não deve ser perdido
 
 ---
@@ -93,7 +84,6 @@
 - [x] Tutor visualiza histórico vacinal
 - [x] Veterinário visualiza painel operacional
 - [x] Administrador possuirá painel completo
-
 - [x] Governo possuirá painel analítico
 
 ---
@@ -104,7 +94,6 @@
 - [x] Sistema permite busca por CPF
 - [x] Sistema permite busca por nome do tutor
 - [x] Busca deverá possuir filtros avançados
-
 - [x] Busca deverá possuir paginação futura
 
 ---

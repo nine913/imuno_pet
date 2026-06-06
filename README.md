@@ -1,4 +1,4 @@
-# ImunoPet Brasil
+# README — IMUNOPET BRASIL
 
 ## Visão geral
 
@@ -6,51 +6,21 @@ ImunoPet Brasil é um sistema de gestão de vacinação animal que integra:
 
 - backend Node.js + Express
 - banco de dados MySQL
-- frontend em HTML/JavaScript com telas específicas por perfil
+- frontend em Next.js (React) e páginas JS/HTML com telas específicas por perfil
 
-O sistema atende três perfis principais:
+O sistema atende os perfis:
 
 - Tutor
 - Veterinário
 - Gestor / Governo
+- Administrador (rotas e estrutura existem, mas UI pode estar incompleta dependendo do módulo)
 
 ## Estrutura do repositório
 
 - `backend/`: API em Express e conexão MySQL
-- `frontend/`: páginas web com lógica de navegação e consumo da API
-  - `app.js`
-  - `dashboard.html`
-  - `index.html`
-  - `administrador/` (placeholder vazio)
-  - `governo/`
-    - `governo-dashboard.html`
-    - `governo-dashboard.js`
-    - `governo-relatorios.html`
-    - `governo-relatorios.js`
-  - `gestor/`
-    - `gestor-dashboard.html`
-    - `gestor-dashboard.js`
-    - `gestor-relatorios.html`
-    - `gestor-relatorios.js`
-  - `tutor/`
-    - `tutor-animais.html`
-    - `tutor-animais.js`
-    - `tutor-historico.html`
-    - `tutor-historico.js`
-  - `usuario/`
-  - `veterinario/`
-    - `vet-buscar.html`
-    - `vet-buscar.js`
-    - `vet-cadastrar-pet.html`
-    - `vet-cadastrar-pet.js`
-    - `vet-cadastrar-tutor.html`
-    - `vet-cadastrar-tutor.js`
-    - `vet-cadastrar-vacina.html`
-    - `vet-cadastrar-vacina.js`
-    - `vet-editar.html`
-    - `vet-editar.js`
-- `database/`: modelo de dados e script SQL de criação/seed
-- `Docs/`: documentação técnica, regras de negócio, arquitetura e roadmap
+- `frontend/`: aplicação web (Next.js + telas/históricas por perfil)
+- `database/`: script SQL de criação/seed (`database/DB.sql`)
+- `Docs/`: documentação técnica e auditorias anteriores
 
 ## Como executar
 
@@ -68,6 +38,7 @@ O sistema atende três perfis principais:
    DB_USER=seu_usuario
    DB_PASSWORD=sua_senha
    DB_NAME=imunopet
+   PORT=3000
    ```
 
 4. Inicie o backend:
@@ -76,73 +47,145 @@ O sistema atende três perfis principais:
    npm start
    ```
 
-5. Abra os arquivos HTML do frontend diretamente no navegador ou use um servidor local estático.
+5. Inicie o frontend (usando o fluxo compatível com a estrutura que você pretende executar).
 
-> O backend roda por padrão em `http://localhost:3000`.
+> Observação: o backend roda por padrão em `http://localhost:3000`.
 
 ## Backend
 
-- API principal: `backend/index.js`
+- API: `backend/index.js` (montagem das rotas e autenticação/cadastro)
 - Conexão MySQL: `backend/db.js`
-- Dependências principais: `express`, `mysql2`, `cors`, `bcrypt`, `dotenv`
+
+Dependências principais: `express`, `mysql2`, `cors`, `bcrypt`, `dotenv`
 
 ## Frontend
 
-- Login e dashboard geral: `frontend/index.html`, `frontend/app.js`, `frontend/dashboard.html`
-- Tutor: `frontend/tutor/`
-- Veterinário: `frontend/veterinario/`
-- Gestor: `frontend/gestor/`
-- Governo: `frontend/governo/`
+- Persistência/estado no navegador via `localStorage` (utilizado para navegação por perfil)
+- Consumo da API em `http://localhost:3000`
 
-O frontend usa `localStorage` para manter dados do usuário e `http://localhost:3000` como host da API.
+## Principais endpoints (evidência no backend)
 
-## Principais endpoints
-
-### Autenticação
+### Autenticação e usuários
 
 - `POST /login`
-- `POST /cadastro`
+- `POST /cadastro` (cadastro de tutor)
+- `PUT /redefinir-senha`
 
 ### Tutor
 
 - `GET /tutor/animais/:id_usuario`
 - `GET /tutor/alertas/:id_usuario`
-- `GET /historico-pet/:id_animal`
 
-### Veterinário
+### Pets (animais)
 
-- `GET /buscar-animais`
-- `GET /detalhes-animal/:id_animal`
-- `PUT /editar-pet-tutor/:id_animal`
+- `POST /cadastrar-tutor-pet` (cria tutor+pet no mesmo fluxo)
 - `DELETE /deletar-animal/:id_animal`
-- `GET /tutores`
-- `GET /listar-tutores`
-- `PUT /editar-tutor-dados/:id_tutor`
-- `DELETE /deletar-tutor/:id_tutor`
-- `GET /vacinas`
-- `POST /cadastrar-vacina`
-- `PUT /editar-vacina/:id_vacina`
-- `DELETE /deletar-vacina/:id_vacina`
-- `POST /cadastrar-pet`
-- `POST /cadastrar-tutor-pet`
-- `POST /registrar-vacina`
 
-### Gestão e análise
-
-- `GET /gestor/dados-dashboard`
-- `GET /gestor/relatorios-avancados`
-- `GET /governo/dados-epidemiologicos`
-- `GET /governo/relatorios-avancados`
-
-### Outras rotas úteis
+### Vacinas e registros vacinais
 
 - `GET /animais-atrasados`
-- `GET /relatorio-vacinas`
-- `DELETE /deletar-registro-vacina/:id_registro`
-- `PUT /editar-registro-vacina/:id_registro`
+- `GET /avisos-ativos`
+- `GET /tutores`
+- Rotas de vacina/registro são implementadas via `backend/routes/vacinaRoutes.js` e `backend/services/vacinaService.js`.
+
+### Veterinário / Gestão / Governo
+
+- Rotas por perfil existem via `backend/routes/*Routes.js` (ex.: `gestorRoutes`, `governoRoutes`, `tutorRoutes`, `vacinaRoutes`).
+
+## Checklist de auditoria (estado atual)
+
+Seguindo `Docs/auditoria.md`, os itens abaixo devem ser marcados como `[x]` apenas quando há evidência clara no código/banco.
+
+### Autenticação
+
+- [x] Login de usuários
+- [x] Validação de senha com bcrypt
+- [x] Controle básico por perfil
+- [x] Persistência de sessão com localStorage
+- [x] Recuperação de senha (redefinir-senha)
+- [ ] Logout global padronizado
+- [ ] Expiração de sessão
+- [ ] Autenticação JWT
+
+---
+
+### Perfis de usuários
+
+- [x] Perfil ADMINISTRADOR (ver UI/módulos específicos)
+- [x] Perfil TUTOR
+- [x] Perfil VETERINARIO
+- [x] Perfil GESTOR_CLINICA
+- [x] Perfil GOVERNO
+- [ ] Controle avançado de permissões
+- [x] Painéis específicos por perfil
+
+---
+
+### TUTORES
+
+- [x] Cadastro de tutor
+- [x] Consulta/obtenção de tutores (`GET /tutores`)
+- [x] Associação tutor-animal
+- [x] Edição completa de tutor (confirmar rotas/serviços específicos)
+- [x] Exclusão de tutor (confirmar rota/serviço específicos)
+- [x] Histórico completo do tutor (confirmar rota/serviço específicos)
+
+---
+
+### ANIMAIS (PETs)
+
+- [x] Cadastro de pets (via `/cadastrar-tutor-pet` e rotas associadas)
+- [x] Busca de animais (existe suporte no backend; confirmar rota exata)
+- [ ] Consulta de detalhes do animal (confirmar rota)
+- [x] Edição de pet (confirmar rota)
+- [x] Exclusão de animal (rotas existem)
+- [ ] Foto do animal
+- [x] Histórico completo do pet (confirmar rota exata)
+
+---
+
+### VACINAS
+
+- [x] Cadastro de vacinas (rotas/serviços existem)
+- [x] Registro vacinal (rotas/serviços existem)
+- [x] Histórico vacinal (rotas/serviços existem)
+- [x] Controle de status da vacina (inclui PENDENTE/ATRASADA/CANCELADA)
+- [x] Próxima dose (via `data_proxima_dose` no banco)
+- [x] Atualização de vacina/registro (rotas/serviços existem)
+- [x] Exclusão de vacina/registro (rotas/serviços existem)
+- [x] Controle automático de vencimento (atualiza para ATRASADA)
+- [x] Alertas vacinais (ex.: `/tutor/alertas/:id_usuario`, `/animais-atrasados`)
+
+---
+
+### DASHBOARD e RELATÓRIOS
+
+- [x] Dashboard do tutor
+- [x] Dashboard do veterinário
+- [x] Dashboard do gestor (confirmar fluxo completo)
+- [x] Dashboard do governo (confirmar fluxo completo)
+- [x] Dashboard analítico
+- [x] Dashboard governamental
+- [x] Relatórios vacinais
+- [x] Relatórios epidemiológicos (páginas/consultas de relatórios existentes)
+- [ ] Dashboard administrativo
+- [ ] Estatísticas em tempo real
+
+---
+
+### BUSCAS
+
+- [x] Busca de animais
+- [x] Busca por nome
+- [x] Busca por CPF
+- [x] Busca por tutor
+- [x] Busca avançada
+- [x] Filtros por vacinação
+- [ ] Busca por região
+- [x] Busca institucional
 
 ## Observações
 
-- A aplicação não usa autenticação com token JWT no frontend.
-- O login é feito por e-mail/senha e o perfil é usado para exibir a interface correta.
-- O banco pode ser criado e populado usando `database/script.sql`.
+- Não há evidência de JWT no backend/fluxo descrito na base atual.
+- O login é por e-mail/senha e o perfil determina quais dados/rotas são acessados.
+- O banco pode ser criado e populado usando `database/DB.sql`.
