@@ -7,6 +7,7 @@ export default function GovernoRelatorios() {
   const [usuario, setUsuario] = useState(null);
   const [dadosRelatorio, setDadosRelatorio] = useState([]);
   const [vacinasLista, setVacinasLista] = useState([]);
+  const [especiesLista, setEspeciesLista] = useState([]);
   const [carregando, setCarregando] = useState(true);
 
   const [filtros, setFiltros] = useState({
@@ -32,15 +33,20 @@ export default function GovernoRelatorios() {
       return;
     }
     setUsuario(user);
-    carregarFiltroVacinas();
+    carregarFiltrosAPI();
     gerarRelatorio();
   }, [router]);
 
-  const carregarFiltroVacinas = async () => {
+  const carregarFiltrosAPI = async () => {
     try {
-      const resposta = await fetch('http://localhost:3000/vacinas');
-      if (resposta.ok) {
-        setVacinasLista(await resposta.json());
+      const respostaVac = await fetch('http://localhost:3000/vacinas');
+      if (respostaVac.ok) {
+        setVacinasLista(await respostaVac.json());
+      }
+      
+      const respostaEsp = await fetch('http://localhost:3000/admin/especies');
+      if (respostaEsp.ok) {
+        setEspeciesLista(await respostaEsp.json());
       }
     } catch (erro) {
       console.error(erro);
@@ -99,9 +105,9 @@ export default function GovernoRelatorios() {
           body { background-color: white; padding: 0; }
           .container { box-shadow: none; padding: 0; max-width: 100%; border: none; }
           .nao-imprimir { display: none !important; }
-          table { font-size: 12px; border-collapse: collapse; width: 100%; }
+          table { font-size: 12px; border-collapse: collapse; width: 100%; color: black !important; }
           th, td { border: 1px solid black; padding: 5px; text-align: left; }
-          th { background-color: #f2f2f2; }
+          th { background-color: #f2f2f2; color: black !important; }
           .total-box { border: 2px solid #28a745; color: black !important; background-color: white !important; }
           .total-box h2 { color: black !important; }
         }
@@ -112,9 +118,14 @@ export default function GovernoRelatorios() {
           <button style={{ ...styles.button, backgroundColor: '#6c757d' }} onClick={() => router.push('/dashboard')}>
             Voltar ao Painel
           </button>
-          <button style={{ ...styles.button, backgroundColor: '#17a2b8', fontWeight: 'bold' }} onClick={baixarPDF}>
-            📄 Exportar PDF
-          </button>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button style={{ ...styles.button, backgroundColor: '#6c757d', fontWeight: 'bold' }} onClick={() => window.print()}>
+              🖨️ Imprimir
+            </button>
+            <button style={{ ...styles.button, backgroundColor: '#17a2b8', fontWeight: 'bold' }} onClick={baixarPDF}>
+              📄 Exportar PDF
+            </button>
+          </div>
         </div>
         
         <div id="area-relatorio">
@@ -151,17 +162,17 @@ export default function GovernoRelatorios() {
               <label style={styles.label}>Espécie:</label>
               <select value={filtros.especie} onChange={e => handleChangeFiltro('especie', e.target.value)} style={styles.input}>
                 <option value="">Todas</option>
-                <option value="Cachorro">Cachorro</option>
-                <option value="Gato">Gato</option>
-                <option value="Outro">Outro</option>
+                {especiesLista.map(e => (
+                  <option key={e.id_especie} value={e.nome_especie}>{e.nome_especie}</option>
+                ))}
               </select>
             </div>
             <div style={styles.filtroItem}>
               <label style={styles.label}>Localidade (Bairro):</label>
               <input type="text" value={filtros.bairro} onChange={e => handleChangeFiltro('bairro', e.target.value)} placeholder="Ex: Centro" style={styles.input} />
             </div>
-            <button style={{ ...styles.button, backgroundColor: '#fd7e14', height: '38px', marginBottom: '1px' }} onClick={gerarRelatorio}>
-              Gerar
+            <button style={{ ...styles.button, backgroundColor: '#0056b3', height: '38px', marginBottom: '1px' }} onClick={gerarRelatorio}>
+              Gerar Relatório
             </button>
           </div>
 
@@ -185,9 +196,9 @@ export default function GovernoRelatorios() {
             </thead>
             <tbody>
               {carregando ? (
-                <tr><td colSpan="9" style={{ textAlign: 'center', padding: '10px' }}>Carregando dados...</td></tr>
+                <tr><td colSpan="9" style={{ textAlign: 'center', padding: '10px', color: '#333' }}>Carregando dados...</td></tr>
               ) : dadosRelatorio.length === 0 ? (
-                <tr><td colSpan="9" style={{ textAlign: 'center', padding: '10px' }}>Nenhum registro encontrado.</td></tr>
+                <tr><td colSpan="9" style={{ textAlign: 'center', padding: '10px', color: '#333' }}>Nenhum registro encontrado.</td></tr>
               ) : (
                 dadosRelatorio.map((item, idx) => {
                   const dataBase = item.status === 'APLICADA' ? item.data_aplicacao : item.data_proxima_dose;
@@ -196,7 +207,7 @@ export default function GovernoRelatorios() {
                   const bgColor = idx % 2 === 0 ? '#fff' : '#f2f2f2';
 
                   return (
-                    <tr key={idx} style={{ backgroundColor: bgColor }}>
+                    <tr key={idx} style={{ backgroundColor: bgColor, color: '#333' }}>
                       <td style={styles.td}>{dataExibicao}</td>
                       <td style={{ ...styles.td, color: corStatus, fontWeight: 'bold' }}>{item.status}</td>
                       <td style={styles.td}><strong>{item.nome_vacina}</strong></td>
@@ -221,12 +232,12 @@ export default function GovernoRelatorios() {
 const styles = {
   body: { fontFamily: 'Arial, sans-serif', backgroundColor: '#f4f4f9', margin: 0, padding: '20px', minHeight: '100vh' },
   container: { maxWidth: '1200px', margin: 'auto', background: 'white', padding: '30px', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)' },
-  button: { padding: '10px 15px', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px' },
+  button: { padding: '10px 15px', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold' },
   filtrosBox: { display: 'flex', gap: '15px', backgroundColor: '#e9ecef', padding: '20px', borderRadius: '8px', marginBottom: '20px', alignItems: 'flex-end', flexWrap: 'wrap' },
   filtroItem: { flex: 1, minWidth: '150px' },
-  label: { display: 'block', marginBottom: '5px', fontSize: '14px', fontWeight: 'bold' },
-  input: { padding: '10px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box', width: '100%' },
+  label: { display: 'block', marginBottom: '5px', fontSize: '14px', fontWeight: 'bold', color: '#333' },
+  input: { padding: '10px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box', width: '100%', color: '#333' },
   tabela: { width: '100%', borderCollapse: 'collapse', marginTop: '20px', fontSize: '14px' },
-  th: { border: '1px solid #ddd', padding: '10px', textAlign: 'left', backgroundColor: '#fd7e14', color: 'white' },
+  th: { border: '1px solid #ddd', padding: '10px', textAlign: 'left', backgroundColor: '#0056b3', color: 'white' },
   td: { border: '1px solid #ddd', padding: '10px', textAlign: 'left' }
 };

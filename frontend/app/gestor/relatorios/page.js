@@ -8,6 +8,7 @@ export default function GestorRelatorios() {
   const [dadosRelatorio, setDadosRelatorio] = useState([]);
   const [vacinasLista, setVacinasLista] = useState([]);
   const [vetsLista, setVetsLista] = useState([]);
+  const [especiesLista, setEspeciesLista] = useState([]);
   const [carregando, setCarregando] = useState(true);
 
   const [filtros, setFiltros] = useState({
@@ -54,6 +55,12 @@ export default function GestorRelatorios() {
       if (resVet.ok) {
         setVetsLista(await resVet.json());
       }
+
+      const resEsp = await fetch('http://localhost:3000/admin/especies');
+      if (resEsp.ok) {
+        setEspeciesLista(await resEsp.json());
+      }
+
     } catch (erro) {
       console.error("Erro ao carregar filtros:", erro);
     }
@@ -131,9 +138,14 @@ export default function GestorRelatorios() {
           <button style={{ ...styles.button, backgroundColor: '#6c757d' }} onClick={() => router.push('/dashboard')}>
             Voltar ao Painel
           </button>
-          <button style={{ ...styles.button, backgroundColor: '#17a2b8', fontWeight: 'bold' }} onClick={baixarPDF}>
-            📄 Exportar PDF
-          </button>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button style={{ ...styles.button, backgroundColor: '#6c757d', fontWeight: 'bold' }} onClick={() => window.print()}>
+              🖨️ Imprimir
+            </button>
+            <button style={{ ...styles.button, backgroundColor: '#17a2b8', fontWeight: 'bold' }} onClick={baixarPDF}>
+              📄 Exportar PDF
+            </button>
+          </div>
         </div>
         
         <div id="area-relatorio">
@@ -170,9 +182,9 @@ export default function GestorRelatorios() {
               <label style={styles.label}>Espécie:</label>
               <select value={filtros.especie} onChange={e => handleChangeFiltro('especie', e.target.value)} style={styles.input}>
                 <option value="">Todas</option>
-                <option value="Cachorro">Cachorro</option>
-                <option value="Gato">Gato</option>
-                <option value="Outro">Outro</option>
+                {especiesLista.map(e => (
+                  <option key={e.id_especie} value={e.nome_especie}>{e.nome_especie}</option>
+                ))}
               </select>
             </div>
             <div style={styles.filtroItem}>
@@ -189,7 +201,7 @@ export default function GestorRelatorios() {
               </select>
             </div>
             <button style={{ ...styles.button, backgroundColor: '#0056b3', height: '38px', marginBottom: '1px' }} onClick={() => gerarRelatorio()}>
-              Gerar
+              Gerar Relatório
             </button>
           </div>
 
@@ -256,7 +268,7 @@ export default function GestorRelatorios() {
 const styles = {
   body: { fontFamily: 'Arial, sans-serif', backgroundColor: '#f4f4f9', margin: 0, padding: '20px', minHeight: '100vh' },
   container: { maxWidth: '1200px', margin: 'auto', background: 'white', padding: '30px', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)' },
-  button: { padding: '10px 15px', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px' },
+  button: { padding: '10px 15px', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold' },
   filtrosBox: { display: 'flex', gap: '15px', backgroundColor: '#e9ecef', padding: '20px', borderRadius: '8px', marginBottom: '20px', alignItems: 'flex-end', flexWrap: 'wrap' },
   filtroItem: { flex: 1, minWidth: '150px' },
   label: { display: 'block', marginBottom: '5px', fontSize: '14px', fontWeight: 'bold', color: '#333' },

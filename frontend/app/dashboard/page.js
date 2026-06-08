@@ -91,6 +91,11 @@ export default function Dashboard() {
                 <h3 style={{...styles.cardTitle, color: '#dc3545'}}>⚠️ Vacinas Atrasadas</h3>
                 <p style={styles.cardText}>Verifique rapidamente os pacientes com doses pendentes ou em atraso.</p>
               </div>
+              
+              <div style={styles.card} onClick={() => router.push('/veterinario/especies')}>
+                <h3 style={styles.cardTitle}>🐾 Catálogo de Espécies</h3>
+                <p style={styles.cardText}>Gerencie as espécies e raças de animais cadastradas no sistema.</p>
+              </div>
             </>
           )}
 
