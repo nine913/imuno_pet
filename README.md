@@ -136,7 +136,7 @@ Seguindo `Docs/auditoria.md`, os itens abaixo devem ser marcados como `[x]` apen
 
 - [x] Cadastro de pets (via `/cadastrar-tutor-pet` e rotas associadas)
 - [x] Busca de animais (existe suporte no backend; confirmar rota exata)
-- [ ] Consulta de detalhes do animal (confirmar rota)
+- [x] Consulta de detalhes do animal (confirmar rota)
 - [x] Edição de pet (confirmar rota)
 - [x] Exclusão de animal (rotas existem)
 - [ ] Foto do animal
@@ -169,7 +169,7 @@ Seguindo `Docs/auditoria.md`, os itens abaixo devem ser marcados como `[x]` apen
 - [x] Relatórios vacinais
 - [x] Relatórios epidemiológicos (páginas/consultas de relatórios existentes)
 - [ ] Dashboard administrativo
-- [ ] Estatísticas em tempo real
+- [x] Estatísticas em tempo real
 
 ---
 
@@ -181,7 +181,7 @@ Seguindo `Docs/auditoria.md`, os itens abaixo devem ser marcados como `[x]` apen
 - [x] Busca por tutor
 - [x] Busca avançada
 - [x] Filtros por vacinação
-- [ ] Busca por região
+- [x] Busca por região
 - [x] Busca institucional
 
 ## Observações
