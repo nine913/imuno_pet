@@ -18,9 +18,9 @@
 
 ## FASE 2 — Estrutura do Backend
 
-- [ ] Modularizar rotas
-- [ ] Criar controllers
-- [ ] Criar services
+- [x] Modularizar rotas
+- [x] Criar controllers
+- [x] Criar services
 - [ ] Criar middlewares
 - [x] Separar conexão do banco
 - [ ] Criar pasta config
@@ -47,7 +47,7 @@
 - [x] Relacionamento entre entidades
 - [x] Tabelas `clinica` e `orgao_governamental` previstas no modelo
 - [ ] Validar foreign keys
-- [ ] Criar constraints
+- [x] Criar constraints
 - [ ] Criar índices de busca
 - [ ] Padronizar nomenclaturas SQL
 - [ ] Revisar integridade relacional

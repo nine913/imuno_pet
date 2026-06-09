@@ -72,7 +72,7 @@
 - [ ] Dashboard administrativo
 - [x] Dashboard analítico
 - [x] Dashboard governamental
-- [ ] Estatísticas em tempo real
+- [x] Estatísticas em tempo real
 
 ---
 
@@ -83,8 +83,8 @@
 - [x] Busca por CPF
 - [x] Busca por tutor
 - [ ] Busca avançada
-- [ ] Filtros por vacinação
-- [ ] Busca por região
+- [x] Filtros por vacinação
+- [x] Busca por região
 - [ ] Busca institucional
 
 ---

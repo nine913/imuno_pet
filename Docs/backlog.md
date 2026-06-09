@@ -2,12 +2,12 @@
 
 ## BACKEND
 
-- [ ] Separar rotas do index.js
-- [ ] Criar controllers
-- [ ] Criar services
+- [x] Separar rotas do index.js
+- [x] Criar controllers
+- [x] Criar services
 - [ ] Criar middlewares
-- [ ] Organizar estrutura do backend
-- [ ] Corrigir rota aninhada de vacinas
+- [x] Organizar estrutura do backend
+- [x] Corrigir rota aninhada de vacinas
 - [ ] Padronizar respostas da API
 - [ ] Melhorar tratamento de erros
 - [ ] Criar middleware de autenticação
@@ -35,7 +35,7 @@
 ## BANCO DE DADOS
 
 - [ ] Validar foreign keys
-- [ ] Criar constraints
+- [x] Criar constraints
 - [ ] Criar índices de busca
 - [ ] Revisar integridade relacional
 - [ ] Padronizar nomes de colunas

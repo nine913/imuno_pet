@@ -140,10 +140,10 @@
 - [x] SQL parametrizado
 - [x] bcrypt implementado
 - [x] Variáveis de ambiente carregadas com dotenv
-- [ ] Separação de rotas
-- [ ] Controllers
-- [ ] Services
-- [ ] Middlewares
+- [x] Separação de rotas
+- [x] Controllers
+- [x] Services
+- [x] Middlewares
 - [ ] Validação de entrada centralizada
 - [ ] Estrutura modular
 

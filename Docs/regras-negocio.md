@@ -72,7 +72,7 @@
   - ATRASADA
   - CANCELADA
 - [x] Data da aplicação não pode ser futura
-- [ ] Próxima dose deve respeitar intervalo da vacina
+- [x] Próxima dose deve respeitar intervalo da vacina
 - [x] Histórico vacinal não deve ser perdido
 
 ---
@@ -107,7 +107,7 @@
 - [x] Dados iniciais de seed em `database/script.sql`
 - [ ] Foreign keys devem ser revisadas
 - [ ] Integridade relacional deve ser fortalecida
-- [ ] Constraints devem ser implementadas
+- [x] Constraints devem ser implementadas
 
 ---
 
@@ -124,7 +124,7 @@
 
 ## ESCALABILIDADE
 
-- [ ] Sistema deverá suportar múltiplas clínicas
+- [x] Sistema deverá suportar múltiplas clínicas
 - [ ] Sistema deverá suportar expansão institucional
 - [ ] Estrutura deverá permitir dashboards analíticos
 - [ ] Sistema deverá permitir integração futura mobile

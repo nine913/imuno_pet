@@ -49,7 +49,7 @@
 - [x] Criar arquitetura.md
 - [x] Criar funcionalidades.md
 - [x] Criar regras-negocio.md
-- [ ] Modularizar backend
+- [x] Modularizar backend
 - [ ] Modularizar frontend
 - [ ] Padronizar APIs
 - [ ] Criar estrutura escalável
@@ -58,9 +58,9 @@
 
 ## FASE 5 — Refatoração Estrutural
 
-- [ ] Separar rotas
-- [ ] Criar controllers
-- [ ] Criar services
+- [x] Separar rotas
+- [x] Criar controllers
+- [x] Criar services
 - [ ] Criar middlewares
 - [ ] Separar CSS do HTML
 - [ ] Criar camada de serviços frontend
@@ -101,7 +101,7 @@
 - [ ] Controle regional
 - [x] Painel epidemiológico
 - [x] Relatórios governamentais
-- [ ] Estatísticas regionais
+- [x] Estatísticas regionais
 - [ ] Gestão de campanhas vacinais
 
 ---
