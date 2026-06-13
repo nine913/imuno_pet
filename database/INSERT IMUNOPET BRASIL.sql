@@ -1,231 +1,113 @@
-INSERT IMUNOPET BRASIL
-
--- =====================================================
--- 01_CLINICAS.SQL
--- Massa de Dados Homologação - ImunoPet
--- =====================================================
+USE imunopet;
 
 INSERT INTO clinica
 (nome_fantasia, cnpj, endereco, telefone, estado, cidade, bairro, status)
 VALUES
-
-('ImunoPet Belém Centro',
-'11.111.111/0001-01',
-'Av. Presidente Vargas, 100',
-'(91) 3000-1001',
-'PA',
-'Belém',
-'Centro',
-'ATIVA'),
-
-('Clínica Vida Animal',
-'11.111.111/0001-02',
-'Av. Almirante Barroso, 500',
-'(91) 3000-1002',
-'PA',
-'Belém',
-'Marco',
-'ATIVA'),
-
-('Pet Saúde Ananindeua',
-'11.111.111/0001-03',
-'Rodovia BR-316, 800',
-'(91) 3000-1003',
-'PA',
-'Ananindeua',
-'Cidade Nova',
-'ATIVA'),
-
-('Clínica BemPet',
-'11.111.111/0001-04',
-'Rua Magalhães Barata, 250',
-'(91) 3000-1004',
-'PA',
-'Castanhal',
-'Centro',
-'ATIVA'),
-
-('PetCare Santarém',
-'11.111.111/0001-05',
-'Av. Tapajós, 110',
-'(93) 3000-1005',
-'PA',
-'Santarém',
-'Aldeia',
-'ATIVA'),
-
-('Animal Life Marabá',
-'11.111.111/0001-06',
-'Folha 28, Quadra Especial',
-'(94) 3000-1006',
-'PA',
-'Marabá',
-'Nova Marabá',
-'ATIVA'),
-
-('Vet Prime Altamira',
-'11.111.111/0001-07',
-'Av. João Pessoa, 700',
-'(93) 3000-1007',
-'PA',
-'Altamira',
-'Centro',
-'ATIVA'),
-
-('Pet Center Abaetetuba',
-'11.111.111/0001-08',
-'Rua Barão do Rio Branco, 99',
-'(91) 3000-1008',
-'PA',
-'Abaetetuba',
-'Centro',
-'ATIVA'),
-
-('Clínica São Francisco Pet',
-'11.111.111/0001-09',
-'Av. Nazeazeno Ferreira, 320',
-'(91) 3000-1009',
-'PA',
-'Bragança',
-'Centro',
-'INATIVA'),
-
-('Hospital Veterinário Paragominas',
-'11.111.111/0001-10',
-'Rua Industrial, 150',
-'(91) 3000-1010',
-'PA',
-'Paragominas',
-'Promissão',
-'INATIVA');
-
-
--- =====================================================
--- 02_USUARIOS.SQL
--- Massa de Dados Homologação - ImunoPet
--- =====================================================
+('ImunoPet Belém Centro', '11.111.111/0001-01', 'Av. Presidente Vargas, 100', '(91) 3000-1001', 'PA', 'Belém', 'Centro', 'ATIVA'),
+('Clínica Vida Animal', '11.111.111/0001-02', 'Av. Almirante Barroso, 500', '(91) 3000-1002', 'PA', 'Belém', 'Marco', 'ATIVA'),
+('Pet Saúde Ananindeua', '11.111.111/0001-03', 'Rodovia BR-316, 800', '(91) 3000-1003', 'PA', 'Ananindeua', 'Cidade Nova', 'ATIVA'),
+('Clínica BemPet', '11.111.111/0001-04', 'Rua Magalhães Barata, 250', '(91) 3000-1004', 'PA', 'Castanhal', 'Centro', 'ATIVA'),
+('PetCare Santarém', '11.111.111/0001-05', 'Av. Tapajós, 110', '(93) 3000-1005', 'PA', 'Santarém', 'Aldeia', 'ATIVA'),
+('Animal Life Marabá', '11.111.111/0001-06', 'Folha 28, Quadra Especial', '(94) 3000-1006', 'PA', 'Marabá', 'Nova Marabá', 'ATIVA'),
+('Vet Prime Altamira', '11.111.111/0001-07', 'Av. João Pessoa, 700', '(93) 3000-1007', 'PA', 'Altamira', 'Centro', 'ATIVA'),
+('Pet Center Abaetetuba', '11.111.111/0001-08', 'Rua Barão do Rio Branco, 99', '(91) 3000-1008', 'PA', 'Abaetetuba', 'Centro', 'ATIVA'),
+('Clínica São Francisco Pet', '11.111.111/0001-09', 'Av. Nazeazeno Ferreira, 320', '(91) 3000-1009', 'PA', 'Bragança', 'Centro', 'INATIVA'),
+('Hospital Veterinário Paragominas', '11.111.111/0001-10', 'Rua Industrial, 150', '(91) 3000-1010', 'PA', 'Paragominas', 'Promissão', 'INATIVA');
 
 INSERT INTO usuario (email, senha, perfil) VALUES
-
--- ADMINISTRADORES
-
-('[admin01@imunopet.com.br](mailto:admin01@imunopet.com.br)','TEMP','ADMINISTRADOR'),
-('[admin02@imunopet.com.br](mailto:admin02@imunopet.com.br)','TEMP','ADMINISTRADOR'),
-('[admin03@imunopet.com.br](mailto:admin03@imunopet.com.br)','TEMP','ADMINISTRADOR'),
-('[admin04@imunopet.com.br](mailto:admin04@imunopet.com.br)','TEMP','ADMINISTRADOR'),
-
--- GESTORES
-
-('[gestor01@imunopet.com.br](mailto:gestor01@imunopet.com.br)','TEMP','GESTOR_CLINICA'),
-('[gestor02@imunopet.com.br](mailto:gestor02@imunopet.com.br)','TEMP','GESTOR_CLINICA'),
-('[gestor03@imunopet.com.br](mailto:gestor03@imunopet.com.br)','TEMP','GESTOR_CLINICA'),
-('[gestor04@imunopet.com.br](mailto:gestor04@imunopet.com.br)','TEMP','GESTOR_CLINICA'),
-('[gestor05@imunopet.com.br](mailto:gestor05@imunopet.com.br)','TEMP','GESTOR_CLINICA'),
-('[gestor06@imunopet.com.br](mailto:gestor06@imunopet.com.br)','TEMP','GESTOR_CLINICA'),
-('[gestor07@imunopet.com.br](mailto:gestor07@imunopet.com.br)','TEMP','GESTOR_CLINICA'),
-('[gestor08@imunopet.com.br](mailto:gestor08@imunopet.com.br)','TEMP','GESTOR_CLINICA'),
-('[gestor09@imunopet.com.br](mailto:gestor09@imunopet.com.br)','TEMP','GESTOR_CLINICA'),
-('[gestor10@imunopet.com.br](mailto:gestor10@imunopet.com.br)','TEMP','GESTOR_CLINICA'),
-
--- VETERINÁRIOS
-
-('[vet01@imunopet.com.br](mailto:vet01@imunopet.com.br)','TEMP','VETERINARIO'),
-('[vet02@imunopet.com.br](mailto:vet02@imunopet.com.br)','TEMP','VETERINARIO'),
-('[vet03@imunopet.com.br](mailto:vet03@imunopet.com.br)','TEMP','VETERINARIO'),
-('[vet04@imunopet.com.br](mailto:vet04@imunopet.com.br)','TEMP','VETERINARIO'),
-('[vet05@imunopet.com.br](mailto:vet05@imunopet.com.br)','TEMP','VETERINARIO'),
-('[vet06@imunopet.com.br](mailto:vet06@imunopet.com.br)','TEMP','VETERINARIO'),
-('[vet07@imunopet.com.br](mailto:vet07@imunopet.com.br)','TEMP','VETERINARIO'),
-('[vet08@imunopet.com.br](mailto:vet08@imunopet.com.br)','TEMP','VETERINARIO'),
-('[vet09@imunopet.com.br](mailto:vet09@imunopet.com.br)','TEMP','VETERINARIO'),
-('[vet10@imunopet.com.br](mailto:vet10@imunopet.com.br)','TEMP','VETERINARIO'),
-('[vet11@imunopet.com.br](mailto:vet11@imunopet.com.br)','TEMP','VETERINARIO'),
-('[vet12@imunopet.com.br](mailto:vet12@imunopet.com.br)','TEMP','VETERINARIO'),
-('[vet13@imunopet.com.br](mailto:vet13@imunopet.com.br)','TEMP','VETERINARIO'),
-('[vet14@imunopet.com.br](mailto:vet14@imunopet.com.br)','TEMP','VETERINARIO'),
-('[vet15@imunopet.com.br](mailto:vet15@imunopet.com.br)','TEMP','VETERINARIO'),
-('[vet16@imunopet.com.br](mailto:vet16@imunopet.com.br)','TEMP','VETERINARIO'),
-('[vet17@imunopet.com.br](mailto:vet17@imunopet.com.br)','TEMP','VETERINARIO'),
-('[vet18@imunopet.com.br](mailto:vet18@imunopet.com.br)','TEMP','VETERINARIO'),
-('[vet19@imunopet.com.br](mailto:vet19@imunopet.com.br)','TEMP','VETERINARIO'),
-('[vet20@imunopet.com.br](mailto:vet20@imunopet.com.br)','TEMP','VETERINARIO'),
-('[vet21@imunopet.com.br](mailto:vet21@imunopet.com.br)','TEMP','VETERINARIO'),
-('[vet22@imunopet.com.br](mailto:vet22@imunopet.com.br)','TEMP','VETERINARIO'),
-('[vet23@imunopet.com.br](mailto:vet23@imunopet.com.br)','TEMP','VETERINARIO'),
-('[vet24@imunopet.com.br](mailto:vet24@imunopet.com.br)','TEMP','VETERINARIO'),
-('[vet25@imunopet.com.br](mailto:vet25@imunopet.com.br)','TEMP','VETERINARIO'),
-
--- TUTORES
-
-('[tutor01@email.com](mailto:tutor01@email.com)','TEMP','TUTOR'),
-('[tutor02@email.com](mailto:tutor02@email.com)','TEMP','TUTOR'),
-('[tutor03@email.com](mailto:tutor03@email.com)','TEMP','TUTOR'),
-('[tutor04@email.com](mailto:tutor04@email.com)','TEMP','TUTOR'),
-('[tutor05@email.com](mailto:tutor05@email.com)','TEMP','TUTOR'),
-('[tutor06@email.com](mailto:tutor06@email.com)','TEMP','TUTOR'),
-('[tutor07@email.com](mailto:tutor07@email.com)','TEMP','TUTOR'),
-('[tutor08@email.com](mailto:tutor08@email.com)','TEMP','TUTOR'),
-('[tutor09@email.com](mailto:tutor09@email.com)','TEMP','TUTOR'),
-('[tutor10@email.com](mailto:tutor10@email.com)','TEMP','TUTOR'),
-('[tutor11@email.com](mailto:tutor11@email.com)','TEMP','TUTOR'),
-('[tutor12@email.com](mailto:tutor12@email.com)','TEMP','TUTOR'),
-('[tutor13@email.com](mailto:tutor13@email.com)','TEMP','TUTOR'),
-('[tutor14@email.com](mailto:tutor14@email.com)','TEMP','TUTOR'),
-('[tutor15@email.com](mailto:tutor15@email.com)','TEMP','TUTOR'),
-('[tutor16@email.com](mailto:tutor16@email.com)','TEMP','TUTOR'),
-('[tutor17@email.com](mailto:tutor17@email.com)','TEMP','TUTOR'),
-('[tutor18@email.com](mailto:tutor18@email.com)','TEMP','TUTOR'),
-('[tutor19@email.com](mailto:tutor19@email.com)','TEMP','TUTOR'),
-('[tutor20@email.com](mailto:tutor20@email.com)','TEMP','TUTOR'),
-('[tutor21@email.com](mailto:tutor21@email.com)','TEMP','TUTOR'),
-('[tutor22@email.com](mailto:tutor22@email.com)','TEMP','TUTOR'),
-('[tutor23@email.com](mailto:tutor23@email.com)','TEMP','TUTOR'),
-('[tutor24@email.com](mailto:tutor24@email.com)','TEMP','TUTOR'),
-('[tutor25@email.com](mailto:tutor25@email.com)','TEMP','TUTOR'),
-('[tutor26@email.com](mailto:tutor26@email.com)','TEMP','TUTOR'),
-('[tutor27@email.com](mailto:tutor27@email.com)','TEMP','TUTOR'),
-('[tutor28@email.com](mailto:tutor28@email.com)','TEMP','TUTOR'),
-('[tutor29@email.com](mailto:tutor29@email.com)','TEMP','TUTOR'),
-('[tutor30@email.com](mailto:tutor30@email.com)','TEMP','TUTOR'),
-('[tutor31@email.com](mailto:tutor31@email.com)','TEMP','TUTOR'),
-('[tutor32@email.com](mailto:tutor32@email.com)','TEMP','TUTOR'),
-('[tutor33@email.com](mailto:tutor33@email.com)','TEMP','TUTOR'),
-('[tutor34@email.com](mailto:tutor34@email.com)','TEMP','TUTOR'),
-('[tutor35@email.com](mailto:tutor35@email.com)','TEMP','TUTOR'),
-('[tutor36@email.com](mailto:tutor36@email.com)','TEMP','TUTOR'),
-('[tutor37@email.com](mailto:tutor37@email.com)','TEMP','TUTOR'),
-('[tutor38@email.com](mailto:tutor38@email.com)','TEMP','TUTOR'),
-('[tutor39@email.com](mailto:tutor39@email.com)','TEMP','TUTOR'),
-('[tutor40@email.com](mailto:tutor40@email.com)','TEMP','TUTOR'),
-('[tutor41@email.com](mailto:tutor41@email.com)','TEMP','TUTOR'),
-('[tutor42@email.com](mailto:tutor42@email.com)','TEMP','TUTOR'),
-('[tutor43@email.com](mailto:tutor43@email.com)','TEMP','TUTOR'),
-('[tutor44@email.com](mailto:tutor44@email.com)','TEMP','TUTOR'),
-('[tutor45@email.com](mailto:tutor45@email.com)','TEMP','TUTOR'),
-
--- GOVERNO
-
-('[governo01@pa.gov.br](mailto:governo01@pa.gov.br)','TEMP','GOVERNO'),
-('[governo02@pa.gov.br](mailto:governo02@pa.gov.br)','TEMP','GOVERNO'),
-('[governo03@pa.gov.br](mailto:governo03@pa.gov.br)','TEMP','GOVERNO'),
-('[governo04@pa.gov.br](mailto:governo04@pa.gov.br)','TEMP','GOVERNO'),
-('[governo05@pa.gov.br](mailto:governo05@pa.gov.br)','TEMP','GOVERNO');
-
-
-
--- =====================================================
--- 03_GESTORES_E_VETERINARIOS.SQL
--- Massa de Dados Homologação - ImunoPet
--- =====================================================
-
--- =====================================================
--- GESTORES
--- =====================================================
+('admin01@imunopet.com.br','TEMP','ADMINISTRADOR'),
+('admin02@imunopet.com.br','TEMP','ADMINISTRADOR'),
+('admin03@imunopet.com.br','TEMP','ADMINISTRADOR'),
+('admin04@imunopet.com.br','TEMP','ADMINISTRADOR'),
+('gestor01@imunopet.com.br','TEMP','GESTOR_CLINICA'),
+('gestor02@imunopet.com.br','TEMP','GESTOR_CLINICA'),
+('gestor03@imunopet.com.br','TEMP','GESTOR_CLINICA'),
+('gestor04@imunopet.com.br','TEMP','GESTOR_CLINICA'),
+('gestor05@imunopet.com.br','TEMP','GESTOR_CLINICA'),
+('gestor06@imunopet.com.br','TEMP','GESTOR_CLINICA'),
+('gestor07@imunopet.com.br','TEMP','GESTOR_CLINICA'),
+('gestor08@imunopet.com.br','TEMP','GESTOR_CLINICA'),
+('gestor09@imunopet.com.br','TEMP','GESTOR_CLINICA'),
+('gestor10@imunopet.com.br','TEMP','GESTOR_CLINICA'),
+('vet01@imunopet.com.br','TEMP','VETERINARIO'),
+('vet02@imunopet.com.br','TEMP','VETERINARIO'),
+('vet03@imunopet.com.br','TEMP','VETERINARIO'),
+('vet04@imunopet.com.br','TEMP','VETERINARIO'),
+('vet05@imunopet.com.br','TEMP','VETERINARIO'),
+('vet06@imunopet.com.br','TEMP','VETERINARIO'),
+('vet07@imunopet.com.br','TEMP','VETERINARIO'),
+('vet08@imunopet.com.br','TEMP','VETERINARIO'),
+('vet09@imunopet.com.br','TEMP','VETERINARIO'),
+('vet10@imunopet.com.br','TEMP','VETERINARIO'),
+('vet11@imunopet.com.br','TEMP','VETERINARIO'),
+('vet12@imunopet.com.br','TEMP','VETERINARIO'),
+('vet13@imunopet.com.br','TEMP','VETERINARIO'),
+('vet14@imunopet.com.br','TEMP','VETERINARIO'),
+('vet15@imunopet.com.br','TEMP','VETERINARIO'),
+('vet16@imunopet.com.br','TEMP','VETERINARIO'),
+('vet17@imunopet.com.br','TEMP','VETERINARIO'),
+('vet18@imunopet.com.br','TEMP','VETERINARIO'),
+('vet19@imunopet.com.br','TEMP','VETERINARIO'),
+('vet20@imunopet.com.br','TEMP','VETERINARIO'),
+('vet21@imunopet.com.br','TEMP','VETERINARIO'),
+('vet22@imunopet.com.br','TEMP','VETERINARIO'),
+('vet23@imunopet.com.br','TEMP','VETERINARIO'),
+('vet24@imunopet.com.br','TEMP','VETERINARIO'),
+('vet25@imunopet.com.br','TEMP','VETERINARIO'),
+('tutor01@email.com','TEMP','TUTOR'),
+('tutor02@email.com','TEMP','TUTOR'),
+('tutor03@email.com','TEMP','TUTOR'),
+('tutor04@email.com','TEMP','TUTOR'),
+('tutor05@email.com','TEMP','TUTOR'),
+('tutor06@email.com','TEMP','TUTOR'),
+('tutor07@email.com','TEMP','TUTOR'),
+('tutor08@email.com','TEMP','TUTOR'),
+('tutor09@email.com','TEMP','TUTOR'),
+('tutor10@email.com','TEMP','TUTOR'),
+('tutor11@email.com','TEMP','TUTOR'),
+('tutor12@email.com','TEMP','TUTOR'),
+('tutor13@email.com','TEMP','TUTOR'),
+('tutor14@email.com','TEMP','TUTOR'),
+('tutor15@email.com','TEMP','TUTOR'),
+('tutor16@email.com','TEMP','TUTOR'),
+('tutor17@email.com','TEMP','TUTOR'),
+('tutor18@email.com','TEMP','TUTOR'),
+('tutor19@email.com','TEMP','TUTOR'),
+('tutor20@email.com','TEMP','TUTOR'),
+('tutor21@email.com','TEMP','TUTOR'),
+('tutor22@email.com','TEMP','TUTOR'),
+('tutor23@email.com','TEMP','TUTOR'),
+('tutor24@email.com','TEMP','TUTOR'),
+('tutor25@email.com','TEMP','TUTOR'),
+('tutor26@email.com','TEMP','TUTOR'),
+('tutor27@email.com','TEMP','TUTOR'),
+('tutor28@email.com','TEMP','TUTOR'),
+('tutor29@email.com','TEMP','TUTOR'),
+('tutor30@email.com','TEMP','TUTOR'),
+('tutor31@email.com','TEMP','TUTOR'),
+('tutor32@email.com','TEMP','TUTOR'),
+('tutor33@email.com','TEMP','TUTOR'),
+('tutor34@email.com','TEMP','TUTOR'),
+('tutor35@email.com','TEMP','TUTOR'),
+('tutor36@email.com','TEMP','TUTOR'),
+('tutor37@email.com','TEMP','TUTOR'),
+('tutor38@email.com','TEMP','TUTOR'),
+('tutor39@email.com','TEMP','TUTOR'),
+('tutor40@email.com','TEMP','TUTOR'),
+('tutor41@email.com','TEMP','TUTOR'),
+('tutor42@email.com','TEMP','TUTOR'),
+('tutor43@email.com','TEMP','TUTOR'),
+('tutor44@email.com','TEMP','TUTOR'),
+('tutor45@email.com','TEMP','TUTOR'),
+('governo01@pa.gov.br','TEMP','GOVERNO'),
+('governo02@pa.gov.br','TEMP','GOVERNO'),
+('governo03@pa.gov.br','TEMP','GOVERNO'),
+('governo04@pa.gov.br','TEMP','GOVERNO'),
+('governo05@pa.gov.br','TEMP','GOVERNO');
 
 INSERT INTO gestor
 (id_usuario, id_clinica, nome_completo)
 VALUES
-
 (5,1,'Carlos Henrique Almeida'),
 (6,2,'Fernanda Souza Lima'),
 (7,3,'Ricardo Oliveira Santos'),
@@ -237,454 +119,211 @@ VALUES
 (13,9,'Felipe Castro Nunes'),
 (14,10,'Camila Monteiro Lopes');
 
--- =====================================================
--- VETERINÁRIOS
--- =====================================================
-
 INSERT INTO veterinario
 (id_usuario,id_clinica,nome_completo,crmv)
 VALUES
-
 (15,1,'Amanda Ribeiro Costa','CRMV-PA-10001'),
 (16,1,'Lucas Martins Souza','CRMV-PA-10002'),
 (17,1,'Bruna Almeida Rocha','CRMV-PA-10003'),
-
 (18,2,'Thiago Ferreira Lima','CRMV-PA-10004'),
 (19,2,'Vanessa Oliveira Santos','CRMV-PA-10005'),
-
 (20,3,'Gabriel Pereira Costa','CRMV-PA-10006'),
 (21,3,'Larissa Nogueira Silva','CRMV-PA-10007'),
 (22,3,'Rodrigo Carvalho Melo','CRMV-PA-10008'),
-
 (23,4,'Camila Barbosa Rocha','CRMV-PA-10009'),
 (24,4,'Rafael Monteiro Santos','CRMV-PA-10010'),
-
 (25,5,'Paula Fernandes Lima','CRMV-PA-10011'),
 (26,5,'Leonardo Costa Souza','CRMV-PA-10012'),
 (27,5,'Mariana Ribeiro Alves','CRMV-PA-10013'),
-
 (28,6,'Daniel Rodrigues Melo','CRMV-PA-10014'),
 (29,6,'Priscila Nunes Costa','CRMV-PA-10015'),
-
 (30,7,'André Oliveira Lima','CRMV-PA-10016'),
 (31,7,'Renata Ferreira Gomes','CRMV-PA-10017'),
-
 (32,8,'Gustavo Barbosa Silva','CRMV-PA-10018'),
 (33,8,'Beatriz Monteiro Costa','CRMV-PA-10019'),
 (34,8,'Victor Santos Rocha','CRMV-PA-10020'),
-
 (35,9,'Aline Carvalho Souza','CRMV-PA-10021'),
 (36,9,'Matheus Lima Pereira','CRMV-PA-10022'),
-
 (37,10,'Débora Almeida Santos','CRMV-PA-10023'),
 (38,10,'Igor Fernandes Costa','CRMV-PA-10024'),
 (39,10,'Larissa Rocha Oliveira','CRMV-PA-10025');
 
-
-
--- =====================================================
--- 04_TUTORES.SQL
--- Massa de Dados Homologação - ImunoPet
--- =====================================================
-
 INSERT INTO tutor
 (id_usuario,nome_completo,cpf,telefone,estado,cidade,bairro)
 VALUES
-
 (40,'João Pedro Silva','111.111.111-01','91980000001','PA','Belém','Marco'),
 (41,'Maria Eduarda Costa','111.111.111-02','91980000002','PA','Belém','Umarizal'),
 (42,'Carlos Alberto Souza','111.111.111-03','91980000003','PA','Belém','Batista Campos'),
 (43,'Ana Beatriz Rocha','111.111.111-04','91980000004','PA','Belém','Pedreira'),
 (44,'Felipe Gomes Santos','111.111.111-05','91980000005','PA','Belém','Nazaré'),
-
 (45,'Patrícia Oliveira Lima','111.111.111-06','91980000006','PA','Ananindeua','Cidade Nova'),
 (46,'Rafael Carvalho Melo','111.111.111-07','91980000007','PA','Ananindeua','Coqueiro'),
 (47,'Juliana Martins Silva','111.111.111-08','91980000008','PA','Ananindeua','Atalaia'),
 (48,'Ricardo Nunes Costa','111.111.111-09','91980000009','PA','Ananindeua','40 Horas'),
 (49,'Camila Ferreira Rocha','111.111.111-10','91980000010','PA','Ananindeua','Jaderlândia'),
-
 (50,'André Luiz Pereira','111.111.111-46','91980000011','PA','Castanhal','Centro'),
 (51,'Vanessa Almeida Costa','111.111.111-12','91980000012','PA','Castanhal','Ianetama'),
 (52,'Rodrigo Santos Melo','111.111.111-13','91980000013','PA','Castanhal','Nova Olinda'),
 (53,'Bruna Barbosa Rocha','111.111.111-14','91980000014','PA','Castanhal','Saudade'),
 (54,'Daniel Oliveira Lima','111.111.111-15','91980000015','PA','Castanhal','Jaderlândia'),
-
 (55,'Tatiane Costa Souza','111.111.111-16','91980000016','PA','Santarém','Aldeia'),
 (56,'Gabriel Ribeiro Santos','111.111.111-17','91980000017','PA','Santarém','Prainha'),
 (57,'Amanda Fernandes Lima','111.111.111-18','91980000018','PA','Santarém','Santíssimo'),
 (58,'Leonardo Monteiro Rocha','111.111.111-19','91980000019','PA','Santarém','Caranazal'),
 (59,'Priscila Nogueira Costa','111.111.111-20','91980000020','PA','Santarém','Livramento'),
-
 (60,'Gustavo Pereira Silva','111.111.111-21','91980000021','PA','Marabá','Nova Marabá'),
 (61,'Larissa Costa Melo','111.111.111-22','91980000022','PA','Marabá','Cidade Nova'),
 (62,'Victor Santos Rocha','111.111.111-23','91980000023','PA','Marabá','Laranjeiras'),
 (63,'Aline Oliveira Souza','111.111.111-24','91980000024','PA','Marabá','Amapá'),
 (64,'Matheus Lima Costa','111.111.111-25','91980000025','PA','Marabá','Liberdade'),
-
 (65,'Débora Fernandes Rocha','111.111.111-26','91980000026','PA','Altamira','Centro'),
 (66,'Igor Almeida Santos','111.111.111-27','91980000027','PA','Altamira','Brasília'),
 (67,'Mariana Carvalho Melo','111.111.111-28','91980000028','PA','Altamira','Sudam I'),
 (68,'Thiago Rodrigues Costa','111.111.111-29','91980000029','PA','Altamira','Sudam II'),
 (69,'Renata Monteiro Lima','111.111.111-30','91980000030','PA','Altamira','Premem'),
-
 (70,'Lucas Pereira Rocha','111.111.111-31','91980000031','PA','Abaetetuba','Centro'),
 (71,'Fernanda Costa Santos','111.111.111-32','91980000032','PA','Abaetetuba','Mutirão'),
 (72,'Eduardo Oliveira Melo','111.111.111-33','91980000033','PA','Abaetetuba','Algodoal'),
 (73,'Camila Nunes Rocha','111.111.111-34','91980000034','PA','Abaetetuba','São Lourenço'),
 (74,'Felipe Ribeiro Costa','111.111.111-35','91980000035','PA','Abaetetuba','Aviação'),
-
 (75,'Paula Martins Silva','111.111.111-36','91980000036','PA','Bragança','Centro'),
 (76,'Rogério Carvalho Lima','111.111.111-37','91980000037','PA','Bragança','Aldeia'),
 (77,'Amanda Costa Rocha','111.111.111-38','91980000038','PA','Bragança','Perpétuo Socorro'),
 (78,'Bruno Oliveira Santos','111.111.111-39','91980000039','PA','Bragança','Taíra'),
 (79,'Natália Fernandes Melo','111.111.111-40','91980000040','PA','Bragança','Vila Sinhá'),
-
 (80,'Julio César Souza','111.111.111-41','91980000041','PA','Paragominas','Promissão'),
 (81,'Cristiane Rocha Costa','111.111.111-42','91980000042','PA','Paragominas','Nagibão'),
 (82,'Maurício Pereira Lima','111.111.111-43','91980000043','PA','Paragominas','JK'),
 (83,'Roberta Almeida Santos','111.111.111-44','91980000044','PA','Paragominas','Centro'),
 (84,'Vinícius Monteiro Rocha','111.111.111-45','91980000045','PA','Paragominas','Uraim');
 
-
-
-
--- =====================================================
--- 05_ANIMAIS.SQL (PARTE 1)
--- Massa de Dados Homologação - ImunoPet
--- =====================================================
-
 INSERT INTO animal
 (id_tutor,nome,especie,raca,data_nascimento,porte,fase_vida)
 VALUES
-
--- Tutor 1
 (1,'Rex','Cachorro','Golden Retriever','2020-03-15','GRANDE','ADULTO'),
 (1,'Luna','Cachorro','Poodle','2022-08-20','PEQUENO','ADULTO'),
-
--- Tutor 2
 (2,'Thor','Cachorro','Sem Raça Definida (SRD)','2019-05-10','MEDIO','ADULTO'),
 (2,'Mel','Cachorro','Shih Tzu','2021-09-18','PEQUENO','ADULTO'),
-
--- Tutor 3
 (3,'Simba','Gato','Persa','2023-01-12','PEQUENO','ADULTO'),
-
--- Tutor 4
 (4,'Nina','Gato','Siamês','2022-02-20','PEQUENO','ADULTO'),
 (4,'Tom','Gato','Maine Coon','2020-07-11','GRANDE','ADULTO'),
-
--- Tutor 5
 (5,'Bob','Cachorro','Bulldog Francês','2018-11-01','MEDIO','IDOSO'),
-
--- Tutor 6
 (6,'Belinha','Cachorro','Poodle','2024-01-10','PEQUENO','ADULTO'),
 (6,'Max','Cachorro','Golden Retriever','2020-04-09','GRANDE','ADULTO'),
-
--- Tutor 7
 (7,'Mia','Gato','Sphynx','2023-09-15','PEQUENO','ADULTO'),
-
--- Tutor 8
 (8,'Luke','Cachorro','Sem Raça Definida (SRD)','2017-03-08','MEDIO','IDOSO'),
 (8,'Lili','Gato','Persa','2022-05-19','PEQUENO','ADULTO'),
-
--- Tutor 9
 (9,'Pandora','Gato','Siamês','2021-10-13','PEQUENO','ADULTO'),
-
--- Tutor 10
 (10,'Toby','Cachorro','Shih Tzu','2019-12-22','PEQUENO','ADULTO'),
 (10,'Fred','Cachorro','Poodle','2022-07-14','PEQUENO','ADULTO'),
 (10,'Pipoca','Gato','Sem Raça Definida (SRD)','2024-02-01','MEDIO','ADULTO'),
-
--- Tutor 11
 (11,'Amora','Gato','Persa','2023-03-05','PEQUENO','ADULTO'),
-
--- Tutor 12
 (12,'Zeus','Cachorro','Golden Retriever','2018-08-27','GRANDE','IDOSO'),
 (12,'Meg','Cachorro','Poodle','2020-12-17','PEQUENO','ADULTO'),
-
--- Tutor 13
 (13,'Bolt','Cachorro','Sem Raça Definida (SRD)','2021-04-08','MEDIO','ADULTO'),
-
--- Tutor 14
 (14,'Loki','Cachorro','Bulldog Francês','2022-11-20','MEDIO','ADULTO'),
 (14,'Cacau','Gato','Persa','2020-10-02','PEQUENO','ADULTO'),
-
--- Tutor 15
 (15,'Milo','Gato','Maine Coon','2019-06-18','GRANDE','ADULTO'),
-
--- Tutor 16
 (16,'Luna','Gato','Siamês','2024-03-10','PEQUENO','ADULTO'),
-
--- Tutor 17
 (17,'Apolo','Cachorro','Golden Retriever','2017-09-05','GRANDE','IDOSO'),
 (17,'Brisa','Cachorro','Poodle','2021-02-16','PEQUENO','ADULTO'),
-
--- Tutor 18
 (18,'Maggie','Cachorro','Shih Tzu','2023-05-11','PEQUENO','ADULTO'),
-
--- Tutor 19
 (19,'Tigrão','Gato','Sem Raça Definida (SRD)','2018-01-25','MEDIO','IDOSO'),
-
--- Tutor 20
 (20,'Bidu','Cachorro','Sem Raça Definida (SRD)','2020-06-06','MEDIO','ADULTO'),
 (20,'Kiara','Gato','Persa','2022-04-18','PEQUENO','ADULTO'),
-
--- Tutor 21
 (21,'Spike','Cachorro','Bulldog Francês','2021-08-30','MEDIO','ADULTO'),
-
--- Tutor 22
 (22,'Mimi','Gato','Siamês','2023-07-21','PEQUENO','ADULTO'),
-
--- Tutor 23
 (23,'Negão','Cachorro','Golden Retriever','2019-03-14','GRANDE','ADULTO'),
-
--- Tutor 24
 (24,'Cristal','Gato','Persa','2020-09-29','PEQUENO','ADULTO'),
-
--- Tutor 25
-(25,'Nino','Cachorro','Poodle','2022-01-07','PEQUENO','ADULTO');
-
-
--- =====================================================
--- 05_ANIMAIS.SQL (PARTE 2)
--- Massa de Dados Homologação - ImunoPet
--- =====================================================
-
-INSERT INTO animal
-(id_tutor,nome,especie,raca,data_nascimento,porte,fase_vida)
-VALUES
-
--- Tutor 26
+(25,'Nino','Cachorro','Poodle','2022-01-07','PEQUENO','ADULTO'),
 (26,'Thor','Cachorro','Golden Retriever','2021-06-15','GRANDE','ADULTO'),
 (26,'Luna','Gato','Siamês','2023-02-11','PEQUENO','ADULTO'),
-
--- Tutor 27
 (27,'Max','Cachorro','Poodle','2020-08-22','PEQUENO','ADULTO'),
 (27,'Mel','Cachorro','Shih Tzu','2022-01-18','PEQUENO','ADULTO'),
-
--- Tutor 28
 (28,'Simba','Gato','Persa','2021-11-05','PEQUENO','ADULTO'),
-
--- Tutor 29
 (29,'Pandora','Gato','Maine Coon','2020-04-14','GRANDE','ADULTO'),
 (29,'Tom','Gato','Siamês','2022-09-30','PEQUENO','ADULTO'),
-
--- Tutor 30
 (30,'Rex','Cachorro','Bulldog Francês','2019-07-27','MEDIO','ADULTO'),
-
--- Tutor 31
 (31,'Belinha','Cachorro','Poodle','2023-12-01','PEQUENO','ADULTO'),
 (31,'Luke','Cachorro','Sem Raça Definida (SRD)','2018-03-10','MEDIO','IDOSO'),
-
--- Tutor 32
 (32,'Mia','Gato','Sphynx','2022-05-19','PEQUENO','ADULTO'),
-
--- Tutor 33
 (33,'Fred','Cachorro','Golden Retriever','2020-01-12','GRANDE','ADULTO'),
 (33,'Bob','Cachorro','Sem Raça Definida (SRD)','2019-10-03','MEDIO','ADULTO'),
-
--- Tutor 34
 (34,'Kiara','Gato','Persa','2023-08-09','PEQUENO','ADULTO'),
-
--- Tutor 35
 (35,'Apolo','Cachorro','Golden Retriever','2017-12-21','GRANDE','IDOSO'),
 (35,'Brisa','Cachorro','Poodle','2021-04-05','PEQUENO','ADULTO'),
-
--- Tutor 36
 (36,'Maggie','Cachorro','Shih Tzu','2022-02-16','PEQUENO','ADULTO'),
-
--- Tutor 37
 (37,'Tigrão','Gato','Sem Raça Definida (SRD)','2018-06-11','MEDIO','IDOSO'),
-
--- Tutor 38
 (38,'Bidu','Cachorro','Sem Raça Definida (SRD)','2020-09-07','MEDIO','ADULTO'),
 (38,'Cristal','Gato','Persa','2021-07-15','PEQUENO','ADULTO'),
-
--- Tutor 39
 (39,'Spike','Cachorro','Bulldog Francês','2022-03-28','MEDIO','ADULTO'),
-
--- Tutor 40
 (40,'Nino','Cachorro','Poodle','2023-01-08','PEQUENO','ADULTO'),
 (40,'Lola','Cachorro','Shih Tzu','2021-06-25','PEQUENO','ADULTO'),
-
--- Tutor 41
 (41,'Zeus','Cachorro','Golden Retriever','2019-05-14','GRANDE','ADULTO'),
-
--- Tutor 42
 (42,'Mimi','Gato','Siamês','2022-11-19','PEQUENO','ADULTO'),
-
--- Tutor 43
 (43,'Negão','Cachorro','Golden Retriever','2020-02-20','GRANDE','ADULTO'),
 (43,'Cacau','Gato','Persa','2021-08-17','PEQUENO','ADULTO'),
-
--- Tutor 44
 (44,'Bolt','Cachorro','Sem Raça Definida (SRD)','2022-07-09','MEDIO','ADULTO'),
-
--- Tutor 45
 (45,'Amora','Gato','Persa','2023-04-12','PEQUENO','ADULTO'),
 (45,'Tom','Gato','Maine Coon','2020-12-24','GRANDE','ADULTO'),
-
--- Tutor 46
-(46,'Duke','Cachorro','Golden Retriever','2018-09-01','GRANDE','IDOSO'),
-(46,'Bela','Gato','Siamês','2022-10-06','PEQUENO','ADULTO');
-
-
-
--- =====================================================
--- 06_VACINAS.SQL
--- Massa de Dados Homologação - ImunoPet
--- =====================================================
+(45,'Duke','Cachorro','Golden Retriever','2018-09-01','GRANDE','IDOSO'),
+(45,'Bela','Gato','Siamês','2022-10-06','PEQUENO','ADULTO');
 
 INSERT INTO vacina
 (nome_vacina, fabricante, doencas_prevenidas, intervalo_doses_dias)
 VALUES
-
-('V8', 'Zoetis',
-'Cinomose, Hepatite Infecciosa Canina, Adenovírus Tipo 2, Coronavirose, Parainfluenza, Parvovirose e Leptospirose',
-365),
-
-('V10', 'Zoetis',
-'Cinomose, Hepatite Infecciosa Canina, Adenovírus Tipo 2, Coronavirose, Parainfluenza, Parvovirose e múltiplas cepas de Leptospirose',
-365),
-
-('Antirrábica Canina', 'MSD Saúde Animal',
-'Raiva',
-365),
-
-('Giárdia Canina', 'Virbac',
-'Giardíase',
-365),
-
-('Tosse dos Canis', 'Zoetis',
-'Bordetella bronchiseptica e Parainfluenza',
-365),
-
-('Leptospirose Canina', 'MSD Saúde Animal',
-'Leptospirose',
-365),
-
-('Tríplice Felina', 'Boehringer Ingelheim',
-'Panleucopenia, Rinotraqueíte e Calicivirose',
-365),
-
-('Quádrupla Felina', 'Boehringer Ingelheim',
-'Panleucopenia, Rinotraqueíte, Calicivirose e Clamidiose',
-365),
-
-('Quíntupla Felina', 'MSD Saúde Animal',
-'Panleucopenia, Rinotraqueíte, Calicivirose, Clamidiose e Leucemia Felina',
-365),
-
-('Leucemia Felina', 'Virbac',
-'FeLV',
-365),
-
-('Antirrábica Felina', 'MSD Saúde Animal',
-'Raiva',
-365),
-
-('Leishmaniose', 'Ceva',
-'Leishmaniose Visceral Canina',
-365),
-
-('Coronavirose Canina', 'Zoetis',
-'Coronavirose',
-365),
-
-('Parvovirose Canina', 'Virbac',
-'Parvovirose',
-365),
-
-('Cinomose Canina', 'MSD Saúde Animal',
-'Cinomose',
-365),
-
-('Adenovirose Canina', 'Zoetis',
-'Adenovirose',
-365),
-
-('Calicivirose Felina', 'Virbac',
-'Calicivirose',
-365),
-
-('Rinotraqueíte Felina', 'Virbac',
-'Rinotraqueíte',
-365),
-
-('Panleucopenia Felina', 'Virbac',
-'Panleucopenia',
-365),
-
-('Clamidiose Felina', 'Virbac',
-'Clamidiose',
-365);
-
-
-
--- =====================================================
--- 07_REGISTRO_VACINACAO.SQL (PARTE 1)
--- Massa de Dados Homologação - ImunoPet
--- =====================================================
-
+('V8', 'Zoetis', 'Cinomose, Hepatite Infecciosa Canina, Adenovírus Tipo 2, Coronavirose, Parainfluenza, Parvovirose e Leptospirose', 365),
+('V10', 'Zoetis', 'Cinomose, Hepatite Infecciosa Canina, Adenovírus Tipo 2, Coronavirose, Parainfluenza, Parvovirose e múltiplas cepas de Leptospirose', 365),
+('Antirrábica Canina', 'MSD Saúde Animal', 'Raiva', 365),
+('Giárdia Canina', 'Virbac', 'Giardíase', 365),
+('Tosse dos Canis', 'Zoetis', 'Bordetella bronchiseptica e Parainfluenza', 365),
+('Leptospirose Canina', 'MSD Saúde Animal', 'Leptospirose', 365),
+('Tríplice Felina', 'Boehringer Ingelheim', 'Panleucopenia, Rinotraqueíte e Calicivirose', 365),
+('Quádrupla Felina', 'Boehringer Ingelheim', 'Panleucopenia, Rinotraqueíte, Calicivirose e Clamidiose', 365),
+('Quíntupla Felina', 'MSD Saúde Animal', 'Panleucopenia, Rinotraqueíte, Calicivirose, Clamidiose e Leucemia Felina', 365),
+('Leucemia Felina', 'Virbac', 'FeLV', 365),
+('Antirrábica Felina', 'MSD Saúde Animal', 'Raiva', 365),
+('Leishmaniose', 'Ceva', 'Leishmaniose Visceral Canina', 365),
+('Coronavirose Canina', 'Zoetis', 'Coronavirose', 365),
+('Parvovirose Canina', 'Virbac', 'Parvovirose', 365),
+('Cinomose Canina', 'MSD Saúde Animal', 'Cinomose', 365),
+('Adenovirose Canina', 'Zoetis', 'Adenovirose', 365),
+('Calicivirose Felina', 'Virbac', 'Calicivirose', 365),
+('Rinotraqueíte Felina', 'Virbac', 'Rinotraqueíte', 365),
+('Panleucopenia Felina', 'Virbac', 'Panleucopenia', 365),
+('Clamidiose Felina', 'Virbac', 'Clamidiose', 365);
 
 INSERT INTO registro_vacinacao
-(
-    id_animal,
-    id_vacina,
-    id_clinica,
-    id_veterinario,
-    data_aplicacao,
-    data_proxima_dose,
-    status
-)
+(id_animal, id_vacina, id_clinica, id_veterinario, data_aplicacao, data_proxima_dose, status)
 VALUES
-
 (1,1,1,1,'2025-01-10','2026-01-10','APLICADA'),
 (2,2,1,2,'2025-02-15','2026-02-15','APLICADA'),
 (3,3,2,3,'2025-03-12','2026-03-12','APLICADA'),
 (4,4,2,4,'2025-04-01','2026-04-01','APLICADA'),
 (5,5,3,5,'2025-01-20','2026-01-20','APLICADA'),
-
 (6,1,3,6,NULL,'2026-02-10','PENDENTE'),
 (7,2,4,7,NULL,'2026-03-01','PENDENTE'),
 (8,3,4,8,NULL,'2026-04-15','PENDENTE'),
 (9,4,5,9,NULL,'2026-05-20','PENDENTE'),
 (10,5,5,10,NULL,'2026-06-30','PENDENTE'),
-
 (11,1,6,11,'2024-01-05','2025-01-05','ATRASADA'),
 (12,2,6,12,'2024-02-10','2025-02-10','ATRASADA'),
 (13,3,7,13,'2024-03-12','2025-03-12','ATRASADA'),
 (14,4,7,14,'2024-04-15','2025-04-15','ATRASADA'),
 (15,5,8,15,'2024-05-20','2025-05-20','ATRASADA'),
-
 (16,1,8,16,NULL,'2025-12-01','CANCELADA'),
 (17,2,9,17,NULL,'2025-12-10','CANCELADA'),
 (18,3,9,18,NULL,'2025-12-20','CANCELADA'),
 (19,4,10,19,NULL,'2026-01-05','CANCELADA'),
 (20,5,10,20,NULL,'2026-01-15','CANCELADA');
 
-
-
--- =====================================================
--- 07_REGISTRO_VACINACAO.SQL (PARTE 2)
--- Massa de Dados Homologação - ImunoPet
--- =====================================================
-
-
 INSERT INTO registro_vacinacao
-(
-    id_animal,
-    id_vacina,
-    id_clinica,
-    id_veterinario,
-    data_aplicacao,
-    data_proxima_dose,
-    status
-)
+(id_animal, id_vacina, id_clinica, id_veterinario, data_aplicacao, data_proxima_dose, status)
 SELECT
     a.id_animal,
     ((a.id_animal - 1) MOD 20) + 1,
-    ((a.id_animal - 1) MOD 11) + 1,
-    ((a.id_animal - 1) MOD 26) + 1,
+    ((a.id_animal - 1) MOD 10) + 1,
+    ((a.id_animal - 1) MOD 25) + 1,
     DATE_ADD('2024-01-01', INTERVAL (a.id_animal * 5) DAY),
     DATE_ADD('2025-01-01', INTERVAL (a.id_animal * 5) DAY),
     CASE
@@ -695,246 +334,73 @@ SELECT
     END
 FROM animal a;
 
-
-
--- =====================================================
--- 07_REGISTRO_VACINACAO.SQL (PARTE 3 - multiplica registros)
--- Massa de Dados Homologação - ImunoPet
--- Trocar as datas dos intervalos
--- =====================================================
-
-
 INSERT INTO registro_vacinacao
-(
-    id_animal,
-    id_vacina,
-    id_clinica,
-    id_veterinario,
-    data_aplicacao,
-    data_proxima_dose,
-    status
-)
+(id_animal, id_vacina, id_clinica, id_veterinario, data_aplicacao, data_proxima_dose, status)
 SELECT
     a.id_animal,
     ((a.id_animal + 3) MOD 20) + 1,
-    ((a.id_animal + 2) MOD 11) + 1,
-    ((a.id_animal + 4) MOD 26) + 1,
+    ((a.id_animal + 2) MOD 10) + 1,
+    ((a.id_animal + 4) MOD 25) + 1,
     DATE_ADD('2023-01-01', INTERVAL (a.id_animal * 3) DAY),
     DATE_ADD('2024-01-01', INTERVAL (a.id_animal * 3) DAY),
     'APLICADA'
 FROM animal a;
 
-
-
--- =====================================================
--- 08_AVISOS.SQL
--- Massa de Dados Homologação - ImunoPet
--- =====================================================
-
 INSERT INTO aviso
-(
-    titulo,
-    mensagem,
-    tipo,
-    data_criacao,
-    status
-)
+(titulo, mensagem, tipo, data_criacao, status)
 VALUES
-
-(
-'Campanha Antirrábica 2026',
-'Todos os cães e gatos devem estar com a vacinação antirrábica atualizada.',
-'INFO',
-'2026-01-05 08:00:00',
-'ATIVO'
-),
-
-(
-'Alerta de Leptospirose',
-'Foram registrados casos de leptospirose em municípios da região. Reforçar vacinação preventiva.',
-'ALERTA',
-'2026-01-12 09:15:00',
-'ATIVO'
-),
-
-(
-'Atualização do Calendário Vacinal',
-'Novas recomendações para reforço anual foram adicionadas ao sistema.',
-'INFO',
-'2026-02-01 10:30:00',
-'ATIVO'
-),
-
-(
-'Manutenção Programada',
-'O sistema ficará indisponível entre 02:00 e 04:00 para atualização.',
-'INFO',
-'2026-02-10 14:00:00',
-'INATIVO'
-),
-
-(
-'Pendências de Vacinação',
-'Foi identificado aumento de animais com vacinação pendente.',
-'ALERTA',
-'2026-02-15 08:45:00',
-'ATIVO'
-),
-
-(
-'Prazo Final para Regularização',
-'Animais com vacinas atrasadas devem ser regularizados até o final do mês.',
-'URGENTE',
-'2026-03-01 07:30:00',
-'ATIVO'
-),
-
-(
-'Campanha de Castração',
-'Estão abertas inscrições para campanha regional de castração.',
-'INFO',
-'2026-03-10 09:00:00',
-'ATIVO'
-),
-
-(
-'Alerta Sanitário Regional',
-'Monitoramento reforçado devido ao aumento de notificações veterinárias.',
-'URGENTE',
-'2026-03-20 11:00:00',
-'ATIVO'
-),
-
-(
-'Vacinação Felina',
-'Reforço na campanha de vacinação para gatos domésticos.',
-'INFO',
-'2026-04-02 13:20:00',
-'ATIVO'
-),
-
-(
-'Encerramento de Campanha',
-'Campanha especial de vacinação concluída com sucesso.',
-'INFO',
-'2026-04-30 17:00:00',
-'INATIVO'
-),
-
-(
-'Vacinas Próximas do Vencimento',
-'Verificar estoque de vacinas com validade próxima.',
-'ALERTA',
-'2026-05-05 08:10:00',
-'ATIVO'
-),
-
-(
-'Fiscalização Estadual',
-'Órgãos reguladores realizarão auditorias nas próximas semanas.',
-'URGENTE',
-'2026-05-15 10:00:00',
-'ATIVO'
-),
-
-(
-'Campanha de Microchipagem',
-'Iniciada campanha para identificação eletrônica de animais.',
-'INFO',
-'2026-05-20 09:30:00',
-'ATIVO'
-),
-
-(
-'Atualização de Segurança',
-'Novos procedimentos de acesso foram implementados.',
-'INFO',
-'2026-05-25 14:00:00',
-'ATIVO'
-),
-
-(
-'Notificação de Sistema',
-'Alguns usuários apresentaram falhas de autenticação. Equipe técnica acionada.',
-'ALERTA',
-'2026-06-01 08:00:00',
-'ATIVO'
-);
-
-
-
--- =====================================================
--- 09_LOG_AUDITORIA.SQL (PARTE 1)
--- Massa de Dados Homologação - ImunoPet
--- =====================================================
+('Campanha Antirrábica 2026', 'Todos os cães e gatos devem estar com a vacinação antirrábica atualizada.', 'INFO', '2026-01-05 08:00:00', 'ATIVO'),
+('Alerta de Leptospirose', 'Foram registrados casos de leptospirose em municípios da região. Reforçar vacinação preventiva.', 'ALERTA', '2026-01-12 09:15:00', 'ATIVO'),
+('Atualização do Calendário Vacinal', 'Novas recomendações para reforço anual foram adicionadas ao sistema.', 'INFO', '2026-02-01 10:30:00', 'ATIVO'),
+('Manutenção Programada', 'O sistema ficará indisponível entre 02:00 e 04:00 para atualização.', 'INFO', '2026-02-10 14:00:00', 'INATIVO'),
+('Pendências de Vacinação', 'Foi identificado aumento de animais com vacinação pendente.', 'ALERTA', '2026-02-15 08:45:00', 'ATIVO'),
+('Prazo Final para Regularização', 'Animais com vacinas atrasadas devem ser regularizados até o final do mês.', 'URGENTE', '2026-03-01 07:30:00', 'ATIVO'),
+('Campanha de Castração', 'Estão abertas inscrições para campanha regional de castração.', 'INFO', '2026-03-10 09:00:00', 'ATIVO'),
+('Alerta Sanitário Regional', 'Monitoramento reforçado devido ao aumento de notificações veterinárias.', 'URGENTE', '2026-03-20 11:00:00', 'ATIVO'),
+('Vacinação Felina', 'Reforço na campanha de vacinação para gatos domésticos.', 'INFO', '2026-04-02 13:20:00', 'ATIVO'),
+('Encerramento de Campanha', 'Campanha especial de vacinação concluída com sucesso.', 'INFO', '2026-04-30 17:00:00', 'INATIVO'),
+('Vacinas Próximas do Vencimento', 'Verificar estoque de vacinas com validade próxima.', 'ALERTA', '2026-05-05 08:10:00', 'ATIVO'),
+('Fiscalização Estadual', 'Órgãos reguladores realizarão auditorias nas próximas semanas.', 'URGENTE', '2026-05-15 10:00:00', 'ATIVO'),
+('Campanha de Microchipagem', 'Iniciada campanha para identificação eletrônica de animais.', 'INFO', '2026-05-20 09:30:00', 'ATIVO'),
+('Atualização de Segurança', 'Novos procedimentos de acesso foram implementados.', 'INFO', '2026-05-25 14:00:00', 'ATIVO'),
+('Notificação de Sistema', 'Alguns usuários apresentaram falhas de autenticação. Equipe técnica acionada.', 'ALERTA', '2026-06-01 08:00:00', 'ATIVO');
 
 INSERT INTO log_auditoria
-(
-    id_usuario,
-    acao,
-    detalhes,
-    data_hora
-)
+(id_usuario, acao, detalhes, data_hora)
 VALUES
-
 (1,'LOGIN','Administrador acessou o sistema.','2026-01-02 08:00:00'),
 (1,'GERAR_RELATORIO','Relatório geral de vacinação emitido.','2026-01-02 08:10:00'),
-
 (2,'LOGIN','Gestor realizou autenticação.','2026-01-03 09:00:00'),
 (2,'CADASTRAR_CLINICA','Nova clínica cadastrada no sistema.','2026-01-03 09:20:00'),
-
 (3,'LOGIN','Veterinário acessou o sistema.','2026-01-04 07:50:00'),
 (3,'REGISTRAR_VACINACAO','Vacinação registrada para animal ID 10.','2026-01-04 08:15:00'),
-
 (4,'LOGIN','Tutor acessou sua área restrita.','2026-01-05 18:30:00'),
 (4,'CONSULTAR_HISTORICO','Tutor consultou histórico vacinal.','2026-01-05 18:35:00'),
-
 (5,'LOGIN','Órgão governamental acessou relatórios.','2026-01-06 10:00:00'),
 (5,'CONSULTAR_DASHBOARD','Dashboard estadual consultado.','2026-01-06 10:12:00'),
-
 (10,'CADASTRAR_ANIMAL','Animal Rex cadastrado.','2026-01-07 09:15:00'),
 (11,'ALTERAR_ANIMAL','Dados do animal atualizados.','2026-01-07 11:20:00'),
 (12,'CONSULTAR_ANIMAL','Consulta realizada em cadastro animal.','2026-01-07 13:45:00'),
-
 (13,'REGISTRAR_VACINACAO','Vacina V10 aplicada.','2026-01-08 08:10:00'),
 (14,'REGISTRAR_VACINACAO','Vacina Antirrábica aplicada.','2026-01-08 09:30:00'),
 (15,'REGISTRAR_VACINACAO','Vacina Tríplice Felina aplicada.','2026-01-08 10:15:00'),
-
 (20,'CONSULTAR_RELATORIO','Relatório por clínica consultado.','2026-01-09 14:00:00'),
 (21,'CONSULTAR_RELATORIO','Relatório de vacinas atrasadas consultado.','2026-01-09 14:20:00'),
-
 (22,'LOGIN','Usuário autenticado.','2026-01-10 08:00:00'),
 (22,'LOGOUT','Usuário encerrou sessão.','2026-01-10 08:45:00'),
-
 (25,'ALTERAR_PERFIL','Dados cadastrais atualizados.','2026-01-11 16:00:00'),
 (26,'CONSULTAR_HISTORICO','Histórico vacinal visualizado.','2026-01-11 16:15:00'),
-
 (30,'GERAR_RELATORIO','Relatório municipal gerado.','2026-01-12 10:30:00'),
 (31,'EXPORTAR_DADOS','Exportação CSV realizada.','2026-01-12 10:45:00'),
-
 (35,'REGISTRAR_VACINACAO','Vacina registrada em campanha.','2026-01-13 08:30:00'),
 (36,'ALTERAR_REGISTRO','Registro vacinal corrigido.','2026-01-13 09:05:00'),
-
 (40,'CONSULTAR_ANIMAL','Consulta de ficha animal.','2026-01-14 14:10:00'),
 (41,'CONSULTAR_VACINAS','Consulta ao catálogo de vacinas.','2026-01-14 14:20:00'),
-
 (45,'LOGIN','Acesso ao sistema realizado.','2026-01-15 07:55:00'),
 (45,'LOGOUT','Sessão encerrada.','2026-01-15 08:40:00');
 
-
--- =====================================================
--- 09_LOG_AUDITORIA.SQL (PARTE 2)
--- Massa de Dados Homologação - ImunoPet
--- =====================================================
-
-
 INSERT INTO log_auditoria
-(
-    id_usuario,
-    acao,
-    detalhes,
-    data_hora
-)
+(id_usuario, acao, detalhes, data_hora)
 SELECT
     u.id_usuario,
     CASE
@@ -948,5 +414,3 @@ SELECT
     CONCAT('Ação automática de homologação para usuário ', u.id_usuario),
     DATE_ADD('2026-01-05 08:00:00', INTERVAL u.id_usuario HOUR)
 FROM usuario u;
-
-

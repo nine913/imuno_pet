@@ -389,6 +389,15 @@ app.get('/tutores', async (req, res) => {
     }
 });
 
+app.get('/avisos', async (req, res) => {
+  try {
+    const [avisos] = await db.query("SELECT * FROM aviso WHERE status = 'ATIVO' ORDER BY data_criacao DESC");
+    res.status(200).json(avisos);
+  } catch (error) {
+    res.status(500).json({ erro: 'Erro ao buscar avisos' });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
