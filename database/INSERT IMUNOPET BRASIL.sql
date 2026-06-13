@@ -354,119 +354,94 @@ VALUES
 -- =====================================================
 
 INSERT INTO animal
-(id_tutor,nome,especie,raca,data_nascimento)
+(id_tutor,nome,especie,raca,data_nascimento,porte,fase_vida)
 VALUES
 
 -- Tutor 1
-
-(1,'Rex','Cachorro','Golden Retriever','2020-03-15'),
-(1,'Luna','Cachorro','Poodle','2022-08-20'),
+(1,'Rex','Cachorro','Golden Retriever','2020-03-15','GRANDE','ADULTO'),
+(1,'Luna','Cachorro','Poodle','2022-08-20','PEQUENO','ADULTO'),
 
 -- Tutor 2
-
-(2,'Thor','Cachorro','Sem Raça Definida (SRD)','2019-05-10'),
-(2,'Mel','Cachorro','Shih Tzu','2021-09-18'),
+(2,'Thor','Cachorro','Sem Raça Definida (SRD)','2019-05-10','MEDIO','ADULTO'),
+(2,'Mel','Cachorro','Shih Tzu','2021-09-18','PEQUENO','ADULTO'),
 
 -- Tutor 3
-
-(3,'Simba','Gato','Persa','2023-01-12'),
+(3,'Simba','Gato','Persa','2023-01-12','PEQUENO','ADULTO'),
 
 -- Tutor 4
-
-(4,'Nina','Gato','Siamês','2022-02-20'),
-(4,'Tom','Gato','Maine Coon','2020-07-11'),
+(4,'Nina','Gato','Siamês','2022-02-20','PEQUENO','ADULTO'),
+(4,'Tom','Gato','Maine Coon','2020-07-11','GRANDE','ADULTO'),
 
 -- Tutor 5
-
-(5,'Bob','Cachorro','Bulldog Francês','2018-11-01'),
+(5,'Bob','Cachorro','Bulldog Francês','2018-11-01','MEDIO','IDOSO'),
 
 -- Tutor 6
-
-(6,'Belinha','Cachorro','Poodle','2024-01-10'),
-(6,'Max','Cachorro','Golden Retriever','2020-04-09'),
+(6,'Belinha','Cachorro','Poodle','2024-01-10','PEQUENO','ADULTO'),
+(6,'Max','Cachorro','Golden Retriever','2020-04-09','GRANDE','ADULTO'),
 
 -- Tutor 7
-
-(7,'Mia','Gato','Sphynx','2023-09-15'),
+(7,'Mia','Gato','Sphynx','2023-09-15','PEQUENO','ADULTO'),
 
 -- Tutor 8
-
-(8,'Luke','Cachorro','Sem Raça Definida (SRD)','2017-03-08'),
-(8,'Lili','Gato','Persa','2022-05-19'),
+(8,'Luke','Cachorro','Sem Raça Definida (SRD)','2017-03-08','MEDIO','IDOSO'),
+(8,'Lili','Gato','Persa','2022-05-19','PEQUENO','ADULTO'),
 
 -- Tutor 9
-
-(9,'Pandora','Gato','Siamês','2021-10-13'),
+(9,'Pandora','Gato','Siamês','2021-10-13','PEQUENO','ADULTO'),
 
 -- Tutor 10
-
-(10,'Toby','Cachorro','Shih Tzu','2019-12-22'),
-(10,'Fred','Cachorro','Poodle','2022-07-14'),
-(10,'Pipoca','Gato','Sem Raça Definida (SRD)','2024-02-01'),
+(10,'Toby','Cachorro','Shih Tzu','2019-12-22','PEQUENO','ADULTO'),
+(10,'Fred','Cachorro','Poodle','2022-07-14','PEQUENO','ADULTO'),
+(10,'Pipoca','Gato','Sem Raça Definida (SRD)','2024-02-01','MEDIO','ADULTO'),
 
 -- Tutor 11
-
-(11,'Amora','Gato','Persa','2023-03-05'),
+(11,'Amora','Gato','Persa','2023-03-05','PEQUENO','ADULTO'),
 
 -- Tutor 12
-
-(12,'Zeus','Cachorro','Golden Retriever','2018-08-27'),
-(12,'Meg','Cachorro','Poodle','2020-12-17'),
+(12,'Zeus','Cachorro','Golden Retriever','2018-08-27','GRANDE','IDOSO'),
+(12,'Meg','Cachorro','Poodle','2020-12-17','PEQUENO','ADULTO'),
 
 -- Tutor 13
-
-(13,'Bolt','Cachorro','Sem Raça Definida (SRD)','2021-04-08'),
+(13,'Bolt','Cachorro','Sem Raça Definida (SRD)','2021-04-08','MEDIO','ADULTO'),
 
 -- Tutor 14
-
-(14,'Loki','Cachorro','Bulldog Francês','2022-11-20'),
-(14,'Cacau','Gato','Persa','2020-10-02'),
+(14,'Loki','Cachorro','Bulldog Francês','2022-11-20','MEDIO','ADULTO'),
+(14,'Cacau','Gato','Persa','2020-10-02','PEQUENO','ADULTO'),
 
 -- Tutor 15
-
-(15,'Milo','Gato','Maine Coon','2019-06-18'),
+(15,'Milo','Gato','Maine Coon','2019-06-18','GRANDE','ADULTO'),
 
 -- Tutor 16
-
-(16,'Luna','Gato','Siamês','2024-03-10'),
+(16,'Luna','Gato','Siamês','2024-03-10','PEQUENO','ADULTO'),
 
 -- Tutor 17
-
-(17,'Apolo','Cachorro','Golden Retriever','2017-09-05'),
-(17,'Brisa','Cachorro','Poodle','2021-02-16'),
+(17,'Apolo','Cachorro','Golden Retriever','2017-09-05','GRANDE','IDOSO'),
+(17,'Brisa','Cachorro','Poodle','2021-02-16','PEQUENO','ADULTO'),
 
 -- Tutor 18
-
-(18,'Maggie','Cachorro','Shih Tzu','2023-05-11'),
+(18,'Maggie','Cachorro','Shih Tzu','2023-05-11','PEQUENO','ADULTO'),
 
 -- Tutor 19
-
-(19,'Tigrão','Gato','Sem Raça Definida (SRD)','2018-01-25'),
+(19,'Tigrão','Gato','Sem Raça Definida (SRD)','2018-01-25','MEDIO','IDOSO'),
 
 -- Tutor 20
-
-(20,'Bidu','Cachorro','Sem Raça Definida (SRD)','2020-06-06'),
-(20,'Kiara','Gato','Persa','2022-04-18'),
+(20,'Bidu','Cachorro','Sem Raça Definida (SRD)','2020-06-06','MEDIO','ADULTO'),
+(20,'Kiara','Gato','Persa','2022-04-18','PEQUENO','ADULTO'),
 
 -- Tutor 21
-
-(21,'Spike','Cachorro','Bulldog Francês','2021-08-30'),
+(21,'Spike','Cachorro','Bulldog Francês','2021-08-30','MEDIO','ADULTO'),
 
 -- Tutor 22
-
-(22,'Mimi','Gato','Siamês','2023-07-21'),
+(22,'Mimi','Gato','Siamês','2023-07-21','PEQUENO','ADULTO'),
 
 -- Tutor 23
-
-(23,'Negão','Cachorro','Golden Retriever','2019-03-14'),
+(23,'Negão','Cachorro','Golden Retriever','2019-03-14','GRANDE','ADULTO'),
 
 -- Tutor 24
-
-(24,'Cristal','Gato','Persa','2020-09-29'),
+(24,'Cristal','Gato','Persa','2020-09-29','PEQUENO','ADULTO'),
 
 -- Tutor 25
-
-(25,'Nino','Cachorro','Poodle','2022-01-07');
+(25,'Nino','Cachorro','Poodle','2022-01-07','PEQUENO','ADULTO');
 
 
 -- =====================================================
@@ -474,105 +449,83 @@ VALUES
 -- Massa de Dados Homologação - ImunoPet
 -- =====================================================
 
-
 INSERT INTO animal
-(id_tutor,nome,especie,raca,data_nascimento)
+(id_tutor,nome,especie,raca,data_nascimento,porte,fase_vida)
 VALUES
 
 -- Tutor 26
-
-(26,'Thor','Cachorro','Golden Retriever','2021-06-15'),
-(26,'Luna','Gato','Siamês','2023-02-11'),
+(26,'Thor','Cachorro','Golden Retriever','2021-06-15','GRANDE','ADULTO'),
+(26,'Luna','Gato','Siamês','2023-02-11','PEQUENO','ADULTO'),
 
 -- Tutor 27
-
-(27,'Max','Cachorro','Poodle','2020-08-22'),
-(27,'Mel','Cachorro','Shih Tzu','2022-01-18'),
+(27,'Max','Cachorro','Poodle','2020-08-22','PEQUENO','ADULTO'),
+(27,'Mel','Cachorro','Shih Tzu','2022-01-18','PEQUENO','ADULTO'),
 
 -- Tutor 28
-
-(28,'Simba','Gato','Persa','2021-11-05'),
+(28,'Simba','Gato','Persa','2021-11-05','PEQUENO','ADULTO'),
 
 -- Tutor 29
-
-(29,'Pandora','Gato','Maine Coon','2020-04-14'),
-(29,'Tom','Gato','Siamês','2022-09-30'),
+(29,'Pandora','Gato','Maine Coon','2020-04-14','GRANDE','ADULTO'),
+(29,'Tom','Gato','Siamês','2022-09-30','PEQUENO','ADULTO'),
 
 -- Tutor 30
-
-(30,'Rex','Cachorro','Bulldog Francês','2019-07-27'),
+(30,'Rex','Cachorro','Bulldog Francês','2019-07-27','MEDIO','ADULTO'),
 
 -- Tutor 31
-
-(31,'Belinha','Cachorro','Poodle','2023-12-01'),
-(31,'Luke','Cachorro','Sem Raça Definida (SRD)','2018-03-10'),
+(31,'Belinha','Cachorro','Poodle','2023-12-01','PEQUENO','ADULTO'),
+(31,'Luke','Cachorro','Sem Raça Definida (SRD)','2018-03-10','MEDIO','IDOSO'),
 
 -- Tutor 32
-
-(32,'Mia','Gato','Sphynx','2022-05-19'),
+(32,'Mia','Gato','Sphynx','2022-05-19','PEQUENO','ADULTO'),
 
 -- Tutor 33
-
-(33,'Fred','Cachorro','Golden Retriever','2020-01-12'),
-(33,'Bob','Cachorro','Sem Raça Definida (SRD)','2019-10-03'),
+(33,'Fred','Cachorro','Golden Retriever','2020-01-12','GRANDE','ADULTO'),
+(33,'Bob','Cachorro','Sem Raça Definida (SRD)','2019-10-03','MEDIO','ADULTO'),
 
 -- Tutor 34
-
-(34,'Kiara','Gato','Persa','2023-08-09'),
+(34,'Kiara','Gato','Persa','2023-08-09','PEQUENO','ADULTO'),
 
 -- Tutor 35
-
-(35,'Apolo','Cachorro','Golden Retriever','2017-12-21'),
-(35,'Brisa','Cachorro','Poodle','2021-04-05'),
+(35,'Apolo','Cachorro','Golden Retriever','2017-12-21','GRANDE','IDOSO'),
+(35,'Brisa','Cachorro','Poodle','2021-04-05','PEQUENO','ADULTO'),
 
 -- Tutor 36
-
-(36,'Maggie','Cachorro','Shih Tzu','2022-02-16'),
+(36,'Maggie','Cachorro','Shih Tzu','2022-02-16','PEQUENO','ADULTO'),
 
 -- Tutor 37
-
-(37,'Tigrão','Gato','Sem Raça Definida (SRD)','2018-06-11'),
+(37,'Tigrão','Gato','Sem Raça Definida (SRD)','2018-06-11','MEDIO','IDOSO'),
 
 -- Tutor 38
-
-(38,'Bidu','Cachorro','Sem Raça Definida (SRD)','2020-09-07'),
-(38,'Cristal','Gato','Persa','2021-07-15'),
+(38,'Bidu','Cachorro','Sem Raça Definida (SRD)','2020-09-07','MEDIO','ADULTO'),
+(38,'Cristal','Gato','Persa','2021-07-15','PEQUENO','ADULTO'),
 
 -- Tutor 39
-
-(39,'Spike','Cachorro','Bulldog Francês','2022-03-28'),
+(39,'Spike','Cachorro','Bulldog Francês','2022-03-28','MEDIO','ADULTO'),
 
 -- Tutor 40
-
-(40,'Nino','Cachorro','Poodle','2023-01-08'),
-(40,'Lola','Cachorro','Shih Tzu','2021-06-25'),
+(40,'Nino','Cachorro','Poodle','2023-01-08','PEQUENO','ADULTO'),
+(40,'Lola','Cachorro','Shih Tzu','2021-06-25','PEQUENO','ADULTO'),
 
 -- Tutor 41
-
-(41,'Zeus','Cachorro','Golden Retriever','2019-05-14'),
+(41,'Zeus','Cachorro','Golden Retriever','2019-05-14','GRANDE','ADULTO'),
 
 -- Tutor 42
-
-(42,'Mimi','Gato','Siamês','2022-11-19'),
+(42,'Mimi','Gato','Siamês','2022-11-19','PEQUENO','ADULTO'),
 
 -- Tutor 43
-
-(43,'Negão','Cachorro','Golden Retriever','2020-02-20'),
-(43,'Cacau','Gato','Persa','2021-08-17'),
+(43,'Negão','Cachorro','Golden Retriever','2020-02-20','GRANDE','ADULTO'),
+(43,'Cacau','Gato','Persa','2021-08-17','PEQUENO','ADULTO'),
 
 -- Tutor 44
-
-(44,'Bolt','Cachorro','Sem Raça Definida (SRD)','2022-07-09'),
+(44,'Bolt','Cachorro','Sem Raça Definida (SRD)','2022-07-09','MEDIO','ADULTO'),
 
 -- Tutor 45
-
-(45,'Amora','Gato','Persa','2023-04-12'),
-(45,'Tom','Gato','Maine Coon','2020-12-24'),
+(45,'Amora','Gato','Persa','2023-04-12','PEQUENO','ADULTO'),
+(45,'Tom','Gato','Maine Coon','2020-12-24','GRANDE','ADULTO'),
 
 -- Tutor 46
-
-(46,'Duke','Cachorro','Golden Retriever','2018-09-01'),
-(46,'Bela','Gato','Siamês','2022-10-06');
+(46,'Duke','Cachorro','Golden Retriever','2018-09-01','GRANDE','IDOSO'),
+(46,'Bela','Gato','Siamês','2022-10-06','PEQUENO','ADULTO');
 
 
 

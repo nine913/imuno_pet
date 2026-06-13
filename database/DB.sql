@@ -1,7 +1,8 @@
 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
-DROP DATABASE imunopet;
+
+DROP DATABASE IF EXISTS imunopet;
 CREATE SCHEMA IF NOT EXISTS `imunopet` DEFAULT CHARACTER SET utf8 ;
 USE `imunopet` ;
 
@@ -93,6 +94,8 @@ CREATE TABLE IF NOT EXISTS `imunopet`.`animal` (
   `especie` VARCHAR(50) NOT NULL,
   `raca` VARCHAR(50) NULL,
   `data_nascimento` DATE NOT NULL,
+  `porte` ENUM('PEQUENO', 'MEDIO', 'GRANDE') NOT NULL,
+  `fase_vida` ENUM('FILHOTE', 'ADULTO', 'IDOSO') NOT NULL,
   PRIMARY KEY (`id_animal`),
   INDEX `fk_animal_tutor1_idx` (`id_tutor` ASC) VISIBLE,
   CONSTRAINT `fk_animal_tutor1`
@@ -214,34 +217,6 @@ SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
 
--- INSERTS
-
--- usuarios:
-
-INSERT INTO clinica (nome_fantasia, estado, cidade, bairro) VALUES
-('Clínica ImunoPet Central', 'PA', 'Belém', 'Centro');
-
-INSERT INTO usuario (email, senha, perfil) VALUES
-('admin@email.com', '$2b$10$nPc3uhv9Z.kQArojCY0FrO2JSJ0BKbD7cU.OCdmw5HoT7mJHbhwMq', 'ADMINISTRADOR'),
-('gestor@email.com', '$2b$10$nPc3uhv9Z.kQArojCY0FrO2JSJ0BKbD7cU.OCdmw5HoT7mJHbhwMq', 'GESTOR_CLINICA'),
-('veterinario@email.com', '$2b$10$nPc3uhv9Z.kQArojCY0FrO2JSJ0BKbD7cU.OCdmw5HoT7mJHbhwMq', 'VETERINARIO'),
-('tutor@email.com', '$2b$10$nPc3uhv9Z.kQArojCY0FrO2JSJ0BKbD7cU.OCdmw5HoT7mJHbhwMq', 'TUTOR'),
-('governo@email.com', '$2b$10$nPc3uhv9Z.kQArojCY0FrO2JSJ0BKbD7cU.OCdmw5HoT7mJHbhwMq', 'GOVERNO');
-
-INSERT INTO gestor (id_usuario, id_clinica, nome_completo) VALUES
-((SELECT id_usuario FROM usuario WHERE email = 'gestor@email.com'), 1, 'gestor');
-
-INSERT INTO veterinario (id_usuario, id_clinica, nome_completo, crmv) VALUES
-((SELECT id_usuario FROM usuario WHERE email = 'veterinario@email.com'), 1, 'veterinario', 'CRMV-12345');
-
-INSERT INTO tutor (id_usuario, nome_completo, cpf, telefone, estado, cidade, bairro) VALUES
-((SELECT id_usuario FROM usuario WHERE email = 'tutor@email.com'), 'tutor', '111.111.111-11', '11888888888', 'PA', 'Belém', 'Centro');
-
-INSERT INTO orgao_governamental (id_usuario, nome_instituicao, esfera, estado_atuacao, cidade_atuacao) VALUES
-((SELECT id_usuario FROM usuario WHERE email = 'governo@email.com'), 'Vigilância Sanitária', 'MUNICIPAL', 'PA', 'Belém');
-
--- populamento de tabelas:
-
 INSERT INTO `imunopet`.`especie` (`nome_especie`) VALUES 
 ('Cachorro'), 
 ('Gato');
@@ -257,6 +232,3 @@ INSERT INTO `imunopet`.`raca` (`id_especie`, `nome_raca`) VALUES
 (2, 'Persa'),
 (2, 'Maine Coon'),
 (2, 'Sphynx');
-
-INSERT INTO `imunopet`.`aviso` (`titulo`, `mensagem`, `tipo`, `status`) VALUES 
-('Bem-vindo ao ImunoPet', 'O sistema foi atualizado com sucesso. Navegue pelos novos módulos de auditoria e catálogo de vacinas.', 'INFO', 'ATIVO');

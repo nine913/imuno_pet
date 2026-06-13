@@ -1,193 +1,135 @@
 "use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import AvisosGlobais from './components/AvisosGlobais';
+import { useEffect, useState } from 'react';
 
-export default function Login() {
-  const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
-  const [erro, setErro] = useState('');
-  const router = useRouter();
+export default function AvisosGlobais() {
+  const [avisos, setAvisos] = useState([]);
+  const [indiceAtual, setIndiceAtual] = useState(0);
 
-  const [modalOpen, setModalOpen] = useState(false);
-  const [emailRecuperacao, setEmailRecuperacao] = useState('');
-  const [novaSenha, setNovaSenha] = useState('');
-  const [msgRecuperacao, setMsgRecuperacao] = useState({ texto: '', cor: '' });
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setErro('');
-
-    try {
-      const res = await fetch('http://localhost:3000/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, senha })
-      });
-
-      const dados = await res.json();
-
-      if (res.ok) {
-        localStorage.setItem('usuarioImunoPet', JSON.stringify(dados));
-        
-        switch (dados.perfil) {
-          case 'ADMINISTRADOR':
-            router.push('/admin/dashboard');
-            break;
-          case 'GESTOR_CLINICA':
-            router.push('/dashboard');
-            break;
-          case 'VETERINARIO':
-            router.push('/dashboard');
-            break;
-          case 'TUTOR':
-            router.push('/dashboard');
-            break;
-          case 'GOVERNO':
-            router.push('/dashboard');
-            break;
-          default:
-            router.push('/dashboard');
+  useEffect(() => {
+    const buscarAvisos = async () => {
+      try {
+        const resposta = await fetch('http://localhost:3000/avisos'); 
+        if (resposta.ok) {
+          const dados = await resposta.json();
+          const avisosAtivos = dados.filter(a => a.status === 'ATIVO');
+          setAvisos(avisosAtivos);
         }
-      } else {
-        setErro(dados.erro || 'Erro ao fazer login');
+      } catch (erro) {
+        console.error("Erro ao carregar avisos globais:", erro);
       }
-    } catch (error) {
-      setErro('Erro de conexão com o servidor');
-    }
+    };
+
+    buscarAvisos();
+  }, []);
+
+  useEffect(() => {
+    if (avisos.length <= 1) return;
+
+    const intervalo = setInterval(() => {
+      proximoAviso();
+    }, 5000);
+
+    return () => clearInterval(intervalo);
+  }, [avisos.length, indiceAtual]);
+
+  const avisoAnterior = () => {
+    setIndiceAtual((prev) => (prev === 0 ? avisos.length - 1 : prev - 1));
   };
 
-  const handleRedefinirSenha = async (e) => {
-    e.preventDefault();
-    setMsgRecuperacao({ texto: '', cor: '' });
-
-    try {
-      const res = await fetch('http://localhost:3000/redefinir-senha', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: emailRecuperacao, nova_senha: novaSenha })
-      });
-
-      const dados = await res.json();
-
-      if (res.ok) {
-        setMsgRecuperacao({ texto: 'Senha alterada com sucesso! Você já pode fazer login.', cor: 'green' });
-        setTimeout(() => {
-          setModalOpen(false);
-          setEmailRecuperacao('');
-          setNovaSenha('');
-          setMsgRecuperacao({ texto: '', cor: '' });
-        }, 3000);
-      } else {
-        setMsgRecuperacao({ texto: dados.erro || 'Erro ao redefinir senha.', cor: 'red' });
-      }
-    } catch (error) {
-      setMsgRecuperacao({ texto: 'Erro de conexão com o servidor.', cor: 'red' });
-    }
+  const proximoAviso = () => {
+    setIndiceAtual((prev) => (prev === avisos.length - 1 ? 0 : prev + 1));
   };
+
+  if (avisos.length === 0) return null;
+
+  const aviso = avisos[indiceAtual];
+  
+  const corBorda = aviso.tipo === 'URGENTE' ? '#dc3545' : aviso.tipo === 'ALERTA' ? '#ffc107' : '#17a2b8';
+  const corFundo = aviso.tipo === 'URGENTE' ? '#f8d7da' : aviso.tipo === 'ALERTA' ? '#fff3cd' : '#d1ecf1';
+  const corTexto = aviso.tipo === 'URGENTE' ? '#721c24' : aviso.tipo === 'ALERTA' ? '#856404' : '#0c5460';
 
   return (
-    <div style={styles.container}>
-      <div style={styles.loginBox}>
-        
-        <AvisosGlobais />
+    <div style={{ ...styles.container, borderLeftColor: corBorda, backgroundColor: corFundo, color: corTexto }}>
+      
+      <div style={styles.header}>
+        <h4 style={styles.title}>
+          {aviso.tipo === 'URGENTE' && '🚨 '}
+          {aviso.tipo === 'ALERTA' && '⚠️ '}
+          {aviso.tipo === 'INFO' && 'ℹ️ '}
+          {aviso.titulo}
+        </h4>
 
-        <h1 style={styles.title}>ImunoPet Brasil</h1>
-        <p style={styles.subtitle}>Faça login para acessar o sistema</p>
-
-        <form onSubmit={handleLogin} style={styles.form}>
-          <input
-            type="email"
-            placeholder="E-mail"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            style={styles.input}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Senha"
-            value={senha}
-            onChange={(e) => setSenha(e.target.value)}
-            style={styles.input}
-            required
-          />
-          
-          {erro && (
-            <div style={styles.errorBox}>
-              <strong>Atenção:</strong> {erro}
-            </div>
-          )}
-
-          <button type="submit" style={styles.button}>Entrar</button>
-        </form>
-
-        <div style={{ marginTop: '15px', textAlign: 'center' }}>
-          <button 
-            onClick={() => setModalOpen(true)} 
-            style={styles.btnLink}
-          >
-            Esqueci minha senha
-          </button>
-        </div>
+        {avisos.length > 1 && (
+          <div style={styles.controles}>
+            <button onClick={avisoAnterior} style={{ ...styles.btnNav, color: corTexto }}>
+              &#10094;
+            </button>
+            <span style={styles.contador}>
+              {indiceAtual + 1} / {avisos.length}
+            </span>
+            <button onClick={proximoAviso} style={{ ...styles.btnNav, color: corTexto }}>
+              &#10095;
+            </button>
+          </div>
+        )}
       </div>
 
-      {modalOpen && (
-        <div style={styles.modalOverlay}>
-          <div style={styles.modalContent}>
-            <h3 style={{ marginTop: 0, color: '#333' }}>Redefinir Senha</h3>
-            <p style={{ fontSize: '14px', color: '#333' }}>
-              Digite seu e-mail cadastrado e a nova senha que deseja utilizar.
-            </p>
-            
-            <form onSubmit={handleRedefinirSenha}>
-              <input
-                type="email"
-                placeholder="E-mail cadastrado"
-                value={emailRecuperacao}
-                onChange={(e) => setEmailRecuperacao(e.target.value)}
-                style={styles.input}
-                required
-              />
-              <input
-                type="password"
-                placeholder="Nova senha"
-                value={novaSenha}
-                onChange={(e) => setNovaSenha(e.target.value)}
-                style={styles.input}
-                required
-                minLength="6"
-              />
-              
-              <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
-                <button type="submit" style={{ ...styles.button, margin: 0, flex: 1 }}>Atualizar Senha</button>
-                <button type="button" onClick={() => setModalOpen(false)} style={{ ...styles.btnCancelar, flex: 1 }}>Cancelar</button>
-              </div>
-            </form>
-            
-            {msgRecuperacao.texto && (
-              <div style={{ marginTop: '15px', textAlign: 'center', fontWeight: 'bold', color: msgRecuperacao.cor }}>
-                {msgRecuperacao.texto}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      <p style={styles.mensagem}>{aviso.mensagem}</p>
+      
     </div>
   );
 }
+
 const styles = {
-  container: { display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', backgroundColor: '#f0f2f5' },
-  loginBox: { backgroundColor: 'white', padding: '40px', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', width: '100%', maxWidth: '400px' },
-  title: { textAlign: 'center', color: '#0056b3', marginBottom: '10px', marginTop: 0 },
-  subtitle: { textAlign: 'center', color: '#333', marginBottom: '30px' },
-  form: { display: 'flex', flexDirection: 'column' },
-  input: { padding: '12px', marginBottom: '15px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '16px', width: '100%', boxSizing: 'border-box' },
-  button: { padding: '12px', backgroundColor: '#0056b3', color: 'white', border: 'none', borderRadius: '4px', fontSize: '16px', cursor: 'pointer', fontWeight: 'bold' },
-  btnCancelar: { padding: '12px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '4px', fontSize: '16px', cursor: 'pointer', fontWeight: 'bold' },
-  btnLink: { background: 'none', border: 'none', color: '#0056b3', textDecoration: 'underline', cursor: 'pointer', fontSize: '14px' },
-  errorBox: { backgroundColor: '#f8d7da', color: '#721c24', padding: '10px', borderRadius: '4px', marginBottom: '15px', border: '1px solid #f5c6cb', fontSize: '14px', textAlign: 'center' },
-  modalOverlay: { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center' },
-  modalContent: { backgroundColor: '#fff', padding: '30px', borderRadius: '8px', width: '400px', boxShadow: '0 4px 20px rgba(0,0,0,0.2)' }
+  container: {
+    marginBottom: '20px',
+    padding: '15px',
+    borderRadius: '4px',
+    borderLeft: '5px solid',
+    borderRight: '1px solid #ddd',
+    borderTop: '1px solid #ddd',
+    borderBottom: '1px solid #ddd',
+    position: 'relative',
+    transition: 'all 0.3s ease-in-out'
+  },
+  header: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '8px'
+  },
+  title: {
+    margin: 0,
+    fontSize: '16px',
+    fontWeight: 'bold',
+  },
+  mensagem: {
+    margin: 0,
+    fontSize: '14px',
+    lineHeight: '1.4'
+  },
+  controles: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    backgroundColor: 'rgba(255, 255, 255, 0.4)',
+    padding: '2px 8px',
+    borderRadius: '12px'
+  },
+  btnNav: {
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    fontSize: '16px',
+    fontWeight: 'bold',
+    padding: '2px 6px',
+    transition: 'transform 0.1s'
+  },
+  contador: {
+    fontSize: '12px',
+    fontWeight: 'bold',
+    minWidth: '35px',
+    textAlign: 'center'
+  }
 };
