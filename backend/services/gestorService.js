@@ -2,12 +2,16 @@ const db = require('../db');
 const bcrypt = require('bcrypt');
 
 async function dadosDashboard(query) {
+  const id_clinica = query.id_clinica;
+  
+  if (!id_clinica || id_clinica === 'undefined') {
+    return { kpis: null, vacinasAplicadas: [], atendimentosMes: [], aplicacoesVet: [], clinica: null };
+  }
+
   const inicio = query.inicio || '2000-01-01';
   const fim = query.fim || '2100-12-31';
-  const id_clinica = query.id_clinica || null;
 
   const paramsGeral = [inicio, fim, inicio, fim, id_clinica];
-
   const condicaoDatas = `(data_aplicacao BETWEEN ? AND ? OR data_proxima_dose BETWEEN ? AND ?) AND id_clinica = ?`;
 
   const queryKpis = `
@@ -68,10 +72,14 @@ async function dadosDashboard(query) {
 }
 
 async function relatoriosAvancados(query) {
+  const id_clinica = query.id_clinica;
+  
+  if (!id_clinica || id_clinica === 'undefined') {
+    return [];
+  }
+
   const dataInicio = query.inicio || '2000-01-01';
   const dataFim = query.fim || '2100-12-31';
-  const id_clinica = query.id_clinica;
-
   const id_vacina = query.vacina || '';
   const especie = query.especie || '';
   const bairro = query.bairro || '';
@@ -80,7 +88,7 @@ async function relatoriosAvancados(query) {
 
   let sql = `
     SELECT rv.data_aplicacao, rv.data_proxima_dose, rv.status, v.nome_vacina, 
-           a.nome as nome_animal, a.especie, a.raca, 
+           a.nome as nome_animal, a.especie, a.raca, a.porte, a.fase_vida,
            t.nome_completo as nome_tutor, t.bairro, t.cidade, t.telefone,
            vet.nome_completo as nome_vet, vet.crmv as crmv_vet
     FROM registro_vacinacao rv
@@ -121,8 +129,13 @@ async function relatoriosAvancados(query) {
 }
 
 async function veterinariosLista(query) {
-  const termo = query.termo ? `%${query.termo}%` : '%';
   const id_clinica = query.id_clinica;
+  
+  if (!id_clinica || id_clinica === 'undefined') {
+    return [];
+  }
+
+  const termo = query.termo ? `%${query.termo}%` : '%';
 
   const [vets] = await db.query(`
     SELECT v.id_veterinario, v.id_usuario, v.nome_completo, v.crmv, u.email

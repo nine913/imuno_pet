@@ -66,7 +66,7 @@ const editarAnimalSimples = async (req, res) => {
   try {
     const { id } = req.params;
     await petService.editarAnimalSimples(id, req.body);
-    res.status(200).json({ mensagem: 'Animal updated com sucesso!' });
+    res.status(200).json({ mensagem: 'Animal atualizado com sucesso!' });
   } catch (error) {
     res.status(500).json({ erro: 'Erro ao atualizar animal.' });
   }
@@ -81,6 +81,15 @@ const deletarAnimal = async (req, res) => {
   }
 };
 
+const relatorioVacinas = async (req, res) => {
+  try {
+    const dados = await petService.relatorioVacinasVet(req.query);
+    res.status(200).json(dados);
+  } catch (error) {
+    res.status(500).json({ erro: 'Erro ao gerar relatório' });
+  }
+};
+
 module.exports = {
   criarPet,
   cadastrarAnimalVet,
@@ -89,5 +98,6 @@ module.exports = {
   detalhesAnimal,
   editarPetTutor,
   editarAnimalSimples,
-  deletarAnimal
+  deletarAnimal,
+  relatorioVacinas
 };
