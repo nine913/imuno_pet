@@ -2,12 +2,14 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import Chart from 'chart.js/auto';
 
 export default function GovernoDashboard() {
   const [usuario, setUsuario] = useState(null);
   const [filtros, setFiltros] = useState({ inicio: '', fim: '', especie: '', localidade: '' });
   const [kpis, setKpis] = useState({ aplicadas: 0, atrasadas: 0, pendentes: 0, localidades: 0 });
   const [dadosTabela, setDadosTabela] = useState([]);
+  const [mostrarTodosTabela, setMostrarTodosTabela] = useState(false);
   
   const [chartDataEspecie, setChartDataEspecie] = useState([]);
   const [chartDataEvolucao, setChartDataEvolucao] = useState([]);
@@ -22,6 +24,7 @@ export default function GovernoDashboard() {
   const chartTopInstance = useRef(null);
 
   const router = useRouter();
+  const limiteLinhas = 5;
 
   useEffect(() => {
     const usuarioString = localStorage.getItem('usuarioImunoPet');
@@ -36,12 +39,8 @@ export default function GovernoDashboard() {
     }
     setUsuario(user);
 
-    const hoje = new Date();
-    const trintaDiasAtras = new Date();
-    trintaDiasAtras.setDate(hoje.getDate() - 30);
-    
-    const initialInicio = trintaDiasAtras.toISOString().split('T')[0];
-    const initialFim = hoje.toISOString().split('T')[0];
+    const initialInicio = '2023-01-01';
+    const initialFim = '2026-12-31';
     
     setFiltros(prev => ({ ...prev, inicio: initialInicio, fim: initialFim }));
     carregarDadosOrgao(initialInicio, initialFim, '', '');
@@ -78,6 +77,7 @@ export default function GovernoDashboard() {
         });
 
         setDadosTabela(riscoRegiao);
+        setMostrarTodosTabela(false);
         setChartDataEspecie(dados.coberturaEspecie || []);
         setChartDataEvolucao(dados.evolucaoTemporal || []);
         setChartDataTop(dados.topVacinas || []);
@@ -92,9 +92,7 @@ export default function GovernoDashboard() {
   };
 
   useEffect(() => {
-    const renderCharts = async () => {
-      const Chart = (await import('chart.js/auto')).default;
-
+    const renderCharts = () => {
       if (chartEspecieInstance.current) chartEspecieInstance.current.destroy();
       if (canvasEspecieRef.current) {
         const ctx = canvasEspecieRef.current.getContext('2d');
@@ -182,6 +180,8 @@ export default function GovernoDashboard() {
 
   if (!usuario) return null;
 
+  const linhasVisiveis = mostrarTodosTabela ? dadosTabela : dadosTabela.slice(0, limiteLinhas);
+
   return (
     <div style={styles.body}>
       <div style={styles.container}>
@@ -251,54 +251,65 @@ export default function GovernoDashboard() {
           </div>
           <div style={{ ...styles.box, flex: 2 }}>
             <h3 style={styles.boxTitle}>Mapeamento de Risco por Localidade</h3>
-            <table style={styles.tabela}>
-              <thead>
-                <tr>
-                  <th style={styles.th}>Bairro</th>
-                  <th style={styles.th}>Cidade</th>
-                  <th style={styles.th}>Doses Aplicadas</th>
-                  <th style={styles.th}>Doses Atrasadas</th>
-                  <th style={styles.th}>Nível de Risco</th>
-                </tr>
-              </thead>
-              <tbody>
-                {dadosTabela.length === 0 ? (
-                  <tr><td colSpan="5" style={{ textAlign: 'center', padding: '10px' }}>Nenhum dado registrado para estes filtros.</td></tr>
-                ) : (
-                  dadosTabela.map((item, idx) => {
-                    const aplicadas = parseInt(item.total_aplicadas) || 0;
-                    const atrasadas = parseInt(item.total_atrasadas) || 0;
-                    const total = aplicadas + atrasadas;
-                    
-                    let nivelRisco = 'Baixo';
-                    let corRisco = '#28a745';
-                    
-                    if (total > 0) {
-                      const percentualAtraso = (atrasadas / total) * 100;
-                      if (percentualAtraso >= 30) {
-                        nivelRisco = 'Alto';
-                        corRisco = '#dc3545';
-                      } else if (percentualAtraso >= 10) {
-                        nivelRisco = 'Médio';
-                        corRisco = '#fd7e14';
+            <div style={{ overflowX: 'auto' }}>
+              <table style={styles.tabela}>
+                <thead>
+                  <tr>
+                    <th style={styles.th}>Bairro</th>
+                    <th style={styles.th}>Cidade</th>
+                    <th style={styles.th}>Doses Aplicadas</th>
+                    <th style={styles.th}>Doses Atrasadas</th>
+                    <th style={styles.th}>Nível de Risco</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dadosTabela.length === 0 ? (
+                    <tr><td colSpan="5" style={{ textAlign: 'center', padding: '10px', color: '#333' }}>Nenhum dado registrado para estes filtros.</td></tr>
+                  ) : (
+                    linhasVisiveis.map((item, idx) => {
+                      const aplicadas = parseInt(item.total_aplicadas) || 0;
+                      const atrasadas = parseInt(item.total_atrasadas) || 0;
+                      const total = aplicadas + atrasadas;
+                      
+                      let nivelRisco = 'Baixo';
+                      let corRisco = '#28a745';
+                      
+                      if (total > 0) {
+                        const percentualAtraso = (atrasadas / total) * 100;
+                        if (percentualAtraso >= 30) {
+                          nivelRisco = 'Alto';
+                          corRisco = '#dc3545';
+                        } else if (percentualAtraso >= 10) {
+                          nivelRisco = 'Médio';
+                          corRisco = '#fd7e14';
+                        }
                       }
-                    }
 
-                    const bgColor = idx % 2 === 0 ? '#fff' : '#f2f2f2';
+                      const bgColor = idx % 2 === 0 ? '#fff' : '#f2f2f2';
 
-                    return (
-                      <tr key={idx} style={{ backgroundColor: bgColor }}>
-                        <td style={styles.td}>{item.bairro}</td>
-                        <td style={styles.td}>{item.cidade}</td>
-                        <td style={styles.td}>{aplicadas}</td>
-                        <td style={styles.td}>{atrasadas}</td>
-                        <td style={{ ...styles.td, color: corRisco, fontWeight: 'bold' }}>{nivelRisco}</td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
+                      return (
+                        <tr key={idx} style={{ backgroundColor: bgColor, color: '#333' }}>
+                          <td style={styles.td}>{item.bairro}</td>
+                          <td style={styles.td}>{item.cidade}</td>
+                          <td style={styles.td}>{aplicadas}</td>
+                          <td style={styles.td}>{atrasadas}</td>
+                          <td style={{ ...styles.td, color: corRisco, fontWeight: 'bold' }}>{nivelRisco}</td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+            
+            {dadosTabela.length > limiteLinhas && (
+              <button 
+                onClick={() => setMostrarTodosTabela(!mostrarTodosTabela)} 
+                style={styles.btnMostrarTudo}
+              >
+                {mostrarTodosTabela ? 'Ver Menos ▲' : `Ver Mais (${dadosTabela.length - limiteLinhas} ocultos) ▼`}
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -310,11 +321,11 @@ const styles = {
   body: { fontFamily: 'Arial, sans-serif', backgroundColor: '#f4f4f9', margin: 0, padding: '20px', minHeight: '100vh' },
   container: { maxWidth: '1200px', margin: 'auto', background: 'white', padding: '30px', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' },
   h2: { color: '#000000', marginTop: 0, marginBottom: '20px' },
-  btnVoltar: { backgroundColor: '#6c757d', color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px', marginBottom: '20px' },
+  btnVoltar: { backgroundColor: '#6c757d', color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px', marginBottom: '20px', fontWeight: 'bold' },
   filtrosBox: { display: 'flex', gap: '15px', backgroundColor: '#e9ecef', padding: '15px', borderRadius: '8px', marginBottom: '25px', alignItems: 'flex-end', flexWrap: 'wrap' },
   filtroItem: { flex: 1, minWidth: '150px' },
   label: { display: 'block', fontSize: '14px', fontWeight: 'bold', color: '#333', marginBottom: '5px' },
-  input: { width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box' },
+  input: { width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box', color: '#333' },
   btnFiltrar: { padding: '9px 20px', backgroundColor: '#fd7e14', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', height: '35px' },
   kpiGrid: { display: 'flex', gap: '20px', marginBottom: '25px', flexWrap: 'wrap' },
   kpiCard: { flex: 1, minWidth: '200px', padding: '20px', borderRadius: '8px', color: 'white', textAlign: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' },
@@ -325,5 +336,6 @@ const styles = {
   boxTitle: { margin: '0 0 15px 0', color: '#333' },
   tabela: { width: '100%', borderCollapse: 'collapse', marginTop: '15px', fontSize: '14px' },
   th: { border: '1px solid #ddd', padding: '10px', textAlign: 'left', backgroundColor: '#fd7e14', color: 'white' },
-  td: { border: '1px solid #ddd', padding: '10px', textAlign: 'left' }
+  td: { border: '1px solid #ddd', padding: '10px', textAlign: 'left' },
+  btnMostrarTudo: { marginTop: '15px', padding: '10px', width: '100%', backgroundColor: '#f8f9fa', border: '1px solid #dee2e6', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', color: '#495057', fontSize: '14px', transition: 'background-color 0.2s' }
 };

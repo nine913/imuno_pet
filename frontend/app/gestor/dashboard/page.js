@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import Chart from 'chart.js/auto';
 
 export default function GestorDashboard() {
   const [usuario, setUsuario] = useState(null);
@@ -35,12 +36,8 @@ export default function GestorDashboard() {
     }
     setUsuario(user);
 
-    const hoje = new Date();
-    const trintaDiasAtras = new Date();
-    trintaDiasAtras.setDate(hoje.getDate() - 30);
-    
-    const initialInicio = trintaDiasAtras.toISOString().split('T')[0];
-    const initialFim = hoje.toISOString().split('T')[0];
+    const initialInicio = '2023-01-01'; 
+    const initialFim = '2026-12-31';
     setFiltros({ inicio: initialInicio, fim: initialFim });
 
     carregarClinica(user.id_clinica);
@@ -87,9 +84,7 @@ export default function GestorDashboard() {
   };
 
   useEffect(() => {
-    const renderCharts = async () => {
-      const Chart = (await import('chart.js/auto')).default;
-
+    const renderCharts = () => {
       if (chartEvolucaoInstance.current) chartEvolucaoInstance.current.destroy();
       if (canvasEvolucaoRef.current) {
         const ctx = canvasEvolucaoRef.current.getContext('2d');
@@ -146,7 +141,7 @@ export default function GestorDashboard() {
           data: {
             labels: labels,
             datasets: [{
-              label: 'Total de Aplicações Realizadas',
+              label: 'Total de Aplicações',
               data: valores,
               backgroundColor: chartDataVet.length > 0 ? '#17a2b8' : '#ccc',
               borderWidth: 0,
@@ -245,7 +240,7 @@ const styles = {
   filtrosBox: { display: 'flex', gap: '15px', backgroundColor: '#e9ecef', padding: '15px', borderRadius: '8px', marginBottom: '25px', alignItems: 'flex-end', flexWrap: 'wrap' },
   filtroItem: { flex: 1, minWidth: '150px' },
   label: { display: 'block', fontSize: '14px', fontWeight: 'bold', color: '#333', marginBottom: '5px' },
-  input: { width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box' },
+  input: { width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box', color: '#333' },
   btnFiltrar: { padding: '9px 20px', backgroundColor: '#0056b3', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', height: '35px' },
   kpiGrid: { display: 'flex', gap: '20px', marginBottom: '25px', flexWrap: 'wrap' },
   kpiCard: { flex: 1, minWidth: '200px', padding: '20px', borderRadius: '8px', color: 'white', textAlign: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' },
