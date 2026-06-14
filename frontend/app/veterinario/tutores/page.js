@@ -34,12 +34,15 @@ export default function VetTutores() {
       return;
     }
     setUsuario(user);
-    realizarBusca('');
+    realizarBusca('', user.id_clinica);
   }, [router]);
 
-  const realizarBusca = async (termo = termoBusca) => {
+  const realizarBusca = async (termo = termoBusca, id = null) => {
+    const clinica = id || usuario?.id_clinica;
+    if (!clinica) return;
+
     try {
-      const resposta = await fetch(`http://localhost:3000/listar-tutores?termo=${termo}`);
+      const resposta = await fetch(`http://localhost:3000/listar-tutores?termo=${termo}&id_clinica=${clinica}`);
       if (resposta.ok) {
         setTutores(await resposta.json());
       } else {

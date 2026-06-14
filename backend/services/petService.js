@@ -70,9 +70,16 @@ async function buscarAnimais(queryParams) {
   const termo = queryParams.termo ? `%${queryParams.termo}%` : '%';
   const vacina = queryParams.vacina ? `%${queryParams.vacina}%` : '';
   const status = queryParams.status || '';
+  const id_clinica = queryParams.id_clinica;
 
   let query = `
-    SELECT DISTINCT a.id_animal, a.nome, a.especie, a.raca, a.porte, a.fase_vida, t.nome_completo as nome_tutor, t.cpf, a.data_nascimento
+    SELECT DISTINCT a.id_animal, a.nome, a.especie, a.raca, a.porte, 
+           CASE 
+               WHEN TIMESTAMPDIFF(YEAR, a.data_nascimento, CURDATE()) < 1 THEN 'FILHOTE'
+               WHEN TIMESTAMPDIFF(YEAR, a.data_nascimento, CURDATE()) < 8 THEN 'ADULTO'
+               ELSE 'IDOSO'
+           END as fase_vida, 
+           t.nome_completo as nome_tutor, t.cpf, a.data_nascimento
     FROM animal a
     JOIN tutor t ON a.id_tutor = t.id_tutor
     LEFT JOIN registro_vacinacao rv ON a.id_animal = rv.id_animal
@@ -80,6 +87,11 @@ async function buscarAnimais(queryParams) {
     WHERE (a.nome LIKE ? OR t.cpf LIKE ? OR t.nome_completo LIKE ?)
   `;
   const params = [termo, termo, termo];
+
+  if (id_clinica && id_clinica !== 'undefined') {
+    query += ` AND rv.id_clinica = ?`;
+    params.push(id_clinica);
+  }
 
   if (vacina) {
     query += ` AND v.nome_vacina LIKE ?`;
@@ -98,8 +110,13 @@ async function buscarAnimais(queryParams) {
 }
 
 async function detalhesAnimal(id_animal) {
-  const [dados] = await db.query(`
-    SELECT a.id_animal, a.nome as nome_animal, a.especie, a.raca, a.data_nascimento, a.porte, a.fase_vida,
+ const [dados] = await db.query(`
+    SELECT a.id_animal, a.nome as nome_animal, a.especie, a.raca, a.data_nascimento, a.porte, 
+           CASE 
+               WHEN TIMESTAMPDIFF(YEAR, a.data_nascimento, CURDATE()) < 1 THEN 'FILHOTE'
+               WHEN TIMESTAMPDIFF(YEAR, a.data_nascimento, CURDATE()) < 8 THEN 'ADULTO'
+               ELSE 'IDOSO'
+           END as fase_vida,
            t.id_tutor, t.nome_completo as nome_tutor, t.telefone, t.estado, t.cidade, t.bairro
     FROM animal a
     JOIN tutor t ON a.id_tutor = t.id_tutor
@@ -151,7 +168,12 @@ async function relatorioVacinasVet(query) {
 
   let sql = `
     SELECT rv.data_aplicacao, rv.data_proxima_dose, rv.status, v.nome_vacina, 
-           a.nome as nome_animal, a.especie, a.raca, a.porte, a.fase_vida,
+           a.nome as nome_animal, a.especie, a.raca, a.porte, 
+           CASE 
+               WHEN TIMESTAMPDIFF(YEAR, a.data_nascimento, CURDATE()) < 1 THEN 'FILHOTE'
+               WHEN TIMESTAMPDIFF(YEAR, a.data_nascimento, CURDATE()) < 8 THEN 'ADULTO'
+               ELSE 'IDOSO'
+           END as fase_vida,
            t.nome_completo as nome_tutor, t.telefone,
            vet.nome_completo as nome_vet, vet.crmv as crmv_vet
     FROM registro_vacinacao rv

@@ -25,9 +25,13 @@ export default function CadastrarTutor() {
     nome_pet: '',
     especie: '',
     raca: '',
-    data_nascimento: ''
+    data_nascimento: '',
+    porte: '',
+    fase_vida: ''
   });
   const [msg, setMsg] = useState({ texto: '', cor: '' });
+
+  const hoje = new Date().toISOString().split('T')[0];
 
   useEffect(() => {
     setIsMounted(true);
@@ -92,8 +96,30 @@ export default function CadastrarTutor() {
     return valor.replace(/[^a-zA-Z]/g, "").toUpperCase();
   };
 
+  const calcularFaseVida = (data) => {
+    if (!data) return '';
+    const hojeData = new Date();
+    const nasc = new Date(data);
+    let idade = hojeData.getFullYear() - nasc.getFullYear();
+    const m = hojeData.getMonth() - nasc.getMonth();
+    
+    if (m < 0 || (m === 0 && hojeData.getDate() < nasc.getDate())) {
+      idade--;
+    }
+    
+    if (idade < 1) return 'FILHOTE';
+    if (idade >= 1 && idade < 8) return 'ADULTO';
+    return 'IDOSO';
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (formDados.data_nascimento > hoje) {
+      setMsg({ texto: 'A data de nascimento não pode ser no futuro.', cor: 'red' });
+      return;
+    }
+
     try {
       const res = await fetch('http://localhost:3000/cadastrar-tutor', {
         method: 'POST',
@@ -185,24 +211,64 @@ export default function CadastrarTutor() {
           <label style={styles.label}>Nome do Animal:</label>
           <input type="text" value={formDados.nome_pet} onChange={e => setFormDados({...formDados, nome_pet: e.target.value})} required style={styles.input} />
 
-          <label style={styles.label}>Espécie:</label>
-          <select value={idEspecieSel} onChange={handleEspecieChange} required style={styles.input}>
-            <option value="">Selecione a espécie...</option>
-            {especies.map((e, index) => (
-              <option key={e.id_especie || `esp-${index}`} value={e.id_especie}>{e.nome_especie}</option>
-            ))}
-          </select>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <div style={{ flex: 1 }}>
+              <label style={styles.label}>Espécie:</label>
+              <select value={idEspecieSel} onChange={handleEspecieChange} required style={styles.input}>
+                <option value="">Selecione a espécie...</option>
+                {especies.map((e, index) => (
+                  <option key={e.id_especie || `esp-${index}`} value={e.id_especie}>{e.nome_especie}</option>
+                ))}
+              </select>
+            </div>
+            <div style={{ flex: 1 }}>
+              <label style={styles.label}>Raça:</label>
+              <select value={formDados.raca} onChange={e => setFormDados({...formDados, raca: e.target.value})} required style={styles.input} disabled={!idEspecieSel}>
+                <option value="">Selecione a raça...</option>
+                {racas.map((r, index) => (
+                  <option key={r.id_raca || `raca-${index}`} value={r.nome_raca}>{r.nome_raca}</option>
+                ))}
+              </select>
+            </div>
+          </div>
 
-          <label style={styles.label}>Raça:</label>
-          <select value={formDados.raca} onChange={e => setFormDados({...formDados, raca: e.target.value})} required style={styles.input} disabled={!idEspecieSel}>
-            <option value="">Selecione a raça...</option>
-            {racas.map((r, index) => (
-              <option key={r.id_raca || `raca-${index}`} value={r.nome_raca}>{r.nome_raca}</option>
-            ))}
-          </select>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <div style={{ flex: 1 }}>
+              <label style={styles.label}>Porte:</label>
+              <select value={formDados.porte} onChange={e => setFormDados({...formDados, porte: e.target.value})} required style={styles.input}>
+                <option value="">Selecione...</option>
+                <option value="PEQUENO">Pequeno</option>
+                <option value="MEDIO">Médio</option>
+                <option value="GRANDE">Grande</option>
+              </select>
+            </div>
+            <div style={{ flex: 1 }}>
+              <label style={styles.label}>Fase da Vida (Automático):</label>
+              <select value={formDados.fase_vida} required style={{...styles.input, backgroundColor: '#e9ecef'}} disabled>
+                <option value="">Selecione a data...</option>
+                <option value="FILHOTE">Filhote</option>
+                <option value="ADULTO">Adulto</option>
+                <option value="IDOSO">Idoso</option>
+              </select>
+            </div>
+          </div>
 
           <label style={styles.label}>Data de Nascimento:</label>
-          <input type="date" value={formDados.data_nascimento} onChange={e => setFormDados({...formDados, data_nascimento: e.target.value})} required style={styles.input} />
+          <input 
+            type="date" 
+            value={formDados.data_nascimento} 
+            max={hoje}
+            onChange={e => {
+              const novaData = e.target.value;
+              setFormDados({
+                ...formDados, 
+                data_nascimento: novaData,
+                fase_vida: calcularFaseVida(novaData)
+              });
+            }} 
+            required 
+            style={styles.input} 
+          />
 
           <button type="submit" style={styles.btnSub}>Salvar Cadastros</button>
         </form>

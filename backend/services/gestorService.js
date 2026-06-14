@@ -88,7 +88,12 @@ async function relatoriosAvancados(query) {
 
   let sql = `
     SELECT rv.data_aplicacao, rv.data_proxima_dose, rv.status, v.nome_vacina, 
-           a.nome as nome_animal, a.especie, a.raca, a.porte, a.fase_vida,
+           a.nome as nome_animal, a.especie, a.raca, a.porte, 
+           CASE 
+               WHEN TIMESTAMPDIFF(YEAR, a.data_nascimento, CURDATE()) < 1 THEN 'FILHOTE'
+               WHEN TIMESTAMPDIFF(YEAR, a.data_nascimento, CURDATE()) < 8 THEN 'ADULTO'
+               ELSE 'IDOSO'
+           END as fase_vida,
            t.nome_completo as nome_tutor, t.bairro, t.cidade, t.telefone,
            vet.nome_completo as nome_vet, vet.crmv as crmv_vet
     FROM registro_vacinacao rv

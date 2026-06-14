@@ -25,6 +25,8 @@ export default function BuscarAnimal() {
     especie: '',
     raca: '',
     data_nascimento: '',
+    porte: '',
+    fase_vida: '',
     id_tutor: ''
   });
 
@@ -32,6 +34,8 @@ export default function BuscarAnimal() {
 
   const [modalDeleteOpen, setModalDeleteOpen] = useState(false);
   const [animalToDelete, setAnimalToDelete] = useState(null);
+
+  const hoje = new Date().toISOString().split('T')[0];
 
   useEffect(() => {
     setIsMounted(true);
@@ -50,7 +54,7 @@ export default function BuscarAnimal() {
       } else {
         carregarEspecies();
         carregarTutores();
-        buscarAnimais();
+        buscarAnimais(usuario.id_clinica);
       }
     }
   }, [usuario, router]);
@@ -73,15 +77,38 @@ export default function BuscarAnimal() {
     }
   };
 
-  const buscarAnimais = async () => {
+  const buscarAnimais = async (clinicaId = null) => {
+    const id = clinicaId || (usuario ? usuario.id_clinica : null);
+    let url = `http://localhost:3000/animais?termo=${termoBusca}`;
+    
+    if (id) {
+      url += `&id_clinica=${id}`;
+    }
+
     try {
-      const res = await fetch(`http://localhost:3000/animais?termo=${termoBusca}`);
+      const res = await fetch(url);
       if (res.ok) {
         setAnimais(await res.json());
       }
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const calcularFaseVida = (data) => {
+    if (!data) return '';
+    const hojeData = new Date();
+    const nasc = new Date(data);
+    let idade = hojeData.getFullYear() - nasc.getFullYear();
+    const m = hojeData.getMonth() - nasc.getMonth();
+    
+    if (m < 0 || (m === 0 && hojeData.getDate() < nasc.getDate())) {
+      idade--;
+    }
+    
+    if (idade < 1) return 'FILHOTE';
+    if (idade >= 1 && idade < 8) return 'ADULTO';
+    return 'IDOSO';
   };
 
   const abrirModalCadastro = () => {
@@ -94,6 +121,8 @@ export default function BuscarAnimal() {
       especie: '',
       raca: '',
       data_nascimento: '',
+      porte: '',
+      fase_vida: '',
       id_tutor: ''
     });
     setMensagemForm({ texto: '', cor: '' });
@@ -104,13 +133,16 @@ export default function BuscarAnimal() {
     setIsEdicao(true);
     const nomeCorreto = animal.nome || animal.nome_animal || '';
     const especieTexto = animal.especie || '';
+    const dataNascimentoFomatada = animal.data_nascimento ? animal.data_nascimento.split('T')[0] : '';
     
     setFormDados({
       id_animal: animal.id_animal,
       nome: nomeCorreto,
       especie: especieTexto,
       raca: animal.raca || '',
-      data_nascimento: animal.data_nascimento ? animal.data_nascimento.split('T')[0] : '',
+      data_nascimento: dataNascimentoFomatada,
+      porte: animal.porte || '',
+      fase_vida: animal.fase_vida || calcularFaseVida(dataNascimentoFomatada),
       id_tutor: animal.id_tutor || ''
     });
     setMensagemForm({ texto: '', cor: '' });
@@ -161,6 +193,12 @@ export default function BuscarAnimal() {
 
   const submitForm = async (e) => {
     e.preventDefault();
+
+    if (formDados.data_nascimento > hoje) {
+      setMensagemForm({ texto: 'A data de nascimento não pode ser no futuro.', cor: 'red' });
+      return;
+    }
+
     setMensagemForm({ texto: 'Processando...', cor: 'blue' });
 
     let url = 'http://localhost:3000/cadastrar-animal';
@@ -237,17 +275,23 @@ export default function BuscarAnimal() {
             placeholder="Pesquisar por nome do pet ou CPF do tutor..."
             style={{ ...styles.input, margin: 0, flex: 1 }}
           />
-          <button style={{ ...styles.btnAcao, width: 'auto', margin: 0 }} onClick={buscarAnimais}>Pesquisar</button>
+          <button style={{ ...styles.btnAcao, width: 'auto', margin: 0 }} onClick={() => buscarAnimais()}>Pesquisar</button>
         </div>
 
         <div>
-          {animais.length === 0 ? <p style={{color: '#333'}}>Nenhum paciente encontrado.</p> : animais.map((animal, idx) => (
+          {animais.length === 0 ? <p style={{color: '#333'}}>Nenhum paciente encontrado na sua clínica.</p> : animais.map((animal, idx) => (
             <div key={`animal-${animal.id_animal || idx}`} style={styles.card}>
               <div style={{ flex: 1 }}>
                 <h3 style={{ margin: '0 0 10px 0', color: '#0056b3' }}>🐾 {animal.nome || animal.nome_animal}</h3>
                 <p style={{ margin: '5px 0', color: '#333' }}><strong>Tutor:</strong> {animal.nome_tutor} (CPF: {animal.cpf})</p>
-                <p style={{ margin: '5px 0', color: '#333' }}><strong>Espécie:</strong> {animal.especie}</p>
-                <p style={{ margin: '5px 0', color: '#333' }}><strong>Raça:</strong> {animal.raca || 'Não informada'}</p>
+                <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+                  <p style={{ margin: '5px 0', color: '#333' }}><strong>Espécie:</strong> {animal.especie}</p>
+                  <p style={{ margin: '5px 0', color: '#333' }}><strong>Raça:</strong> {animal.raca || 'Não informada'}</p>
+                </div>
+                <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+                  <p style={{ margin: '5px 0', color: '#333' }}><strong>Porte:</strong> {animal.porte || 'Não informado'}</p>
+                  <p style={{ margin: '5px 0', color: '#333' }}><strong>Fase:</strong> {animal.fase_vida || 'Não informada'}</p>
+                </div>
                 <p style={{ margin: '5px 0', color: '#333' }}><strong>Nascimento:</strong> {animal.data_nascimento ? new Date(animal.data_nascimento).toLocaleDateString('pt-BR', {timeZone: 'UTC'}) : '-'}</p>
               </div>
               <div style={styles.actionGroup}>
@@ -286,24 +330,64 @@ export default function BuscarAnimal() {
               <label style={styles.label}>Nome do Paciente:</label>
               <input type="text" value={formDados.nome} onChange={e => setFormDados({...formDados, nome: e.target.value})} required style={styles.input} />
 
-              <label style={styles.label}>Espécie:</label>
-              <select value={idEspecieSel} onChange={handleEspecieChange} required style={styles.input}>
-                <option value="">Selecione a espécie...</option>
-                {especies.map((e, idx) => (
-                  <option key={`esp-${e.id_especie || idx}`} value={String(e.id_especie)}>{e.nome_especie}</option>
-                ))}
-              </select>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <div style={{ flex: 1 }}>
+                  <label style={styles.label}>Espécie:</label>
+                  <select value={idEspecieSel} onChange={handleEspecieChange} required style={styles.input}>
+                    <option value="">Selecione...</option>
+                    {especies.map((e, idx) => (
+                      <option key={`esp-${e.id_especie || idx}`} value={String(e.id_especie)}>{e.nome_especie}</option>
+                    ))}
+                  </select>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={styles.label}>Raça:</label>
+                  <select value={formDados.raca} onChange={e => setFormDados({...formDados, raca: e.target.value})} required style={styles.input} disabled={!idEspecieSel}>
+                    <option value="">Selecione...</option>
+                    {racas.map((r, idx) => (
+                      <option key={`raca-${r.id_raca || idx}`} value={String(r.nome_raca)}>{r.nome_raca}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
 
-              <label style={styles.label}>Raça:</label>
-              <select value={formDados.raca} onChange={e => setFormDados({...formDados, raca: e.target.value})} required style={styles.input} disabled={!idEspecieSel}>
-                <option value="">Selecione a raça...</option>
-                {racas.map((r, idx) => (
-                  <option key={`raca-${r.id_raca || idx}`} value={String(r.nome_raca)}>{r.nome_raca}</option>
-                ))}
-              </select>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <div style={{ flex: 1 }}>
+                  <label style={styles.label}>Porte:</label>
+                  <select value={formDados.porte} onChange={e => setFormDados({...formDados, porte: e.target.value})} required style={styles.input}>
+                    <option value="">Selecione...</option>
+                    <option value="PEQUENO">Pequeno</option>
+                    <option value="MEDIO">Médio</option>
+                    <option value="GRANDE">Grande</option>
+                  </select>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={styles.label}>Fase da Vida (Automático):</label>
+                  <select value={formDados.fase_vida} required style={{...styles.input, backgroundColor: '#e9ecef'}} disabled>
+                    <option value="">Selecione a data...</option>
+                    <option value="FILHOTE">Filhote</option>
+                    <option value="ADULTO">Adulto</option>
+                    <option value="IDOSO">Idoso</option>
+                  </select>
+                </div>
+              </div>
 
               <label style={styles.label}>Data de Nascimento:</label>
-              <input type="date" value={formDados.data_nascimento} onChange={e => setFormDados({...formDados, data_nascimento: e.target.value})} required style={styles.input} />
+              <input 
+                type="date" 
+                value={formDados.data_nascimento} 
+                max={hoje}
+                onChange={e => {
+                  const novaData = e.target.value;
+                  setFormDados({
+                    ...formDados, 
+                    data_nascimento: novaData,
+                    fase_vida: calcularFaseVida(novaData)
+                  });
+                }} 
+                required 
+                style={styles.input} 
+              />
 
               <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
                 <button type="submit" style={{ ...styles.btnAcao, flex: 1, margin: 0 }}>{isEdicao ? 'Salvar Alterações' : 'Cadastrar'}</button>

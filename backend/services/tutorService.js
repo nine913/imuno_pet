@@ -8,16 +8,33 @@ async function buscarTutores() {
 }
 
 // Lista tutores com busca por termo (nome/cpf/email)
-async function listarTutores(termo) {
-  const busca = `%${termo}%`;
+async function listarTutores(queryParams) {
+  const termo = queryParams.termo ? `%${queryParams.termo}%` : '%';
+  const id_clinica = queryParams.id_clinica;
 
-  const [tutores] = await db.query(`
-    SELECT t.id_tutor, t.id_usuario, t.nome_completo, t.cpf, t.telefone, t.estado, t.cidade, t.bairro, u.email
+  let sql = `
+    SELECT DISTINCT t.id_tutor, t.id_usuario, t.nome_completo, t.cpf, t.telefone, t.estado, t.cidade, t.bairro, u.email
     FROM tutor t
     JOIN usuario u ON t.id_usuario = u.id_usuario
-    WHERE t.nome_completo LIKE ? OR t.cpf LIKE ? OR u.email LIKE ?
-  `, [busca, busca, busca]);
+  `;
+  
+  const params = [termo, termo, termo];
 
+  if (id_clinica && id_clinica !== 'undefined') {
+    sql += `
+      JOIN animal a ON t.id_tutor = a.id_tutor
+      JOIN registro_vacinacao rv ON a.id_animal = rv.id_animal
+      WHERE (t.nome_completo LIKE ? OR t.cpf LIKE ? OR u.email LIKE ?)
+      AND rv.id_clinica = ?
+    `;
+    params.push(id_clinica);
+  } else {
+    sql += ` WHERE (t.nome_completo LIKE ? OR t.cpf LIKE ? OR u.email LIKE ?)`;
+  }
+
+  sql += ` ORDER BY t.nome_completo ASC`;
+
+  const [tutores] = await db.query(sql, params);
   return tutores;
 }
 

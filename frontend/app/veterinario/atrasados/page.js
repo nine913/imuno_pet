@@ -23,14 +23,20 @@ export default function VetAtrasados() {
       return;
     }
     setUsuario(user);
-    carregarAtrasados();
+    carregarAtrasados(user.id_clinica);
   }, [router]);
 
-  const carregarAtrasados = async () => {
+  const carregarAtrasados = async (id_clinica) => {
     setCarregando(true);
     setErro('');
+    
+    if (!id_clinica) {
+      setCarregando(false);
+      return;
+    }
+
     try {
-      const resposta = await fetch('http://localhost:3000/animais-atrasados');
+      const resposta = await fetch(`http://localhost:3000/animais-atrasados?id_clinica=${id_clinica}`);
       if (resposta.ok) {
         const dados = await resposta.json();
         setAtrasados(dados);
@@ -119,7 +125,8 @@ const styles = {
     borderRadius: '4px',
     cursor: 'pointer',
     fontSize: '16px',
-    marginBottom: '20px'
+    marginBottom: '20px',
+    fontWeight: 'bold'
   },
   atrasadoCard: {
     border: '1px solid #f5c6cb',
@@ -130,7 +137,9 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    color: '#721c24'
+    color: '#721c24',
+    flexWrap: 'wrap',
+    gap: '15px'
   },
   btnContato: {
     backgroundColor: '#28a745',

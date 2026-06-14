@@ -13,17 +13,14 @@ async function buscarTutores(req, res) {
 }
 
 // GET: retorna tutores filtrados por termo (query string)
-async function listarTutores(req, res) {
+const listarTutores = async (req, res) => {
   try {
-    // req.query.termo pode vir da URL; se não existir, usa ''
-    const termo = req.query.termo || '';
-    const tutores = await tutorService.listarTutores(termo);
+    const tutores = await tutorService.listarTutores(req.query);
     res.status(200).json(tutores);
   } catch (error) {
-    res.status(500).json({ erro: 'Erro ao buscar tutores' });
+    res.status(500).json({ erro: 'Erro ao buscar tutores.' });
   }
-}
-
+};
 // PUT: edita dados do tutor (id vem de params e dados vêm do body)
 async function editarTutorDados(req, res) {
   try {
