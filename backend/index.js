@@ -13,13 +13,9 @@ const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 
-// Middleware para permitir CORS
 app.use(cors());
-
-// Converte body JSON para req.body
 app.use(express.json());
 
-// Montagem das rotas baseadas em router (todas sob '/')
 app.use('/', petRoutes);
 app.use('/', tutorRoutes);
 app.use('/', vacinaRoutes);
@@ -27,9 +23,6 @@ app.use('/', governoRoutes);
 app.use('/', gestorRoutes);
 app.use('/admin', adminRoutes);
 
-// ========================
-// Autenticação e cadastro
-// ========================
 app.post('/login', async (req, res) => {
     try {
         const { email, senha } = req.body;
@@ -114,34 +107,27 @@ app.post('/login', async (req, res) => {
 
 app.post('/cadastro', async (req, res) => {
   try {
-    // Dados enviados no body
     const { nome_completo, email, senha, cpf, telefone, estado, cidade, bairro } = req.body;
 
-    // Valida duplicidade de email
     const [usuariosExistentes] = await db.query('SELECT * FROM usuario WHERE email = ?', [email]);
     if (usuariosExistentes.length > 0) {
       return res.status(400).json({ erro: 'E-mail já cadastrado' });
     }
 
-    // Valida duplicidade de CPF para tutor
     const [tutoresExistentes] = await db.query('SELECT * FROM tutor WHERE cpf = ?', [cpf]);
     if (tutoresExistentes.length > 0) {
       return res.status(400).json({ erro: 'CPF já cadastrado' });
     }
 
-    // Gera hash da senha antes de salvar no banco
     const hashSenha = await bcrypt.hash(senha, 10);
 
-    // Cria usuário no banco com perfil fixo 'TUTOR'
     const [resultadoUsuario] = await db.query(
       'INSERT INTO usuario (email, senha, perfil) VALUES (?, ?, ?)',
       [email, hashSenha, 'TUTOR']
     );
 
-    // id do usuário recém-criado (FK para tabela tutor)
     const idUsuario = resultadoUsuario.insertId;
 
-    // Cria registro do tutor relacionado ao usuário
     await db.query(
       'INSERT INTO tutor (id_usuario, nome_completo, cpf, telefone, estado, cidade, bairro) VALUES (?, ?, ?, ?, ?, ?, ?)',
       [idUsuario, nome_completo, cpf, telefone, estado, cidade, bairro]
@@ -179,13 +165,10 @@ app.put('/redefinir-senha', async (req, res) => {
 
 app.delete('/deletar-animal/:id_animal', async (req, res) => {
     try {
-        // id_animal vem da URL (params)
         const { id_animal } = req.params;
 
-        // Remove dependentes primeiro (registro_vacinacao) para evitar inconsistência
         await db.query('DELETE FROM registro_vacinacao WHERE id_animal = ?', [id_animal]);
 
-        // Depois remove o animal em si
         await db.query('DELETE FROM animal WHERE id_animal = ?', [id_animal]);
 
         res.status(200).json({ mensagem: 'Animal excluído com sucesso!' });
@@ -196,39 +179,33 @@ app.delete('/deletar-animal/:id_animal', async (req, res) => {
 
 app.post('/cadastrar-tutor-pet', async (req, res) => {
     try {
-        // Dados enviados no body do POST
         const { 
             nome_completo, cpf, email, senha, telefone, estado, cidade, bairro,
             nome_animal, especie, raca, data_nascimento
         } = req.body;
 
-        // Valida se email já está cadastrado
         const [usuarioExistente] = await db.query('SELECT * FROM usuario WHERE email = ?', [email]);
         if (usuarioExistente.length > 0) {
             return res.status(400).json({ erro: 'E-mail já cadastrado!' });
         }
 
-        // Valida se CPF já está cadastrado para tutor
         const [cpfExistente] = await db.query('SELECT * FROM tutor WHERE cpf = ?', [cpf]);
         if (cpfExistente.length > 0) {
             return res.status(400).json({ erro: 'CPF já cadastrado!' });
         }
 
-        // Cria usuário com perfil "TUTOR"
         const [resultUsuario] = await db.query(
             'INSERT INTO usuario (email, senha, perfil) VALUES (?, ?, "TUTOR")', 
             [email, senha]
         );
         const id_usuario = resultUsuario.insertId;
 
-        // Cria tutor associado ao usuário
         const [resultTutor] = await db.query(
             'INSERT INTO tutor (id_usuario, nome_completo, cpf, telefone, estado, cidade, bairro) VALUES (?, ?, ?, ?, ?, ?, ?)',
             [id_usuario, nome_completo, cpf, telefone, estado, cidade, bairro]
         );
         const id_tutor = resultTutor.insertId;
 
-        // Cria animal associado ao tutor
         await db.query(
             'INSERT INTO animal (id_tutor, nome, especie, raca, data_nascimento) VALUES (?, ?, ?, ?, ?)',
             [id_tutor, nome_animal, especie, raca, data_nascimento]
@@ -242,20 +219,16 @@ app.post('/cadastrar-tutor-pet', async (req, res) => {
 
 app.get('/tutor/animais/:id_usuario', async (req, res) => {
     try {
-        // id_usuario vem da URL (params)
         const { id_usuario } = req.params;
         
-        // Busca o id_tutor equivalente para o id_usuario
         const [tutor] = await db.query('SELECT id_tutor FROM tutor WHERE id_usuario = ?', [id_usuario]);
         
-        // Se não existir tutor para o usuário, retorna 404
         if (tutor.length === 0) {
             return res.status(404).json({ erro: 'Tutor não encontrado' });
         }
         
         const id_tutor = tutor[0].id_tutor;
         
-        // Busca pets (animais) relacionados ao id_tutor
         const [animais] = await db.query(
             'SELECT id_animal, nome, especie, raca, data_nascimento FROM animal WHERE id_tutor = ?', 
             [id_tutor]
@@ -271,10 +244,8 @@ app.get('/animais-atrasados', async (req, res) => {
     try {
         const { id_clinica } = req.query;
         
-        // Data de hoje em formato YYYY-MM-DD (usado no UPDATE/SELECT)
         const hoje = new Date().toISOString().split('T')[0];
 
-        // Atualiza registros pendentes que já passaram do prazo para "ATRASADA"
         await db.query(`
             UPDATE registro_vacinacao 
             SET status = 'ATRASADA' 
@@ -292,14 +263,13 @@ app.get('/animais-atrasados', async (req, res) => {
         `;
         let params = [];
 
-        if (id_clinica) {
+        if (id_clinica && id_clinica !== 'undefined') {
             query += ` AND rv.id_clinica = ?`;
             params.push(id_clinica);
         }
 
         query += ` ORDER BY rv.data_proxima_dose ASC`;
 
-        // Consulta lista de atrasados com joins (vacina/animal/tutor)
         const [atrasados] = await db.query(query, params);
         res.status(200).json(atrasados);
     } catch (error) {
@@ -309,30 +279,24 @@ app.get('/animais-atrasados', async (req, res) => {
 
 app.get('/tutor/alertas/:id_usuario', async (req, res) => {
     try {
-        // id_usuario vem da URL
         const { id_usuario } = req.params;
 
-        // Busca o id_tutor para relacionar os alertas aos pets do tutor
         const [tutor] = await db.query('SELECT id_tutor FROM tutor WHERE id_usuario = ?', [id_usuario]);
         
-        // Se não existir tutor, retorna 404
         if (tutor.length === 0) {
             return res.status(404).json({ erro: 'Tutor não encontrado' });
         }
 
         const id_tutor = tutor[0].id_tutor;
 
-        // Data de hoje para atualização de status
         const hoje = new Date().toISOString().split('T')[0];
         
-        // Atualiza pendentes vencidos para "ATRASADA"
         await db.query(`
             UPDATE registro_vacinacao 
             SET status = 'ATRASADA' 
             WHERE data_proxima_dose < ? AND status = 'PENDENTE'
         `, [hoje]);
 
-        // Consulta alertas (pendente + atrasada) apenas dos animais do tutor
         const [alertas] = await db.query(`
             SELECT v.nome_vacina, rv.data_proxima_dose, rv.status, a.nome as nome_animal
             FROM registro_vacinacao rv
@@ -357,12 +321,11 @@ app.get('/veterinarios', async (req, res) => {
         `;
         let params = [];
 
-        if (id_clinica) {
+        if (id_clinica && id_clinica !== 'undefined') {
             query += ` WHERE id_clinica = ?`;
             params.push(id_clinica);
         }
 
-        // Lista todos os veterinários (id + nome)
         const [veterinarios] = await db.query(query, params);
 
         res.status(200).json(veterinarios);
@@ -382,7 +345,26 @@ app.get('/avisos-ativos', async (req, res) => {
 
 app.get('/tutores', async (req, res) => {
     try {
-        const [tutores] = await db.query('SELECT id_tutor, nome_completo, cpf FROM tutor ORDER BY nome_completo ASC');
+        const { id_clinica } = req.query;
+        
+        let query = `
+            SELECT DISTINCT t.id_tutor, t.nome_completo, t.cpf 
+            FROM tutor t
+        `;
+        let params = [];
+
+        if (id_clinica && id_clinica !== 'undefined') {
+            query += `
+                JOIN animal a ON t.id_tutor = a.id_tutor
+                JOIN registro_vacinacao rv ON a.id_animal = rv.id_animal
+                WHERE rv.id_clinica = ?
+            `;
+            params.push(id_clinica);
+        }
+        
+        query += ` ORDER BY t.nome_completo ASC`;
+
+        const [tutores] = await db.query(query, params);
         res.status(200).json(tutores);
     } catch (error) {
         res.status(500).json({ erro: 'Erro ao buscar tutores.' });
