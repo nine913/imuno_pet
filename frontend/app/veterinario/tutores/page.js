@@ -84,7 +84,7 @@ export default function VetTutores() {
       const resposta = await fetch(`http://localhost:3000/editar-tutor-dados/${editDados.id_tutor}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editDados)
+        body: JSON.stringify({ ...editDados, id_usuario_log: usuario.id_usuario })
       });
       const dados = await resposta.json();
       if (resposta.ok) {
@@ -105,7 +105,9 @@ export default function VetTutores() {
     if (!tutorParaExcluir) return;
     try {
       const resposta = await fetch(`http://localhost:3000/deletar-tutor/${tutorParaExcluir}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id_usuario_log: usuario.id_usuario })
       });
       if (resposta.ok) {
         setModalExclusaoOpen(false);

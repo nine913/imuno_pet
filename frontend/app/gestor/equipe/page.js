@@ -51,9 +51,7 @@ export default function GestorEquipe() {
       } else {
         setEquipe([]);
       }
-    } catch (erro) {
-      console.error(erro);
-    }
+    } catch (erro) {}
   };
 
   const formatarCRMV = (valor) => {
@@ -108,7 +106,8 @@ export default function GestorEquipe() {
       nome_completo: formDados.nome_completo,
       crmv: formDados.crmv,
       email: formDados.email,
-      id_clinica: usuario.id_clinica
+      id_clinica: usuario.id_clinica,
+      id_usuario_log: usuario.id_usuario
     };
 
     let url = 'http://localhost:3000/gestor/cadastrar-vet';
@@ -148,7 +147,9 @@ export default function GestorEquipe() {
     if (!idParaExcluir) return;
     try {
       const resposta = await fetch(`http://localhost:3000/gestor/deletar-vet/${idParaExcluir}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id_usuario_log: usuario.id_usuario })
       });
       if (resposta.ok) {
         fecharModais();

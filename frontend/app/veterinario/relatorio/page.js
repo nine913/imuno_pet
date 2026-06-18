@@ -31,7 +31,7 @@ export default function VetRelatorio() {
     }
     setUsuario(user);
     carregarEspecies();
-    gerarRelatorio(user.id_clinica); 
+    gerarRelatorio(user.id_clinica, user.id_usuario); 
   }, [router]);
 
   const carregarEspecies = async () => {
@@ -45,16 +45,17 @@ export default function VetRelatorio() {
     }
   };
 
-  const gerarRelatorio = async (idClinicaOverride) => {
+  const gerarRelatorio = async (idClinicaOverride, idUserOverride) => {
     setCarregando(true);
     const idClinica = idClinicaOverride || (usuario ? usuario.id_clinica : null);
+    const userId = idUserOverride || (usuario ? usuario.id_usuario : '');
     
     if (!idClinica) {
       setCarregando(false);
       return;
     }
 
-    let url = `http://localhost:3000/relatorio-vacinas?id_clinica=${idClinica}&`;
+    let url = `http://localhost:3000/relatorio-vacinas?id_clinica=${idClinica}&id_usuario_log=${userId}&`;
     if (filtros.data_inicio) url += `inicio=${filtros.data_inicio}&`;
     if (filtros.data_fim) url += `fim=${filtros.data_fim}&`;
     if (filtros.status) url += `status=${filtros.status}&`;

@@ -35,7 +35,7 @@ function HistoricoConteudo() {
     }
     setUsuario(user);
     carregarVacinas();
-    buscarHistorico();
+    buscarHistorico(user.id_usuario);
   }, [idAnimal, router]);
 
   const carregarVacinas = async () => {
@@ -47,10 +47,11 @@ function HistoricoConteudo() {
     }
   };
 
-  const buscarHistorico = async () => {
+  const buscarHistorico = async (idUserOverride) => {
     if (!idAnimal) return;
+    const userId = idUserOverride || (usuario ? usuario.id_usuario : '');
     try {
-      const res = await fetch(`http://localhost:3000/historico-pet/${idAnimal}?termo=${termoBusca}&status=${statusFiltro}`);
+      const res = await fetch(`http://localhost:3000/historico-pet/${idAnimal}?termo=${termoBusca}&status=${statusFiltro}&id_usuario_log=${userId}`);
       if (res.ok) setHistorico(await res.json());
       else setHistorico([]);
     } catch (e) {
@@ -139,7 +140,7 @@ function HistoricoConteudo() {
         data_aplicacao: editDados.status === 'APLICADA' ? editDados.data_aplicacao : null,
         data_proxima_dose: editDados.data_proxima_dose || null,
         status: editDados.status,
-        id_usuario: usuario.id_usuario
+        id_usuario_log: usuario.id_usuario
       };
 
       const res = await fetch(`http://localhost:3000/editar-registro-vacina/${editDados.id_registro}`, {
@@ -160,7 +161,11 @@ function HistoricoConteudo() {
 
   const confirmarExcluir = async () => {
     try {
-      const res = await fetch(`http://localhost:3000/deletar-registro-vacina/${idExcluir}`, { method: 'DELETE' });
+      const res = await fetch(`http://localhost:3000/deletar-registro-vacina/${idExcluir}`, { 
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id_usuario_log: usuario.id_usuario })
+      });
       if (res.ok) { setModalExcluir(false); buscarHistorico(); }
     } catch (e) {
       setMsgEditar({ texto: 'Erro de conexão.', cor: 'red' });
@@ -184,7 +189,7 @@ function HistoricoConteudo() {
               <option value="PENDENTE">Pendente (Agendada)</option>
               <option value="ATRASADA">Atrasada</option>
             </select>
-            <button style={{...styles.btnPesquisar, flex: 1}} onClick={buscarHistorico}>Pesquisar</button>
+            <button style={{...styles.btnPesquisar, flex: 1}} onClick={() => buscarHistorico()}>Pesquisar</button>
           </div>
         </div>
 

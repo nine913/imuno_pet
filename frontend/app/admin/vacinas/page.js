@@ -49,9 +49,7 @@ export default function AdminVacinas() {
       } else {
         setVacinas([]);
       }
-    } catch (erro) {
-      console.error(erro);
-    }
+    } catch (erro) {}
   };
 
   const abrirModalCadastro = () => {
@@ -99,7 +97,8 @@ export default function AdminVacinas() {
 
     const payload = {
       ...formDados,
-      intervalo_doses_dias: formDados.intervalo_doses_dias ? parseInt(formDados.intervalo_doses_dias) : null
+      intervalo_doses_dias: formDados.intervalo_doses_dias ? parseInt(formDados.intervalo_doses_dias) : null,
+      id_usuario_log: usuario.id_usuario
     };
 
     try {
@@ -128,7 +127,9 @@ export default function AdminVacinas() {
     if (!idParaExcluir) return;
     try {
       const resposta = await fetch(`http://localhost:3000/admin/deletar-vacina/${idParaExcluir}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id_usuario_log: usuario.id_usuario })
       });
       if (resposta.ok) {
         fecharModais();

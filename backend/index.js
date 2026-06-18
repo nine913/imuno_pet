@@ -1,8 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
-
 const db = require('./db');
+const logger = require('./services/logger');
 
 const petRoutes = require('./routes/petRoutes');
 const tutorRoutes = require('./routes/tutorRoutes');
@@ -91,6 +91,8 @@ app.post('/login', async (req, res) => {
             }
         }
 
+        await logger.registrarLog(usuario.id_usuario, 'LOGIN', 'Usuário realizou login no sistema.');
+
         res.status(200).json({
             mensagem: 'Login efetuado com sucesso',
             perfil: usuario.perfil,
@@ -102,6 +104,18 @@ app.post('/login', async (req, res) => {
 
     } catch (error) {
         res.status(500).json({ erro: 'Erro interno do servidor' });
+    }
+});
+
+app.post('/logout', async (req, res) => {
+    try {
+        const { id_usuario } = req.body;
+        if (id_usuario) {
+            await logger.registrarLog(id_usuario, 'LOGOUT', 'Usuário saiu do sistema.');
+        }
+        res.status(200).json({ mensagem: 'Logout registrado com sucesso.' });
+    } catch (error) {
+        res.status(500).json({ erro: 'Erro ao registrar logout.' });
     }
 });
 
@@ -133,6 +147,8 @@ app.post('/cadastro', async (req, res) => {
       [idUsuario, nome_completo, cpf, telefone, estado, cidade, bairro]
     );
 
+    await logger.registrarLog(idUsuario, 'CADASTRAR_TUTOR', 'Tutor realizou auto-cadastro no sistema.');
+
     res.status(201).json({ mensagem: 'Cadastro realizado com sucesso!' });
   } catch (error) {
     res.status(500).json({ erro: 'Erro interno do servidor' });
@@ -157,6 +173,8 @@ app.put('/redefinir-senha', async (req, res) => {
 
         await db.query('UPDATE usuario SET senha = ? WHERE email = ?', [hashNovaSenha, email]);
 
+        await logger.registrarLog(usuario[0].id_usuario, 'REDEFINIR_SENHA', 'Usuário redefiniu a senha de acesso.');
+
         res.status(200).json({ mensagem: 'Senha redefinida com sucesso.' });
     } catch (error) {
         res.status(500).json({ erro: 'Erro interno do servidor ao redefinir senha.' });
@@ -166,10 +184,14 @@ app.put('/redefinir-senha', async (req, res) => {
 app.delete('/deletar-animal/:id_animal', async (req, res) => {
     try {
         const { id_animal } = req.params;
+        const { id_usuario_log } = req.body;
 
         await db.query('DELETE FROM registro_vacinacao WHERE id_animal = ?', [id_animal]);
-
         await db.query('DELETE FROM animal WHERE id_animal = ?', [id_animal]);
+
+        if (id_usuario_log) {
+            await logger.registrarLog(id_usuario_log, 'EXCLUIR_ANIMAL', `Animal ID ${id_animal} foi excluído.`);
+        }
 
         res.status(200).json({ mensagem: 'Animal excluído com sucesso!' });
     } catch (error) {
@@ -181,7 +203,7 @@ app.post('/cadastrar-tutor-pet', async (req, res) => {
     try {
         const { 
             nome_completo, cpf, email, senha, telefone, estado, cidade, bairro,
-            nome_animal, especie, raca, data_nascimento
+            nome_animal, especie, raca, data_nascimento, id_usuario_log
         } = req.body;
 
         const [usuarioExistente] = await db.query('SELECT * FROM usuario WHERE email = ?', [email]);
@@ -210,6 +232,10 @@ app.post('/cadastrar-tutor-pet', async (req, res) => {
             'INSERT INTO animal (id_tutor, nome, especie, raca, data_nascimento) VALUES (?, ?, ?, ?, ?)',
             [id_tutor, nome_animal, especie, raca, data_nascimento]
         );
+
+        if (id_usuario_log) {
+            await logger.registrarLog(id_usuario_log, 'CADASTRAR_TUTOR_PET', `Tutor ${nome_completo} e Pet ${nome_animal} cadastrados no sistema.`);
+        }
 
         res.status(201).json({ mensagem: 'Tutor e Pet cadastrados com sucesso!' });
     } catch (error) {

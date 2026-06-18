@@ -43,11 +43,12 @@ export default function GovernoDashboard() {
     const initialFim = '2026-12-31';
     
     setFiltros(prev => ({ ...prev, inicio: initialInicio, fim: initialFim }));
-    carregarDadosOrgao(initialInicio, initialFim, '', '');
+    carregarDadosOrgao(initialInicio, initialFim, '', '', user.id_usuario);
   }, [router]);
 
-  const carregarDadosOrgao = async (inicio, fim, especie, localidade) => {
-    let url = 'http://localhost:3000/governo/dados-epidemiologicos?';
+  const carregarDadosOrgao = async (inicio, fim, especie, localidade, idUsuarioLog) => {
+    const userId = idUsuarioLog || (usuario ? usuario.id_usuario : '');
+    let url = `http://localhost:3000/governo/dados-epidemiologicos?id_usuario_log=${userId}&`;
     if (inicio) url += `inicio=${inicio}&`;
     if (fim) url += `fim=${fim}&`;
     if (especie) url += `especie=${especie}&`;
@@ -88,7 +89,7 @@ export default function GovernoDashboard() {
   };
 
   const handleFiltrar = () => {
-    carregarDadosOrgao(filtros.inicio, filtros.fim, filtros.especie, filtros.localidade);
+    carregarDadosOrgao(filtros.inicio, filtros.fim, filtros.especie, filtros.localidade, usuario?.id_usuario);
   };
 
   useEffect(() => {

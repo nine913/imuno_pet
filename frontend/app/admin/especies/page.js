@@ -53,7 +53,7 @@ export default function AdminEspeciesRacas() {
       const res = await fetch('http://localhost:3000/admin/cadastrar-especie', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome_especie: novaEspecie })
+        body: JSON.stringify({ nome_especie: novaEspecie, id_usuario_log: usuario.id_usuario })
       });
       if (res.ok) {
         setNovaEspecie('');
@@ -73,7 +73,7 @@ export default function AdminEspeciesRacas() {
       const res = await fetch('http://localhost:3000/admin/cadastrar-raca', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formRaca)
+        body: JSON.stringify({ ...formRaca, id_usuario_log: usuario.id_usuario })
       });
       if (res.ok) {
         setFormRaca({ ...formRaca, nome_raca: '' });
@@ -104,7 +104,11 @@ export default function AdminEspeciesRacas() {
         ? `http://localhost:3000/admin/deletar-especie/${itemParaExcluir.id}`
         : `http://localhost:3000/admin/deletar-raca/${itemParaExcluir.id}`;
 
-      const res = await fetch(endpoint, { method: 'DELETE' });
+      const res = await fetch(endpoint, { 
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id_usuario_log: usuario.id_usuario })
+      });
       if (res.ok) {
         carregarDados();
         setModalExclusaoOpen(false);

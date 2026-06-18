@@ -36,7 +36,7 @@ export default function GestorRelatorios() {
     }
     setUsuario(user);
     carregarListasFiltros(user.id_clinica);
-    gerarRelatorio(user.id_clinica);
+    gerarRelatorio(user.id_clinica, user.id_usuario);
   }, [router]);
 
   const carregarListasFiltros = async (idClinica) => {
@@ -61,20 +61,20 @@ export default function GestorRelatorios() {
         setEspeciesLista(await resEsp.json());
       }
 
-    } catch (erro) {
-      console.error("Erro ao carregar filtros:", erro);
-    }
+    } catch (erro) {}
   };
 
-  const gerarRelatorio = async (idClinicaOverride) => {
+  const gerarRelatorio = async (idClinicaOverride, idUserOverride) => {
     setCarregando(true);
     const idClinica = idClinicaOverride || (usuario ? usuario.id_clinica : null);
+    const userId = idUserOverride || (usuario ? usuario.id_usuario : '');
+
     if (!idClinica) {
         setCarregando(false);
         return;
     }
 
-    let url = `http://localhost:3000/gestor/relatorios-avancados?id_clinica=${idClinica}&`;
+    let url = `http://localhost:3000/gestor/relatorios-avancados?id_clinica=${idClinica}&id_usuario_log=${userId}&`;
     if (filtros.data_inicio) url += `inicio=${filtros.data_inicio}&`;
     if (filtros.data_fim) url += `fim=${filtros.data_fim}&`;
     if (filtros.vacina) url += `vacina=${filtros.vacina}&`;
@@ -91,7 +91,6 @@ export default function GestorRelatorios() {
         setDadosRelatorio([]);
       }
     } catch (erro) {
-      console.error(erro);
       setDadosRelatorio([]);
     } finally {
       setCarregando(false);

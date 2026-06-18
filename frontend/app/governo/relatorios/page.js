@@ -34,7 +34,7 @@ export default function GovernoRelatorios() {
     }
     setUsuario(user);
     carregarFiltrosAPI();
-    gerarRelatorio();
+    gerarRelatorio(user.id_usuario);
   }, [router]);
 
   const carregarFiltrosAPI = async () => {
@@ -53,9 +53,10 @@ export default function GovernoRelatorios() {
     }
   };
 
-  const gerarRelatorio = async () => {
+  const gerarRelatorio = async (idUserOverride) => {
+    const userId = idUserOverride || (usuario ? usuario.id_usuario : '');
     setCarregando(true);
-    let url = 'http://localhost:3000/governo/relatorios-avancados?';
+    let url = `http://localhost:3000/governo/relatorios-avancados?id_usuario_log=${userId}&`;
     if (filtros.data_inicio) url += `inicio=${filtros.data_inicio}&`;
     if (filtros.data_fim) url += `fim=${filtros.data_fim}&`;
     if (filtros.vacina) url += `vacina=${filtros.vacina}&`;
@@ -171,7 +172,7 @@ export default function GovernoRelatorios() {
               <label style={styles.label}>Localidade (Bairro):</label>
               <input type="text" value={filtros.bairro} onChange={e => handleChangeFiltro('bairro', e.target.value)} placeholder="Ex: Centro" style={styles.input} />
             </div>
-            <button style={{ ...styles.button, backgroundColor: '#0056b3', height: '38px', marginBottom: '1px' }} onClick={gerarRelatorio}>
+            <button style={{ ...styles.button, backgroundColor: '#0056b3', height: '38px', marginBottom: '1px' }} onClick={() => gerarRelatorio()}>
               Gerar Relatório
             </button>
           </div>
@@ -238,6 +239,6 @@ const styles = {
   label: { display: 'block', marginBottom: '5px', fontSize: '14px', fontWeight: 'bold', color: '#333' },
   input: { padding: '10px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box', width: '100%', color: '#333' },
   tabela: { width: '100%', borderCollapse: 'collapse', marginTop: '20px', fontSize: '14px' },
-  th: { border: '1px solid #ddd', padding: '10px', textAlign: 'left', backgroundColor: '#0056b3', color: 'white' },
+  th: { border: '1px solid #ddd', padding: '10px', textAlign: 'left', backgroundColor: '#fd7e14', color: 'white' },
   td: { border: '1px solid #ddd', padding: '10px', textAlign: 'left' }
 };

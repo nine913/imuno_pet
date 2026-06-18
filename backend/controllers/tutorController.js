@@ -1,18 +1,15 @@
-const tutorService = require('../services/tutorService'); // Service com regras/queries do Tutor
+const tutorService = require('../services/tutorService');
+const logger = require('../services/logger');
 
-// GET: retorna todos os tutores
 async function buscarTutores(req, res) {
   try {
-    // Este endpoint não usa filtros: chama o service diretamente
     const tutores = await tutorService.buscarTutores();
     res.status(200).json(tutores);
   } catch (error) {
-    // Erro genérico de busca
     res.status(500).json({ erro: 'Erro ao buscar tutores' });
   }
 }
 
-// GET: retorna tutores filtrados por termo (query string)
 const listarTutores = async (req, res) => {
   try {
     const tutores = await tutorService.listarTutores(req.query);
@@ -21,40 +18,49 @@ const listarTutores = async (req, res) => {
     res.status(500).json({ erro: 'Erro ao buscar tutores.' });
   }
 };
-// PUT: edita dados do tutor (id vem de params e dados vêm do body)
+
 async function editarTutorDados(req, res) {
   try {
-    // req.params.id_tutor: id da rota
-    // req.body: novos campos do tutor
+    const id_usuario_log = req.body.id_usuario_log || req.query.id_usuario_log;
     await tutorService.editarTutorDados(req.params.id_tutor, req.body);
+    
+    if (id_usuario_log) {
+      await logger.registrarLog(id_usuario_log, 'EDITAR_TUTOR', `Dados do tutor ID ${req.params.id_tutor} atualizados.`);
+    }
     res.status(200).json({ mensagem: 'Dados do tutor atualizados com sucesso!' });
   } catch (error) {
     res.status(500).json({ erro: 'Erro ao atualizar tutor' });
   }
 }
 
-// DELETE: remove tutor (id vem de params)
 async function deletarTutor(req, res) {
   try {
+    const id_usuario_log = req.body.id_usuario_log || req.query.id_usuario_log;
     await tutorService.deletarTutor(req.params.id_tutor);
+
+    if (id_usuario_log) {
+      await logger.registrarLog(id_usuario_log, 'EXCLUIR_TUTOR', `Tutor ID ${req.params.id_tutor} excluído.`);
+    }
     res.status(200).json({ mensagem: 'Tutor excluído com sucesso!' });
   } catch (error) {
-    // Se o error tiver status/message vindos do service, usa; senão, fallback
     res.status(error.status || 500).json({ erro: error.message || 'Erro ao excluir tutor' });
   }
 }
 
-// POST: cadastra tutor e pet (dados vêm do body)
 async function cadastrarTutorPet(req, res) {
   try {
+    const id_usuario_log = req.body.id_usuario_log || req.query.id_usuario_log;
     await tutorService.cadastrarTutorPet(req.body);
+
+    if (id_usuario_log) {
+      await logger.registrarLog(id_usuario_log, 'CADASTRAR_TUTOR_PET', 'Novo tutor e pet cadastrados via admin/gestão.');
+    }
     res.status(201).json({ mensagem: 'Tutor e Pet cadastrados com sucesso!' });
   } catch (error) {
     res.status(error.status || 500).json({ erro: error.message || 'Erro ao cadastrar tutor e pet no sistema.' });
   }
 }
 
-// GET: lista animais de um tutor usando id_usuario (params)
 async function getTutorAnimais(req, res) {
   try {
     const animais = await tutorService.getTutorAnimais(req.params.id_usuario);
@@ -64,7 +70,6 @@ async function getTutorAnimais(req, res) {
   }
 }
 
-// GET: lista alertas de vacinação para um tutor usando id_usuario (params)
 async function getTutorAlertas(req, res) {
   try {
     const alertas = await tutorService.getTutorAlertas(req.params.id_usuario);

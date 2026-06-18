@@ -124,7 +124,7 @@ export default function CadastrarTutor() {
       const res = await fetch('http://localhost:3000/cadastrar-tutor', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formDados)
+        body: JSON.stringify({ ...formDados, id_usuario_log: usuario.id_usuario })
       });
       const dados = await res.json();
       if (res.ok) {

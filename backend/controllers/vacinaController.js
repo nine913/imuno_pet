@@ -1,32 +1,36 @@
-const vacinaService = require('../services/vacinaService'); // Service com regras/queries do módulo Vacina
+const vacinaService = require('../services/vacinaService');
+const logger = require('../services/logger');
 
-// POST: registra um novo registro de vacinação (dados no body)
 async function registrarVacina(req, res) {
   try {
-    // req.body: campos da vacinação/registro
+    const id_usuario_log = req.body.id_usuario_log || req.query.id_usuario_log;
     await vacinaService.registrarVacina(req.body);
-    // 201 = criado com sucesso
+
+    if (id_usuario_log) {
+      await logger.registrarLog(id_usuario_log, 'APLICAR_VACINA', `Vacina registrada para o paciente ID ${req.body.id_animal}.`);
+    }
     res.status(201).json({ mensagem: 'Vacina registrada com sucesso' });
   } catch (error) {
-    // Se existir status no erro, usa; senão, 500
     res.status(error.status || 500).json({ erro: error.message || 'Erro ao registrar vacina' });
   }
 }
 
-// POST: cadastra uma vacina (dados no body)
 async function cadastrarVacina(req, res) {
   try {
+    const id_usuario_log = req.body.id_usuario_log || req.query.id_usuario_log;
     await vacinaService.cadastrarVacina(req.body);
+
+    if (id_usuario_log) {
+      await logger.registrarLog(id_usuario_log, 'CADASTRAR_VACINA', `Vacina do fabricante ${req.body.fabricante} adicionada ao sistema.`);
+    }
     res.status(201).json({ mensagem: 'Vacina cadastrada com sucesso!' });
   } catch (error) {
     res.status(error.status || 500).json({ erro: error.message || 'Erro ao cadastrar vacina' });
   }
 }
 
-// GET: busca lista de vacinas (filtros via query)
 async function buscarVacinas(req, res) {
   try {
-    // req.query: filtros opcionais para buscar vacinas
     const vacinas = await vacinaService.buscarVacinas(req.query);
     res.status(200).json(vacinas);
   } catch (error) {
@@ -34,72 +38,98 @@ async function buscarVacinas(req, res) {
   }
 }
 
-// PUT: atualiza uma vacina pelo id (id em params, dados no body)
 async function editarVacina(req, res) {
   try {
-    // req.params.id_vacina: id da vacina
-    // req.body: novos dados
+    const id_usuario_log = req.body.id_usuario_log || req.query.id_usuario_log;
     await vacinaService.editarVacina(req.params.id_vacina, req.body);
+
+    if (id_usuario_log) {
+      await logger.registrarLog(id_usuario_log, 'EDITAR_VACINA', `Dados da vacina ID ${req.params.id_vacina} atualizados.`);
+    }
     res.status(200).json({ mensagem: 'Vacina atualizada com sucesso!' });
   } catch (error) {
     res.status(error.status || 500).json({ erro: error.message || 'Erro ao atualizar vacina' });
   }
 }
 
-// DELETE: remove vacina pelo id (id em params)
 async function deletarVacina(req, res) {
   try {
+    const id_usuario_log = req.body.id_usuario_log || req.query.id_usuario_log;
     await vacinaService.deletarVacina(req.params.id_vacina);
+
+    if (id_usuario_log) {
+      await logger.registrarLog(id_usuario_log, 'EXCLUIR_VACINA', `Vacina ID ${req.params.id_vacina} excluída.`);
+    }
     res.status(200).json({ mensagem: 'Vacina excluída com sucesso!' });
   } catch (error) {
     res.status(error.status || 500).json({ erro: error.message || 'Erro ao excluir vacina' });
   }
 }
 
-// GET: histórico de vacinação de um pet (id_animal em params + filtros na query)
 async function historicoPet(req, res) {
   try {
+    const { id_usuario_log } = req.query;
     const historico = await vacinaService.historicoPet(req.params.id_animal, req.query);
+
+    if (id_usuario_log) {
+      await logger.registrarLog(id_usuario_log, 'EMITIR_CARTEIRA', `Histórico/Carteira do animal ID ${req.params.id_animal} acessada.`);
+    }
     res.status(200).json(historico);
   } catch (error) {
     res.status(error.status || 500).json({ erro: error.message || 'Erro ao buscar historico' });
   }
 }
 
-// DELETE: remove um registro de vacinação pelo id (id_registro em params)
 async function deletarRegistroVacina(req, res) {
   try {
+    const id_usuario_log = req.body.id_usuario_log || req.query.id_usuario_log;
     await vacinaService.deletarRegistroVacina(req.params.id_registro);
+
+    if (id_usuario_log) {
+      await logger.registrarLog(id_usuario_log, 'EXCLUIR_REGISTRO_VACINA', `Aplicação ID ${req.params.id_registro} deletada.`);
+    }
     res.status(200).json({ mensagem: 'Registro de vacina excluído com sucesso!' });
   } catch (error) {
     res.status(error.status || 500).json({ erro: error.message || 'Erro ao excluir registro de vacina' });
   }
 }
 
-// GET: relatório detalhado de vacinas (filtros na query)
 async function relatorioVacinas(req, res) {
   try {
+    const { id_usuario_log } = req.query;
     const relatorio = await vacinaService.relatorioVacinas(req.query);
+
+    if (id_usuario_log) {
+      await logger.registrarLog(id_usuario_log, 'EMITIR_RELATORIO', 'Relatório detalhado de vacinação gerado.');
+    }
     res.status(200).json(relatorio);
   } catch (error) {
     res.status(error.status || 500).json({ erro: error.message || 'Erro ao gerar relatório detalhado' });
   }
 }
 
-// PUT: edita um registro de vacinação (id_registro em params, dados no body)
 async function editarRegistroVacina(req, res) {
   try {
+    const id_usuario_log = req.body.id_usuario_log || req.query.id_usuario_log;
     await vacinaService.editarRegistroVacina(req.params.id_registro, req.body);
+
+    if (id_usuario_log) {
+      await logger.registrarLog(id_usuario_log, 'EDITAR_REGISTRO_VACINA', `Aplicação ID ${req.params.id_registro} alterada.`);
+    }
     res.status(200).json({ mensagem: 'Registro de vacina atualizado com sucesso!' });
   } catch (error) {
     res.status(error.status || 500).json({ erro: error.message || 'Erro ao atualizar registro de vacina' });
   }
 }
 
-// GET: lista animais com vacinas atrasadas (sem params)
 async function animaisAtrasados(req, res) {
   try {
+    const { id_usuario_log } = req.query;
     const atrasados = await vacinaService.animaisAtrasados(req.query);
+
+    if (id_usuario_log) {
+      await logger.registrarLog(id_usuario_log, 'GERAR_RELATORIO', 'Relatório de animais em atraso gerado.');
+    }
     res.status(200).json(atrasados);
   } catch (error) {
     res.status(error.status || 500).json({ erro: error.message || 'Erro ao buscar vacinas atrasadas' });

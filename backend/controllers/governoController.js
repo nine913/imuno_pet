@@ -1,14 +1,16 @@
-const governoService = require('../services/governoService'); // Service com regras/consultas do governo
+const governoService = require('../services/governoService');
+const logger = require('../services/logger');
 
 async function dadosEpidemiologicos(req, res) {
   try {
-    // req.query: filtros/parâmetros enviados na URL (ex: /... ?inicio=...&fim=...)
+    const { id_usuario_log } = req.query;
     const resultado = await governoService.dadosEpidemiologicos(req.query);
 
-    // 200 = retorno com os dados epidemiológicos
+    if (id_usuario_log) {
+      await logger.registrarLog(id_usuario_log, 'VISUALIZAR_DASHBOARD', 'Acessou mapa epidemiológico.');
+    }
     res.status(200).json(resultado);
   } catch (error) {
-    // Usa status do erro se existir, senão 500 (erro interno)
     res.status(error.status || 500).json({
       erro: error.message || 'Erro ao buscar dados epidemiologicos'
     });
@@ -17,13 +19,14 @@ async function dadosEpidemiologicos(req, res) {
 
 async function relatoriosAvancados(req, res) {
   try {
-    // req.query: filtros/parâmetros para o relatório
+    const { id_usuario_log } = req.query;
     const resultado = await governoService.relatoriosAvancados(req.query);
 
-    // 200 = retorno com os dados do relatório
+    if (id_usuario_log) {
+      await logger.registrarLog(id_usuario_log, 'EMITIR_RELATORIO', 'Emissão de relatório cruzado de zoonoses.');
+    }
     res.status(200).json(resultado);
   } catch (error) {
-    // 500 fallback + mensagem padrão caso error.message não exista
     res.status(error.status || 500).json({
       erro: error.message || 'Erro ao gerar relatorio avancado do governo'
     });

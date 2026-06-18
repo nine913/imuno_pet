@@ -45,9 +45,7 @@ export default function AdminAvisos() {
       if (resposta.ok) {
         setAvisos(await resposta.json());
       }
-    } catch (erro) {
-      console.error(erro);
-    }
+    } catch (erro) {}
   };
 
   const abrirModalCadastro = () => {
@@ -75,6 +73,8 @@ export default function AdminAvisos() {
     let url = 'http://localhost:3000/admin/cadastrar-aviso';
     let metodo = 'POST';
 
+    const payload = { ...formDados, id_usuario_log: usuario.id_usuario };
+
     if (isEdicao) {
       url = `http://localhost:3000/admin/editar-aviso/${formDados.id_aviso}`;
       metodo = 'PUT';
@@ -84,7 +84,7 @@ export default function AdminAvisos() {
       const resposta = await fetch(url, {
         method: metodo,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formDados)
+        body: JSON.stringify(payload)
       });
       const dados = await resposta.json();
 
@@ -105,14 +105,17 @@ export default function AdminAvisos() {
   const confirmarExclusao = async () => {
     if (!avisoParaExcluir) return;
     try {
-      const res = await fetch(`http://localhost:3000/admin/deletar-aviso/${avisoParaExcluir}`, { method: 'DELETE' });
+      const res = await fetch(`http://localhost:3000/admin/deletar-aviso/${avisoParaExcluir}`, { 
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id_usuario_log: usuario.id_usuario })
+      });
       if (res.ok) {
         setModalExclusaoOpen(false);
         setAvisoParaExcluir(null);
         buscarAvisos();
       }
     } catch (error) {
-      alert('Erro ao excluir aviso.');
       setModalExclusaoOpen(false);
     }
   };

@@ -213,7 +213,7 @@ export default function BuscarAnimal() {
       const res = await fetch(url, {
         method: metodo,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formDados)
+        body: JSON.stringify({ ...formDados, id_usuario_log: usuario.id_usuario }) 
       });
       const dados = await res.json();
 
@@ -240,7 +240,9 @@ export default function BuscarAnimal() {
     if (!animalToDelete) return;
     try {
       const res = await fetch(`http://localhost:3000/deletar-animal/${animalToDelete.id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id_usuario_log: usuario.id_usuario })
       });
       if (res.ok) {
         setModalDeleteOpen(false);

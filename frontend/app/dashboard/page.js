@@ -24,14 +24,27 @@ export default function Dashboard() {
     }
   }, [router]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    const usuarioString = localStorage.getItem('usuarioImunoPet');
+    
+    if (usuarioString) {
+      const user = JSON.parse(usuarioString);
+      try {
+        await fetch('http://localhost:3000/logout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id_usuario: user.id_usuario })
+        });
+      } catch (error) {
+      }
+    }
+
     localStorage.removeItem('usuarioImunoPet');
     router.push('/');
   };
 
-  if (!isMounted || !usuario) {
-    return null;
-  }
+  // A TRAVA DE SEGURANÇA AQUI:
+  if (!isMounted || !usuario) return <div style={{ textAlign: 'center', marginTop: '50px', fontSize: '18px' }}>Carregando painel...</div>;
 
   const perfilUsuario = usuario.perfil.toUpperCase();
   const nomeExibicao = usuario.nome_completo || usuario.nome || 'Usuário';

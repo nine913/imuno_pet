@@ -50,9 +50,7 @@ export default function AdminClinicas() {
       } else {
         setClinicas([]);
       }
-    } catch (erro) {
-      console.error(erro);
-    }
+    } catch (erro) {}
   };
 
   const handleCNPJChange = (e) => {
@@ -120,6 +118,8 @@ export default function AdminClinicas() {
     let url = 'http://localhost:3000/admin/cadastrar-clinica';
     let metodo = 'POST';
 
+    const payload = { ...formDados, id_usuario_log: usuario.id_usuario };
+
     if (isEdicao) {
       url = `http://localhost:3000/admin/editar-clinica/${formDados.id_clinica}`;
       metodo = 'PUT';
@@ -129,7 +129,7 @@ export default function AdminClinicas() {
       const resposta = await fetch(url, {
         method: metodo,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formDados)
+        body: JSON.stringify(payload)
       });
       const dados = await resposta.json();
 
@@ -151,7 +151,9 @@ export default function AdminClinicas() {
     if (!idParaExcluir) return;
     try {
       const resposta = await fetch(`http://localhost:3000/admin/deletar-clinica/${idParaExcluir}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id_usuario_log: usuario.id_usuario })
       });
       if (resposta.ok) {
         fecharModais();
@@ -162,7 +164,6 @@ export default function AdminClinicas() {
         fecharModais();
       }
     } catch (erro) {
-      alert('Erro de conexão.');
       fecharModais();
     }
   };

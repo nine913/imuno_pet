@@ -127,7 +127,8 @@ function FormularioVacina() {
         id_usuario: usuario.id_usuario,
         data_aplicacao: formDados.status === 'APLICADA' ? formDados.data_aplicacao : null,
         data_proxima_dose: formDados.data_proxima_dose,
-        status: formDados.status
+        status: formDados.status,
+        id_usuario_log: usuario.id_usuario 
       };
 
       const res = await fetch('http://localhost:3000/registrar-vacina', {
@@ -159,9 +160,9 @@ function FormularioVacina() {
 
       {animal && (
         <div style={styles.infoCard}>
-          <p style={{ margin: '5px 0' }}><strong>Paciente:</strong> {animal.nome_animal}</p>
-          <p style={{ margin: '5px 0' }}><strong>Espécie:</strong> {animal.especie} | <strong>Raça:</strong> {animal.raca || 'Não informada'}</p>
-          <p style={{ margin: '5px 0' }}><strong>Tutor Responsável:</strong> {animal.nome_tutor}</p>
+          <p style={{ margin: '5px 0', color: '#333' }}><strong>Paciente:</strong> {animal.nome_animal}</p>
+          <p style={{ margin: '5px 0', color: '#333' }}><strong>Espécie:</strong> {animal.especie} | <strong>Raça:</strong> {animal.raca || 'Não informada'}</p>
+          <p style={{ margin: '5px 0', color: '#333' }}><strong>Tutor Responsável:</strong> {animal.nome_tutor}</p>
         </div>
       )}
 
@@ -245,7 +246,7 @@ const styles = {
   aplicanteBox: { backgroundColor: '#cce5ff', padding: '10px', borderRadius: '4px', marginBottom: '15px', border: '1px solid #b8daff' },
   formContainer: { display: 'flex', flexDirection: 'column' },
   btnVoltar: { backgroundColor: '#6c757d', color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', marginBottom: '20px' },
-  input: { width: '100%', padding: '10px', margin: '8px 0 15px 0', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box' },
+  input: { width: '100%', padding: '10px', margin: '8px 0 15px 0', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box', color: '#333' },
   label: { fontWeight: 'bold', color: '#333', fontSize: '14px' },
   btnAcao: { backgroundColor: '#28a745', color: 'white', border: 'none', padding: '15px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: '16px', marginTop: '10px' }
 };

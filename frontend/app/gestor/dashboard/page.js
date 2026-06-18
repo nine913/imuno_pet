@@ -41,7 +41,7 @@ export default function GestorDashboard() {
     setFiltros({ inicio: initialInicio, fim: initialFim });
 
     carregarClinica(user.id_clinica);
-    carregarDadosGestor(initialInicio, initialFim, user.id_clinica);
+    carregarDadosGestor(initialInicio, initialFim, user.id_clinica, user.id_usuario);
   }, [router]);
 
   const carregarClinica = async (id_clinica) => {
@@ -52,16 +52,15 @@ export default function GestorDashboard() {
         const dados = await resposta.json();
         setClinica(dados);
       }
-    } catch (erro) {
-      console.error("Erro ao carregar dados da clínica:", erro);
-    }
+    } catch (erro) {}
   };
 
-  const carregarDadosGestor = async (inicio, fim, idClinica) => {
+  const carregarDadosGestor = async (inicio, fim, idClinica, idUserOverride) => {
     const targetClinica = idClinica || (usuario ? usuario.id_clinica : null);
+    const userId = idUserOverride || (usuario ? usuario.id_usuario : '');
     if (!targetClinica) return;
 
-    let url = `http://localhost:3000/gestor/dados-dashboard?id_clinica=${targetClinica}&`;
+    let url = `http://localhost:3000/gestor/dados-dashboard?id_clinica=${targetClinica}&id_usuario_log=${userId}&`;
     if (inicio) url += `inicio=${inicio}&`;
     if (fim) url += `fim=${fim}`;
 
@@ -74,13 +73,11 @@ export default function GestorDashboard() {
         setChartDataVacinas(dados.vacinasAplicadas || []);
         setChartDataVet(dados.aplicacoesVet || []);
       }
-    } catch (erro) {
-      console.error("Erro ao carregar dashboard:", erro);
-    }
+    } catch (erro) {}
   };
 
   const handleFiltrar = () => {
-    carregarDadosGestor(filtros.inicio, filtros.fim, usuario?.id_clinica);
+    carregarDadosGestor(filtros.inicio, filtros.fim, usuario?.id_clinica, usuario?.id_usuario);
   };
 
   useEffect(() => {

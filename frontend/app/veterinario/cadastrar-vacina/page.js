@@ -52,7 +52,8 @@ export default function VetCadastrarVacina() {
       nome_vacina: form.nome_vacina,
       doencas_prevenidas: form.doencas_prevenidas,
       fabricante: form.fabricante,
-      intervalo_doses_dias: form.tipo_dose === 'intervalo' ? form.intervalo_doses_dias : 0
+      intervalo_doses_dias: form.tipo_dose === 'intervalo' ? form.intervalo_doses_dias : 0,
+      id_usuario_log: usuario.id_usuario
     };
 
     try {

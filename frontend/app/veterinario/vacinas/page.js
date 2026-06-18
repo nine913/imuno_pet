@@ -43,9 +43,7 @@ export default function VetVacinas() {
       } else {
         setVacinas([]);
       }
-    } catch (erro) {
-      console.error(erro);
-    }
+    } catch (erro) {}
   };
 
   const abrirModalEditar = (vacina) => {
@@ -82,7 +80,8 @@ export default function VetVacinas() {
       nome_vacina: editDados.nome_vacina,
       doencas_prevenidas: editDados.doencas_prevenidas,
       fabricante: editDados.fabricante,
-      intervalo_doses_dias: editDados.tipo_dose === 'intervalo' ? editDados.intervalo_doses_dias : 0
+      intervalo_doses_dias: editDados.tipo_dose === 'intervalo' ? editDados.intervalo_doses_dias : 0,
+      id_usuario_log: usuario.id_usuario
     };
 
     try {
@@ -110,15 +109,15 @@ export default function VetVacinas() {
     if (!vacinaParaExcluir) return;
     try {
       const resposta = await fetch(`http://localhost:3000/deletar-vacina/${vacinaParaExcluir}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id_usuario_log: usuario.id_usuario })
       });
       if (resposta.ok) {
         setModalExclusaoOpen(false);
         realizarBusca();
       }
-    } catch (erro) {
-      console.error(erro);
-    }
+    } catch (erro) {}
   };
 
   if (!usuario) return null;
@@ -129,7 +128,7 @@ export default function VetVacinas() {
         <button style={styles.btnVoltar} onClick={() => router.push('/dashboard')}>Voltar ao Painel</button>
         
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h2 style={{ margin: 0, color: '#000000' }}>Consultar Vacinas</h2>
+          <h2 style={{ margin: '0', color: '#000000' }}>Consultar Vacinas</h2>
           <button style={{ backgroundColor: '#28a745', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }} onClick={() => router.push('/veterinario/cadastrar-vacina')}>
             + Cadastrar Nova Vacina
           </button>

@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 export default function AdminGoverno() {
   const router = useRouter();
 
-  // Correção do linter aplicada aqui
   const [usuario, setUsuario] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('usuarioImunoPet');
@@ -108,7 +107,7 @@ export default function AdminGoverno() {
       const resposta = await fetch(url, {
         method: metodo,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formDados)
+        body: JSON.stringify({ ...formDados, id_usuario_log: usuario.id_usuario })
       });
       const dados = await resposta.json();
 
@@ -130,7 +129,9 @@ export default function AdminGoverno() {
     if (!idParaExcluir) return;
     try {
       const resposta = await fetch(`http://localhost:3000/admin/deletar-orgao/${idParaExcluir}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id_usuario_log: usuario.id_usuario })
       });
       if (resposta.ok) {
         fecharModais();

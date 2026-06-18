@@ -22,34 +22,35 @@ function HistoricoConteudo() {
       router.push('/');
       return;
     }
-    setUsuario(JSON.parse(usuarioString));
+    const user = JSON.parse(usuarioString);
+    setUsuario(user);
 
     if (!idAnimalUrl) {
       router.push('/tutor/animais');
       return;
     }
 
-    carregarDetalhesPet();
-    carregarHistoricoTutor('', '');
+    carregarDetalhesPet(user.id_usuario);
+    carregarHistoricoTutor(user.id_usuario, '', '');
   }, [idAnimalUrl, router]);
 
-  const carregarDetalhesPet = async () => {
+  const carregarDetalhesPet = async (userId) => {
+    const id = userId || usuario?.id_usuario;
     try {
-      const resposta = await fetch(`http://localhost:3000/detalhes-animal/${idAnimalUrl}`);
+      const resposta = await fetch(`http://localhost:3000/detalhes-animal/${idAnimalUrl}?id_usuario_log=${id}`);
       if (resposta.ok) {
         const dados = await resposta.json();
         setNomeAnimal(dados.nome_animal);
       }
-    } catch (erro) {
-      console.error(erro);
-    }
+    } catch (erro) {}
   };
 
-  const carregarHistoricoTutor = async (termo = termoBusca, status = statusFiltro) => {
+  const carregarHistoricoTutor = async (idUserOverride, termo = termoBusca, status = statusFiltro) => {
     setCarregando(true);
     setErro('');
+    const userId = idUserOverride || (usuario ? usuario.id_usuario : '');
     try {
-      const resposta = await fetch(`http://localhost:3000/historico-pet/${idAnimalUrl}?termo=${termo}&status=${status}`);
+      const resposta = await fetch(`http://localhost:3000/historico-pet/${idAnimalUrl}?termo=${termo}&status=${status}&id_usuario_log=${userId}`);
       if (resposta.ok) {
         const dados = await resposta.json();
         setHistorico(dados);
@@ -64,7 +65,7 @@ function HistoricoConteudo() {
   };
 
   const handleBuscar = () => {
-    carregarHistoricoTutor(termoBusca, statusFiltro);
+    carregarHistoricoTutor(usuario.id_usuario, termoBusca, statusFiltro);
   };
 
   const baixarCarteirinhaPDF = async () => {

@@ -30,24 +30,35 @@ export default function AdminDashboard() {
       if (usuario.perfil.toUpperCase() !== 'ADMINISTRADOR') {
         router.push('/dashboard');
       } else {
-        carregarEstatisticas();
+        carregarEstatisticas(usuario.id_usuario);
       }
     }
   }, [usuario, router]);
 
-  const carregarEstatisticas = async () => {
+  const carregarEstatisticas = async (userId) => {
     try {
-      const resposta = await fetch('http://localhost:3000/admin/estatisticas');
+      const resposta = await fetch(`http://localhost:3000/admin/estatisticas?id_usuario_log=${userId}`);
       if (resposta.ok) {
         const dados = await resposta.json();
         setEstatisticas(dados);
       }
-    } catch (erro) {
-      console.error(erro);
-    }
+    } catch (erro) {}
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    const usuarioString = localStorage.getItem('usuarioImunoPet');
+    
+    if (usuarioString) {
+      const user = JSON.parse(usuarioString);
+      try {
+        await fetch('http://localhost:3000/logout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id_usuario: user.id_usuario })
+        });
+      } catch (error) {}
+    }
+
     localStorage.removeItem('usuarioImunoPet');
     router.push('/');
   };

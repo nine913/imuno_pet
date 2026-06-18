@@ -112,7 +112,7 @@ export default function AdminGestores() {
       const resposta = await fetch(url, {
         method: metodo,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formDados)
+        body: JSON.stringify({ ...formDados, id_usuario_log: usuario.id_usuario })
       });
       const dados = await resposta.json();
 
@@ -134,7 +134,9 @@ export default function AdminGestores() {
     if (!idParaExcluir) return;
     try {
       const resposta = await fetch(`http://localhost:3000/admin/deletar-gestor/${idParaExcluir}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id_usuario_log: usuario.id_usuario })
       });
       if (resposta.ok) {
         fecharModais();
