@@ -789,3 +789,152 @@ describe('TEST-ADM-028 - deletarRaca() existente', () => {
    });
 
 });
+
+describe('TEST-ADM-029 - listarAvisos()', () => {
+
+   it('Deve listar todos os avisos', async () => {
+  const mockAvisos = [
+    {
+      id_aviso: 1,
+      titulo: 'Manutenção',
+      mensagem: 'Sistema em manutenção'
+    }
+  ];
+
+  db.query.mockResolvedValue([mockAvisos]);
+
+  const resultado = await adminService.listarAvisos();
+
+  expect(db.query).toHaveBeenCalledWith(
+    'SELECT * FROM aviso ORDER BY data_criacao DESC'
+  );
+
+  expect(resultado).toEqual(mockAvisos);
+   });
+
+});
+
+describe('TEST-ADM-030 - cadastrarAviso() com tipo informado', () => {
+
+   it('Deve cadastrar aviso com tipo informado', async () => {
+  const dados = {
+    titulo: 'Alerta',
+    mensagem: 'Mensagem importante',
+    tipo: 'ALERTA'
+  };
+
+  db.query.mockResolvedValue([{}]);
+
+  await adminService.cadastrarAviso(dados);
+
+  expect(db.query).toHaveBeenCalledWith(
+    'INSERT INTO aviso (titulo, mensagem, tipo) VALUES (?, ?, ?)',
+    [
+      'Alerta',
+      'Mensagem importante',
+      'ALERTA'
+    ]
+  );
+   });
+
+});
+
+describe('TEST-ADM-031 - cadastrarAviso() sem tipo informado', () => {
+
+   it('Deve cadastrar aviso utilizando o tipo padrão INFO', async () => {
+  const dados = {
+    titulo: 'Comunicado',
+    mensagem: 'Mensagem padrão'
+  };
+
+  db.query.mockResolvedValue([{}]);
+
+  await adminService.cadastrarAviso(dados);
+
+  expect(db.query).toHaveBeenCalledWith(
+    'INSERT INTO aviso (titulo, mensagem, tipo) VALUES (?, ?, ?)',
+    [
+      'Comunicado',
+      'Mensagem padrão',
+      'INFO'
+    ]
+  );
+   });
+
+});
+
+describe('TEST-ADM-032 - editarAviso() existente', () => {
+
+   it('Deve editar um aviso', async () => {
+  const dados = {
+    titulo: 'Novo Título',
+    mensagem: 'Nova mensagem',
+    tipo: 'ALERTA',
+    status: 'ATIVO'
+  };
+
+  db.query.mockResolvedValue([{}]);
+
+  await adminService.editarAviso(5, dados);
+
+  expect(db.query).toHaveBeenCalledWith(
+    'UPDATE aviso SET titulo = ?, mensagem = ?, tipo = ?, status = ? WHERE id_aviso = ?',
+    [
+      'Novo Título',
+      'Nova mensagem',
+      'ALERTA',
+      'ATIVO',
+      5
+    ]
+  );
+   });
+
+});
+
+describe('TEST-ADM-033 - deletarAviso() existente', () => {
+
+   it('Deve deletar um aviso', async () => {
+  db.query.mockResolvedValue([{}]);
+
+  await adminService.deletarAviso(5);
+
+  expect(db.query).toHaveBeenCalledWith(
+    'DELETE FROM aviso WHERE id_aviso = ?',
+    [5]
+  );
+   });
+
+});
+
+describe('TEST-ADM-034 - listarLogs()', () => {
+
+   it('Deve listar logs de auditoria', async () => {
+  const mockLogs = [
+    {
+      id_log: 1,
+      acao: 'LOGIN',
+      detalhes: 'Usuário logou no sistema',
+      data_hora: '2026-06-20 10:00:00',
+      email: 'admin@imunopet.com',
+      perfil: 'ADMIN'
+    }
+  ];
+
+  db.query.mockResolvedValue([mockLogs]);
+
+  const resultado = await adminService.listarLogs();
+
+  expect(db.query).toHaveBeenCalledWith(
+    `
+      SELECT l.id_log, l.acao, l.detalhes, l.data_hora, u.email, u.perfil
+      FROM log_auditoria l
+      JOIN usuario u ON l.id_usuario = u.id_usuario
+      ORDER BY l.data_hora DESC
+      LIMIT 200
+    `
+  );
+
+  expect(resultado).toEqual(mockLogs);
+   });
+
+});

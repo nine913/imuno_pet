@@ -45,3 +45,15 @@
 - [x] TEST-ADM-026 - listarRacas() filtrando por espécie
 - [x] TEST-ADM-027 - cadastrarRaca()
 - [x] TEST-ADM-028 - deletarRaca()
+
+## Avisos
+
+- [x] TEST-ADM-029 - listarAvisos()
+- [x] TEST-ADM-030 - cadastrarAviso() com tipo informado
+- [x] TEST-ADM-031 - cadastrarAviso() utilizando tipo padrão INFO
+- [x] TEST-ADM-032 - editarAviso()
+- [x] TEST-ADM-033 - deletarAviso()
+
+## Logs
+
+- [x] TEST-ADM-034 - listarLogs()
