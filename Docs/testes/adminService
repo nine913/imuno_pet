@@ -38,3 +38,10 @@
 - [x] TEST-ADM-022 - listarEspecies()
 - [x] TEST-ADM-023 - cadastrarEspecie()
 - [x] TEST-ADM-024 - deletarEspecie()
+
+## Raças
+
+- [x] TEST-ADM-025 - listarRacas() sem filtro
+- [x] TEST-ADM-026 - listarRacas() filtrando por espécie
+- [x] TEST-ADM-027 - cadastrarRaca()
+- [x] TEST-ADM-028 - deletarRaca()

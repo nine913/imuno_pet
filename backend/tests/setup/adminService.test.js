@@ -707,4 +707,85 @@ describe('TEST-ADM-024 - deletarEspecie() existente', () => {
     [1]
   );
    });
+
+});
+
+describe('TEST-ADM-025 - listarRacas() sem filtro', () => {
+
+   it('Deve listar todas as raças sem filtro', async () => {
+  const mockRacas = [
+    {
+      id_raca: 1,
+      nome_raca: 'Labrador',
+      nome_especie: 'Canino'
+    }
+  ];
+
+  db.query.mockResolvedValue([mockRacas]);
+
+  const resultado = await adminService.listarRacas();
+
+  expect(db.query).toHaveBeenCalledWith(
+    'SELECT r.*, e.nome_especie FROM raca r JOIN especie e ON r.id_especie = e.id_especie ORDER BY e.nome_especie ASC, r.nome_raca ASC',
+    []
+  );
+
+  expect(resultado).toEqual(mockRacas);
+   });
+
+});
+
+describe('TEST-ADM-026 - listarRacas() com filtro', () => {
+
+   it('Deve listar raças filtrando por espécie', async () => {
+  const mockRacas = [
+    {
+      id_raca: 1,
+      nome_raca: 'Labrador',
+      id_especie: 1
+    }
+  ];
+
+  db.query.mockResolvedValue([mockRacas]);
+
+  const resultado = await adminService.listarRacas(1);
+
+  expect(db.query).toHaveBeenCalledWith(
+    'SELECT r.*, e.nome_especie FROM raca r JOIN especie e ON r.id_especie = e.id_especie WHERE r.id_especie = ? ORDER BY e.nome_especie ASC, r.nome_raca ASC',
+    [1]
+  );
+
+  expect(resultado).toEqual(mockRacas);
+   });
+
+});
+
+describe('TEST-ADM-027 - cadastrarRaca() nova', () => {
+
+   it('Deve cadastrar uma raça', async () => {
+  db.query.mockResolvedValue([{}]);
+
+  await adminService.cadastrarRaca(1, 'Labrador');
+
+  expect(db.query).toHaveBeenCalledWith(
+    'INSERT INTO raca (id_especie, nome_raca) VALUES (?, ?)',
+    [1, 'Labrador']
+  );
+   });
+
+});
+
+describe('TEST-ADM-028 - deletarRaca() existente', () => {
+
+   it('Deve deletar uma raça', async () => {
+  db.query.mockResolvedValue([{}]);
+
+  await adminService.deletarRaca(1);
+
+  expect(db.query).toHaveBeenCalledWith(
+    'DELETE FROM raca WHERE id_raca = ?',
+    [1]
+  );
+   });
+
 });
