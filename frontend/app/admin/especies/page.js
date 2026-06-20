@@ -133,7 +133,7 @@ export default function AdminEspeciesRacas() {
   return (
     <div style={styles.body}>
       <div style={styles.container}>
-        <button style={styles.btnVoltar} onClick={() => router.push('/admin/dashboard')}>Voltar ao Dashboard</button>
+        <button style={styles.btnVoltar} onClick={() => router.push('/dashboard')}>Voltar ao Dashboard</button>
         <h2 style={styles.h2}>Catálogo de Espécies e Raças</h2>
 
         {mensagem.texto && <div style={{ color: mensagem.cor, fontWeight: 'bold', marginBottom: '15px', textAlign: 'center' }}>{mensagem.texto}</div>}

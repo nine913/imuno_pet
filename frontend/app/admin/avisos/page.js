@@ -125,7 +125,7 @@ export default function AdminAvisos() {
   return (
     <div style={styles.body}>
       <div style={styles.container}>
-        <button style={styles.btnVoltar} onClick={() => router.push('/admin/dashboard')}>Voltar ao Dashboard</button>
+        <button style={styles.btnVoltar} onClick={() => router.push('/dashboard')}>Voltar ao Dashboard</button>
         
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
           <h2 style={{ margin: 0, color: '#000000' }}>Central de Avisos Globais</h2>

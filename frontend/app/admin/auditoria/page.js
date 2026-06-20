@@ -49,7 +49,7 @@ export default function AdminAuditoria() {
   return (
     <div style={styles.body}>
       <div style={styles.container}>
-        <button style={styles.btnVoltar} onClick={() => router.push('/admin/dashboard')}>Voltar ao Dashboard</button>
+        <button style={styles.btnVoltar} onClick={() => router.push('/dashboard')}>Voltar ao Dashboard</button>
         
         <h2 style={{ margin: '0 0 20px 0', color: '#000000' }}>Logs de Auditoria (Rastreabilidade)</h2>
         
