@@ -5,12 +5,12 @@ jest.mock('../../db', () => ({
 const db = require('../../db');
 const vacinaService = require('../../services/vacinaService');
 
-describe('TEST-SVC-003 - vacinaService', () => {
+describe('TEST-VAC-000 - vacinaService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  // TEST-SVC-000
+  // TEST-VAC-000
   describe('TEST-VAC-003 - cadastrarVacina()', () => {
 
     it('Deve cadastrar uma vacina corretamente', async () => {
@@ -399,8 +399,8 @@ describe('TEST-SVC-003 - vacinaService', () => {
 
   });
 
-  // TEST-VAC-013 e 014
-  describe('TEST-VAC-013 / TEST-VAC-014 - editarRegistroVacina()', () => {
+  // TEST-VAC-001 e 0002
+  describe('TEST-VAC-001 / TEST-VAC-002 - editarRegistroVacina()', () => {
 
      it('Deve editar registro de vacina sem vincular veterinário quando status não for APLICADA', async () => {
   db.query.mockResolvedValueOnce([]); // apenas UPDATE
