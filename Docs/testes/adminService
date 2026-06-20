@@ -1,0 +1,11 @@
+# adminService - Matriz de Testes
+
+## Clínica
+
+- [x] TEST-ADM-001 - listarClinicas() sem filtro
+- [x] TEST-ADM-002 - listarClinicas() com filtro
+- [x] TEST-ADM-003 - cadastrarClinica() nova
+- [x] TEST-ADM-004 - editarClinica() existente
+- [x] TEST-ADM-005 - deletarClinica() existente
+- [x] TEST-ADM-006 - obterClinicaPorId() encontrada
+- [x] TEST-ADM-007 - obterClinicaPorId() não encontrada
