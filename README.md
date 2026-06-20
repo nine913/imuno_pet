@@ -111,7 +111,7 @@ Seguindo `Docs/auditoria.md`, os itens abaixo devem ser marcados como `[x]` apen
 
 ### Perfis de usuários
 
-- [x] Perfil ADMINISTRADOR (ver UI/módulos específicos)
+- [x] Perfil ADMINISTRADOR
 - [x] Perfil TUTOR
 - [x] Perfil VETERINARIO
 - [x] Perfil GESTOR_CLINICA
@@ -168,7 +168,7 @@ Seguindo `Docs/auditoria.md`, os itens abaixo devem ser marcados como `[x]` apen
 - [x] Dashboard governamental
 - [x] Relatórios vacinais
 - [x] Relatórios epidemiológicos (páginas/consultas de relatórios existentes)
-- [ ] Dashboard administrativo
+- [x] Dashboard administrativo
 - [x] Estatísticas em tempo real
 
 ---

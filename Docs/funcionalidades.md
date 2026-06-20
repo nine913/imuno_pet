@@ -69,7 +69,7 @@
 - [x] Dashboard do veterinário
 - [x] Visualização de pets
 - [x] Visualização de vacinas
-- [ ] Dashboard administrativo
+- [x] Dashboard administrativo
 - [x] Dashboard analítico
 - [x] Dashboard governamental
 - [x] Estatísticas em tempo real
@@ -82,10 +82,10 @@
 - [x] Busca por nome
 - [x] Busca por CPF
 - [x] Busca por tutor
-- [ ] Busca avançada
+- [x] Busca avançada
 - [x] Filtros por vacinação
 - [x] Busca por região
-- [ ] Busca institucional
+- [x] Busca institucional
 
 ---
 

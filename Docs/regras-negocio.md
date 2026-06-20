@@ -126,9 +126,9 @@
 
 - [x] Sistema deverá suportar múltiplas clínicas
 - [ ] Sistema deverá suportar expansão institucional
-- [ ] Estrutura deverá permitir dashboards analíticos
+- [x] Estrutura deverá permitir dashboards analíticos
 - [ ] Sistema deverá permitir integração futura mobile
-- [ ] Arquitetura deverá suportar novas funcionalidades sem reescrita total
+- [x] Arquitetura deverá suportar novas funcionalidades sem reescrita total
 
 ---
 
@@ -136,6 +136,6 @@
 
 - [ ] Sistema enviará notificações vacinais
 - [ ] Sistema possuirá calendário vacinal
-- [ ] Sistema permitirá relatórios epidemiológicos
+- [x] Sistema permitirá relatórios epidemiológicos
 - [ ] Sistema permitirá cobertura vacinal regional
 - [ ] Sistema permitirá integração entre clínicas

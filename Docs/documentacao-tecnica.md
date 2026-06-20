@@ -190,7 +190,7 @@
 - [x] API hardcoded em `http://localhost:3000`
 - [x] Uso de Chart.js em dashboards do gestor e governo
 - [ ] Separação completa de CSS
-- [ ] Reutilização de componentes
+- [x] Reutilização de componentes
 - [ ] Organização modular
 - [ ] Camada de serviços frontend
 - [ ] Configuração central de URL da API

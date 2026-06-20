@@ -19,16 +19,16 @@
 
 ## FRONTEND
 
-- [ ] Organizar páginas por módulos
+- [x] Organizar páginas por módulos
 - [ ] Separar CSS do HTML
 - [ ] Criar arquivo global de configuração API
 - [ ] Padronizar chamadas fetch
 - [ ] Criar camada de serviços JS
-- [ ] Melhorar organização visual
-- [ ] Melhorar dashboard
-- [ ] Criar mensagens padronizadas
+- [x] Melhorar organização visual
+- [x] Melhorar dashboard
+- [x] Criar mensagens padronizadas
 - [ ] Melhorar responsividade
-- [ ] Criar sistema de navegação mais organizado
+- [x] Criar sistema de navegação mais organizado
 
 ---
 
@@ -67,8 +67,8 @@
 - [x] Busca de animais
 - [x] Relatórios vacinais
 - [x] Dashboard analítico
-- [ ] Cobertura vacinal
-- [ ] Estatísticas vacinais
+- [x] Cobertura vacinal
+- [x] Estatísticas vacinais
 - [ ] Notificações de vacinação
 - [ ] Calendário vacinal
 - [x] Gestão institucional
@@ -93,22 +93,22 @@
 
 - [ ] Testar endpoints da API
 - [ ] Testar autenticação
-- [ ] Testar cadastro de pets
-- [ ] Testar cadastro de vacinas
+- [x] Testar cadastro de pets
+- [x] Testar cadastro de vacinas
 - [ ] Testar fluxo de vacinação
 - [ ] Testar dashboard
 - [ ] Validar tratamento de erros
-- [ ] Criar testes automatizados futuros
+- [x] Criar testes automatizados futuros
 
 ---
 
 ## MELHORIAS FUTURAS
 
-- [ ] Dashboard administrativo
+- [x] Dashboard administrativo
 - [ ] Sistema de notificações
 - [ ] Integração entre clínicas
 - [x] Relatórios epidemiológicos
 - [ ] Controle de campanhas vacinais
 - [x] Painel governamental
-- [ ] Estatísticas regionais
+- [x] Estatísticas regionais
 - [ ] Integração mobile futura

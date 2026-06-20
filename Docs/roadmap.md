@@ -36,7 +36,7 @@
 - [x] Implementar busca integrada
 - [x] Criar estrutura institucional inicial
 - [x] Melhorar dashboard
-- [ ] Melhorar organização visual
+- [x] Melhorar organização visual
 
 ---
 
@@ -50,7 +50,7 @@
 - [x] Criar funcionalidades.md
 - [x] Criar regras-negocio.md
 - [x] Modularizar backend
-- [ ] Modularizar frontend
+- [x] Modularizar frontend
 - [ ] Padronizar APIs
 - [ ] Criar estrutura escalável
 
@@ -84,10 +84,10 @@
 
 ## FASE 7 — Melhorias Funcionais
 
-- [ ] Dashboard administrativo
+- [x] Dashboard administrativo
 - [x] Dashboard governamental
 - [x] Relatórios vacinais
-- [ ] Cobertura vacinal
+- [x] Cobertura vacinal
 - [x] Estatísticas vacinais
 - [ ] Calendário vacinal
 - [ ] Alertas automáticos
