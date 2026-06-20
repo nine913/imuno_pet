@@ -652,3 +652,59 @@ describe('TEST-ADM-021 - obterEstatisticas() sem registros', () => {
    });
 
 });
+
+describe('TEST-ADM-022 - listarEspecies()', () => {
+
+   it('Deve listar todas as espécies', async () => {
+  const mockEspecies = [
+    {
+      id_especie: 1,
+      nome_especie: 'Canino'
+    },
+    {
+      id_especie: 2,
+      nome_especie: 'Felino'
+    }
+  ];
+
+  db.query.mockResolvedValue([mockEspecies]);
+
+  const resultado = await adminService.listarEspecies();
+
+  expect(db.query).toHaveBeenCalledWith(
+    'SELECT * FROM especie ORDER BY nome_especie ASC'
+  );
+
+  expect(resultado).toEqual(mockEspecies);
+   });
+
+});
+
+describe('TEST-ADM-023 - cadastrarEspecie() nova', () => {
+
+   it('Deve cadastrar uma espécie', async () => {
+  db.query.mockResolvedValue([{}]);
+
+  await adminService.cadastrarEspecie('Canino');
+
+  expect(db.query).toHaveBeenCalledWith(
+    'INSERT INTO especie (nome_especie) VALUES (?)',
+    ['Canino']
+  );
+   });
+
+});
+
+describe('TEST-ADM-024 - deletarEspecie() existente', () => {
+
+   it('Deve deletar uma espécie', async () => {
+  db.query.mockResolvedValue([{}]);
+
+  await adminService.deletarEspecie(1);
+
+  expect(db.query).toHaveBeenCalledWith(
+    'DELETE FROM especie WHERE id_especie = ?',
+    [1]
+  );
+   });
+});

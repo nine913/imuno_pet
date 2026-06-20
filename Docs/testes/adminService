@@ -32,3 +32,9 @@
 
 - [x] TEST-ADM-020 - obterEstatisticas()
 - [x] TEST-ADM-021 - obterEstatisticas() com banco vazio
+
+## Espécies
+
+- [x] TEST-ADM-022 - listarEspecies()
+- [x] TEST-ADM-023 - cadastrarEspecie()
+- [x] TEST-ADM-024 - deletarEspecie()
