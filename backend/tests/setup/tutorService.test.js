@@ -26,13 +26,13 @@ beforeEach(() => {
 // - Exclusão efetiva de tutor e usuário
 // ============================================================================
 
-describe('TEST-SVC-001 - tutorService', () => {
+describe('TEST-TUT-000 - tutorService', () => {
   // ============================================================================
   // Testes: deletarTutor
   // ============================================================================
 
-  // TEST-SVC-001.1
-  describe('TEST-SVC-001.1 - deletarTutor()', () => {
+  // TEST-TUT-001
+  describe('TEST-TUT-001 - deletarTutor()', () => {
     it('Deve impedir exclusão quando houver animais vinculados', async () => {
       // 1) Simula contagem de animais vinculados ao tutor
       db.query.mockResolvedValueOnce([
@@ -47,8 +47,8 @@ describe('TEST-SVC-001 - tutorService', () => {
     });
   });
 
-  // TEST-SVC-001.2
-  describe('TEST-SVC-001.2 - deletarTutor()', () => {
+  // TEST-TUT-002
+  describe('TEST-TUT-002 - deletarTutor()', () => {
     it('Deve retornar erro quando tutor não existir', async () => {
       // Fluxo esperado:
       // - Passo A: validação de animais vinculados (total = 0)
@@ -69,8 +69,8 @@ describe('TEST-SVC-001 - tutorService', () => {
     });
   });
 
-  // TEST-SVC-001.3
-  describe('TEST-SVC-001.3 - deletarTutor()', () => {
+  // TEST-TUT-003
+  describe('TEST-TUT-003 - deletarTutor()', () => {
     it('Deve excluir tutor e usuário com sucesso', async () => {
       // Fluxo esperado:
       // - Passo A: validação de animais vinculados (total = 0)
@@ -96,8 +96,8 @@ describe('TEST-SVC-001 - tutorService', () => {
   // Testes: cadastrarTutorPet
   // ============================================================================
 
-  // TEST-SVC-002.1
-  describe('TEST-SVC-002.1 - cadastrarTutorPet()', () => {
+  // TEST-TUT-004
+  describe('TEST-TUT-004 - cadastrarTutorPet()', () => {
     it('Deve impedir cadastro com email já existente', async () => {
       // Mock: validação de email retorna um usuário existente
       db.query.mockResolvedValueOnce([
@@ -114,8 +114,8 @@ describe('TEST-SVC-001 - tutorService', () => {
     });
   });
 
-  // TEST-SVC-002.2
-  describe('TEST-SVC-002.2 - cadastrarTutorPet()', () => {
+  // TEST-TUT-005
+  describe('TEST-TUT-005 - cadastrarTutorPet()', () => {
     it('Deve impedir cadastro com CPF já existente', async () => {
       // Fluxo de validação:
       // - Primeiro consulta email (retorna vazio => email não cadastrado)
@@ -139,8 +139,8 @@ describe('TEST-SVC-001 - tutorService', () => {
     });
   });
 
-  // TEST-SVC-002.3
-  describe('TEST-SVC-002.3 - cadastrarTutorPet()', () => {
+  // TEST-TUT-006
+  describe('TEST-TUT-006 - cadastrarTutorPet()', () => {
     it('Deve cadastrar tutor e animal com sucesso', async () => {
       // Mock: hash da senha deve retornar um valor fixo para previsibilidade do teste
       bcrypt.hash.mockResolvedValue('senha-hash');
@@ -227,8 +227,8 @@ describe('TEST-SVC-001 - tutorService', () => {
   // Testes: getTutorAnimais
   // ============================================================================
 
-  // TEST-SVC-003.1
-  describe('TEST-SVC-003.1 - getTutorAnimais()', () => {
+  // TEST-TUT-007
+  describe('TEST-TUT-007 - getTutorAnimais()', () => {
     it('Deve retornar erro quando tutor não existir', async () => {
       // Mock: tutor buscado não existe (consulta retorna lista vazia)
       db.query.mockResolvedValueOnce([
@@ -243,8 +243,8 @@ describe('TEST-SVC-001 - tutorService', () => {
     });
   });
 
-  // TEST-SVC-003.2
-  describe('TEST-SVC-003.2 - getTutorAnimais()', () => {
+  // TEST-TUT-008
+  describe('TEST-TUT-008 - getTutorAnimais()', () => {
     it('Deve retornar animais do tutor', async () => {
       // Mock: validação do tutor => retorna { id_tutor: 5 }
       // Mock: segunda query retorna os animais daquele tutor
@@ -279,8 +279,8 @@ describe('TEST-SVC-001 - tutorService', () => {
   // Testes: getTutorAlertas
   // ============================================================================
 
-  // TEST-SVC-004.1
-  describe('TEST-SVC-004.1 - getTutorAlertas()', () => {
+  // TEST-TUT-009
+  describe('TEST-TUT-009 - getTutorAlertas()', () => {
     it('Deve retornar erro quando tutor não existir', async () => {
       // Mock: tutor inexistente (consulta retorna lista vazia)
       db.query.mockResolvedValueOnce([
@@ -295,8 +295,8 @@ describe('TEST-SVC-001 - tutorService', () => {
     });
   });
 
-  // TEST-SVC-004.2
-  describe('TEST-SVC-004.2 - getTutorAlertas()', () => {
+  // TEST-TUT-010
+  describe('TEST-TUT-010 - getTutorAlertas()', () => {
     it('Deve retornar lista vazia quando não houver alertas', async () => {
       // Mock: tutor existe, mas não há registros de alertas
       db.query
@@ -316,8 +316,8 @@ describe('TEST-SVC-001 - tutorService', () => {
     });
   });
 
-  // TEST-SVC-004.3
-  describe('TEST-SVC-004.3 - getTutorAlertas()', () => {
+  // TEST-TUT-011
+  describe('TEST-TUT-011 - getTutorAlertas()', () => {
     it('Deve retornar alertas do tutor', async () => {
       // Mock:
       // - tutor existe

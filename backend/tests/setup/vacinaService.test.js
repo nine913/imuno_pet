@@ -10,8 +10,8 @@ describe('TEST-SVC-003 - vacinaService', () => {
     jest.clearAllMocks();
   });
 
-  // TEST-SVC-003.3
-  describe('TEST-SVC-003.3 - cadastrarVacina()', () => {
+  // TEST-SVC-000
+  describe('TEST-VAC-003 - cadastrarVacina()', () => {
 
     it('Deve cadastrar uma vacina corretamente', async () => {
   db.query.mockResolvedValueOnce([]);
@@ -40,8 +40,8 @@ describe('TEST-SVC-003 - vacinaService', () => {
 
   });
 
-  // TEST-SVC-003.4 e 003.5
-  describe('TEST-SVC-003.4 / TEST-SVC-003.5 - buscarVacinas()', () => {
+  // TEST-VAC-004 e 005
+  describe('TEST-VAC-004 / TEST-VAC-005 - buscarVacinas()', () => {
 
     it('Deve buscar vacinas utilizando um termo de pesquisa', async () => {
   const vacinasMock = [
@@ -99,8 +99,8 @@ describe('TEST-SVC-003 - vacinaService', () => {
     
   });
 
-  // TEST-SVC-003.6
-  describe('TEST-SVC-003.6 - editarVacina()', () => {
+  // TEST-VAC-006
+  describe('TEST-VAC-006 - editarVacina()', () => {
 
     it('Deve editar uma vacina corretamente', async () => {
   db.query.mockResolvedValueOnce([]);
@@ -132,8 +132,8 @@ describe('TEST-SVC-003 - vacinaService', () => {
 
   });
 
-  // TEST-SVC-003.7
-  describe('TEST-SVC-003.7 - deletarVacina()', () => {
+  // TEST-VAC-007
+  describe('TEST-VAC-007 - deletarVacina()', () => {
 
     it('Deve excluir os registros de vacinação e depois a vacina', async () => {
   db.query.mockResolvedValue([]);
@@ -157,8 +157,8 @@ describe('TEST-SVC-003 - vacinaService', () => {
 
   });
 
-  // TEST-SVC-003.8 e 003.9
-  describe('TEST-SVC-003.8 / TEST-SVC-003.9 - historicoPet()', () => {
+  // TEST-VAC-008 e 009
+  describe('TEST-VAC-008 / TEST-VAC-009 - historicoPet()', () => {
 
      it('Deve retornar o histórico do pet sem filtros adicionais', async () => {
   const historicoMock = [
@@ -223,8 +223,8 @@ describe('TEST-SVC-003 - vacinaService', () => {
 
   });
 
-  // TEST-SVC-003.10
-  describe('TEST-SVC-003.10 - deletarRegistroVacina()', () => {
+  // TEST-VAC-010
+  describe('TEST-VAC-010 - deletarRegistroVacina()', () => {
 
     it('Deve excluir um registro de vacinação', async () => {
   db.query.mockResolvedValueOnce([]);
@@ -242,8 +242,8 @@ describe('TEST-SVC-003 - vacinaService', () => {
 
   });
 
-  // TEST-SVC-003.11 e 003.12
-  describe('TEST-SVC-003.11 / TEST-SVC-003.12 - relatorioVacinas()', () => {
+  // TEST-VAC-011 e 012
+  describe('TEST-VAC-011 / TEST-VAC-012 - relatorioVacinas()', () => {
 
     it('Deve gerar relatório sem filtros adicionais', async () => {
   const relatorioMock = [
@@ -319,8 +319,8 @@ describe('TEST-SVC-003 - vacinaService', () => {
 
   });
 
-  // TEST-SVC-003.1 e 003.2
-  describe('TEST-SVC-003.1 / TEST-SVC-003.2 - registrarVacina()', () => {
+  // TEST-VAC-013 e 014
+  describe('TEST-VAC-013 / TEST-VAC-014 - registrarVacina()', () => {
 
      it('Deve registrar vacina aplicada com veterinário encontrado', async () => {
   // 1. Mock da busca do veterinário
@@ -399,8 +399,8 @@ describe('TEST-SVC-003 - vacinaService', () => {
 
   });
 
-  // TEST-SVC-003.13 e 003.14
-  describe('TEST-SVC-003.13 / TEST-SVC-003.14 - editarRegistroVacina()', () => {
+  // TEST-VAC-013 e 014
+  describe('TEST-VAC-013 / TEST-VAC-014 - editarRegistroVacina()', () => {
 
      it('Deve editar registro de vacina sem vincular veterinário quando status não for APLICADA', async () => {
   db.query.mockResolvedValueOnce([]); // apenas UPDATE
@@ -475,8 +475,8 @@ describe('TEST-SVC-003 - vacinaService', () => {
 
   });
 
-  // TEST-SVC-003.15 e 003.16
-  describe('TEST-SVC-003.15 / TEST-SVC-003.16 - animaisAtrasados()', () => {
+  // TEST-VAC-015 e 016
+  describe('TEST-VAC-015 / TEST-VAC-016 - animaisAtrasados()', () => {
 
     it('Deve atualizar status e retornar animais atrasados sem filtro de clínica', async () => {
   const atrasadosMock = [

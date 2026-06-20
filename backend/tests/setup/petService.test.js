@@ -9,7 +9,7 @@ const bcrypt = require('bcrypt');
 jest.mock('../../db');
 jest.mock('bcrypt');
 
-describe('TEST-SVC-002.1 - getTutorIdByUsuario()', () => {
+describe('TEST-PET-001 - getTutorIdByUsuario()', () => {
 
   // Limpa mocks entre testes para evitar "vazamento" de chamadas/mockResolvedValue
   beforeEach(() => {
@@ -53,7 +53,7 @@ describe('TEST-SVC-002.1 - getTutorIdByUsuario()', () => {
 });
 
 
-describe('TEST-SVC-002.2 - criarPet()', () => {
+describe('TEST-PET-002 - criarPet()', () => {
 
   // Este bloco valida a criação de um pet via SQL
   // - Cenário 1: tutor existe => deve inserir em `animal`
@@ -118,7 +118,7 @@ describe('TEST-SVC-002.2 - criarPet()', () => {
 });
 
 
-describe('TEST-SVC-002.3 - cadastrarAnimalVet()', () => {
+describe('TEST-PET-003 - cadastrarAnimalVet()', () => {
 
   // Este bloco valida o INSERT do animal com/sem raça informada
   // - Quando `raca` vem preenchida: deve persistir o valor
@@ -192,7 +192,7 @@ describe('TEST-SVC-002.3 - cadastrarAnimalVet()', () => {
 });
 
 
-describe('TEST-SVC-002.4 - cadastrarTutorEPet()', () => {
+describe('TEST-PET-004 - cadastrarTutorEPet()', () => {
 
   // Fluxo completo de cadastro (usuário -> tutor -> pet)
   // e validações de unicidade (email e CPF) antes de persistir.
@@ -313,7 +313,7 @@ describe('TEST-SVC-002.4 - cadastrarTutorEPet()', () => {
 });
 
 
-describe('TEST-SVC-002.5 - buscarAnimais()', () => {
+describe('TEST-PET-005 - buscarAnimais()', () => {
 
   // Este bloco valida montagem de query e parâmetros para filtros opcionais:
   // - sem filtros => apenas busca por termo (LIKE)
@@ -438,7 +438,7 @@ describe('TEST-SVC-002.5 - buscarAnimais()', () => {
 });
 
 
-describe('TEST-SVC-002.6 - detalhesAnimal()', () => {
+describe('TEST-PET-006 - detalhesAnimal()', () => {
 
   // Este bloco valida a consulta que retorna detalhes do animal
   // via JOIN com tutor e o comportamento quando o animal não existe.
@@ -492,7 +492,7 @@ describe('TEST-SVC-002.6 - detalhesAnimal()', () => {
 });
 
 
-describe('TEST-SVC-002.7 - editarPetTutor()', () => {
+describe('TEST-PET-007 - editarPetTutor()', () => {
 
   // Este bloco valida atualizações em duas tabelas:
   // - animal (dados do pet)
@@ -614,7 +614,7 @@ describe('TEST-SVC-002.7 - editarPetTutor()', () => {
 });
 
 
-describe('TEST-SVC-002.8 - editarAnimalSimples()', () => {
+describe('TEST-PET-008 - editarAnimalSimples()', () => {
 
   // Este bloco valida uma atualização simples apenas na tabela `animal`.
   // O teste foca em: query conter `UPDATE animal` e params estarem na ordem esperada.
@@ -655,7 +655,7 @@ describe('TEST-SVC-002.8 - editarAnimalSimples()', () => {
 });
 
 
-describe('TEST-SVC-002.9 - deletarAnimal()', () => {
+describe('TEST-PET-009 - deletarAnimal()', () => {
 
   // Este bloco valida o comportamento de deleção em cascata "manual":
   // 1) remove registros relacionados em `registro_vacinacao`
@@ -688,7 +688,7 @@ describe('TEST-SVC-002.9 - deletarAnimal()', () => {
 });
 
 
-describe('TEST-SVC-002.10 - relatorioVacinasVet()', () => {
+describe('TEST-PET-010 - relatorioVacinasVet()', () => {
 
   // Este bloco valida a geração do relatório de vacinas por veterinário.
   // Também cobre a ausência de `id_clinica` (retorno vazio sem query).
