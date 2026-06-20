@@ -57,3 +57,11 @@
 ## Logs
 
 - [x] TEST-ADM-034 - listarLogs()
+
+## Vacinas
+
+- [x] TEST-ADM-035 - listarVacinas() sem filtro
+- [x] TEST-ADM-036 - listarVacinas() com filtro
+- [x] TEST-ADM-037 - cadastrarVacina()
+- [x] TEST-ADM-038 - editarVacina()
+- [x] TEST-ADM-039 - deletarVacina()

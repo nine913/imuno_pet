@@ -272,7 +272,6 @@ describe('TEST-ADM-009 - listarGestores() com filtro', () => {
     });
 });
 
-
 describe('TEST-ADM-010 - cadastrarGestor() novo', () => {
 
     it('Deve cadastrar um gestor', async () => {
@@ -935,6 +934,127 @@ describe('TEST-ADM-034 - listarLogs()', () => {
   );
 
   expect(resultado).toEqual(mockLogs);
+   });
+
+});
+
+describe('TEST-ADM-035 - listarVacinas() sem filtro', () => {
+
+   it('Deve listar todas as vacinas sem filtro', async () => {
+  const mockVacinas = [
+    {
+      id_vacina: 1,
+      nome_vacina: 'V8',
+      fabricante: 'Laboratório A'
+    }
+  ];
+
+  db.query.mockResolvedValue([mockVacinas]);
+
+  const resultado = await adminService.listarVacinas();
+
+  expect(db.query).toHaveBeenCalledWith(
+    'SELECT * FROM vacina ORDER BY nome_vacina ASC',
+    []
+  );
+
+  expect(resultado).toEqual(mockVacinas);
+   });
+
+});
+
+describe('TEST-ADM-036 - listarVacinas() com filtro', () => {
+
+   it('Deve listar vacinas com filtro', async () => {
+  const termo = 'Raiva';
+
+  const mockVacinas = [
+    {
+      id_vacina: 1,
+      nome_vacina: 'Anti-Rábica'
+    }
+  ];
+
+  db.query.mockResolvedValue([mockVacinas]);
+
+  const resultado = await adminService.listarVacinas(termo);
+
+  expect(db.query).toHaveBeenCalledWith(
+    'SELECT * FROM vacina WHERE nome_vacina LIKE ? OR doencas_prevenidas LIKE ? ORDER BY nome_vacina ASC',
+    ['%Raiva%', '%Raiva%']
+  );
+
+  expect(resultado).toEqual(mockVacinas);
+   });
+
+});
+
+describe('TEST-ADM-037 - cadastrarVacina() nova', () => {
+
+   it('Deve cadastrar uma vacina', async () => {
+  const dados = {
+    nome_vacina: 'V10',
+    fabricante: 'Laboratório X',
+    doencas_prevenidas: 'Cinomose, Parvovirose',
+    intervalo_doses_dias: 21
+  };
+
+  db.query.mockResolvedValue([{}]);
+
+  await adminService.cadastrarVacina(dados);
+
+  expect(db.query).toHaveBeenCalledWith(
+    'INSERT INTO vacina (nome_vacina, fabricante, doencas_prevenidas, intervalo_doses_dias) VALUES (?, ?, ?, ?)',
+    [
+      'V10',
+      'Laboratório X',
+      'Cinomose, Parvovirose',
+      21
+    ]
+  );
+   });
+
+});
+
+describe('TEST-ADM-038 - editarVacina() existente', () => {
+
+   it('Deve editar uma vacina', async () => {
+  const dados = {
+    nome_vacina: 'V10 Atualizada',
+    fabricante: 'Laboratório Y',
+    doencas_prevenidas: 'Cinomose',
+    intervalo_doses_dias: 30
+  };
+
+  db.query.mockResolvedValue([{}]);
+
+  await adminService.editarVacina(3, dados);
+
+  expect(db.query).toHaveBeenCalledWith(
+    'UPDATE vacina SET nome_vacina = ?, fabricante = ?, doencas_prevenidas = ?, intervalo_doses_dias = ? WHERE id_vacina = ?',
+    [
+      'V10 Atualizada',
+      'Laboratório Y',
+      'Cinomose',
+      30,
+      3
+    ]
+  );
+   });
+
+});
+
+describe('TEST-ADM-039 - deletarVacina() existente', () => {
+
+   it('Deve deletar uma vacina', async () => {
+  db.query.mockResolvedValue([{}]);
+
+  await adminService.deletarVacina(5);
+
+  expect(db.query).toHaveBeenCalledWith(
+    'DELETE FROM vacina WHERE id_vacina = ?',
+    [5]
+  );
    });
 
 });
