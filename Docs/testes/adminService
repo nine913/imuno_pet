@@ -18,3 +18,12 @@
 - [x] TEST-ADM-011 - editarGestor()
 - [x] TEST-ADM-012 - deletarGestor() quando existir
 - [x] TEST-ADM-013 - deletarGestor() quando não existir
+
+## Órgão Governamental
+
+- [x] TEST-ADM-014 - listarOrgaos() sem filtro
+- [x] TEST-ADM-015 - listarOrgaos() com filtro
+- [x] TEST-ADM-016 - cadastrarOrgao() novo
+- [x] TEST-ADM-017 - editarOrgao() existente
+- [x] TEST-ADM-018 - deletarOrgao() quando existir
+- [x] TEST-ADM-019 - deletarOrgao() quando não existir

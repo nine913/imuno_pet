@@ -381,3 +381,185 @@ describe('TEST-ADM-013 - deletarGestor() não existente', () => {
    });
 
 });
+
+describe('TEST-ADM-014 - listarOrgaos() sem filtro', () => {
+
+   it('Deve listar todos os órgãos sem filtro', async () => {
+  const mockOrgaos = [
+    {
+      id_orgao: 1,
+      nome_instituicao: 'Secretaria Municipal de Saúde',
+      email: 'saude@governo.gov.br'
+    }
+  ];
+
+  db.query.mockResolvedValue([mockOrgaos]);
+
+  const resultado = await adminService.listarOrgaos();
+
+  expect(db.query).toHaveBeenCalledWith(
+    `
+      SELECT o.id_orgao, o.nome_instituicao, o.esfera, o.estado_atuacao, o.cidade_atuacao, u.email 
+      FROM orgao_governamental o
+      JOIN usuario u ON o.id_usuario = u.id_usuario
+     ORDER BY o.nome_instituicao ASC`,
+    []
+  );
+
+  expect(resultado).toEqual(mockOrgaos);
+   });
+
+});
+
+describe('TEST-ADM-015 - listarOrgaos() com filtro', () => {
+
+   it('Deve listar órgãos utilizando filtro', async () => {
+  const termo = 'Saúde';
+
+  const mockOrgaos = [
+    {
+      id_orgao: 1,
+      nome_instituicao: 'Secretaria Municipal de Saúde'
+    }
+  ];
+
+  db.query.mockResolvedValue([mockOrgaos]);
+
+  const resultado = await adminService.listarOrgaos(termo);
+
+  expect(db.query).toHaveBeenCalledWith(
+    `
+      SELECT o.id_orgao, o.nome_instituicao, o.esfera, o.estado_atuacao, o.cidade_atuacao, u.email 
+      FROM orgao_governamental o
+      JOIN usuario u ON o.id_usuario = u.id_usuario
+     WHERE o.nome_instituicao LIKE ? OR u.email LIKE ? ORDER BY o.nome_instituicao ASC`,
+    ['%Saúde%', '%Saúde%']
+  );
+
+  expect(resultado).toEqual(mockOrgaos);
+   });
+
+});
+
+describe('TEST-ADM-016 - cadastrarOrgao() novo', () => {
+
+   it('Deve cadastrar um órgão governamental', async () => {
+  const dados = {
+    email: 'orgao@governo.gov.br',
+    senha: '123456',
+    nome_instituicao: 'Secretaria Municipal de Saúde',
+    esfera: 'Municipal',
+    estado_atuacao: 'PA',
+    cidade_atuacao: 'Belém'
+  };
+
+  bcrypt.hash.mockResolvedValue('senha-hash');
+
+  db.query
+    .mockResolvedValueOnce([
+      {
+        insertId: 30
+      }
+    ])
+    .mockResolvedValueOnce([{}]);
+
+  await adminService.cadastrarOrgao(dados);
+
+  expect(bcrypt.hash).toHaveBeenCalledWith(
+    '123456',
+    10
+  );
+
+  expect(db.query).toHaveBeenCalledWith(
+    'INSERT INTO usuario (email, senha, perfil) VALUES (?, ?, "GOVERNO")',
+    ['orgao@governo.gov.br', 'senha-hash']
+  );
+
+  expect(db.query).toHaveBeenCalledWith(
+    'INSERT INTO orgao_governamental (id_usuario, nome_instituicao, esfera, estado_atuacao, cidade_atuacao) VALUES (?, ?, ?, ?, ?)',
+    [
+      30,
+      'Secretaria Municipal de Saúde',
+      'Municipal',
+      'PA',
+      'Belém'
+    ]
+  );
+   });
+
+});
+
+describe('TEST-ADM-017 - editarOrgao() existente', () => {
+
+   it('Deve editar um órgão governamental', async () => {
+  const dados = {
+    nome_instituicao: 'Secretaria Estadual de Saúde',
+    esfera: 'Estadual',
+    estado_atuacao: 'PA',
+    cidade_atuacao: 'Belém'
+  };
+
+  db.query.mockResolvedValue([{}]);
+
+  await adminService.editarOrgao(5, dados);
+
+  expect(db.query).toHaveBeenCalledWith(
+    'UPDATE orgao_governamental SET nome_instituicao = ?, esfera = ?, estado_atuacao = ?, cidade_atuacao = ? WHERE id_orgao = ?',
+    [
+      'Secretaria Estadual de Saúde',
+      'Estadual',
+      'PA',
+      'Belém',
+      5
+    ]
+  );
+   });
+
+});
+
+describe('TEST-ADM-018 - deletarOrgao() existente', () => {
+
+   it('Deve deletar o usuário vinculado ao órgão', async () => {
+  db.query
+    .mockResolvedValueOnce([
+      [
+        {
+          id_usuario: 50
+        }
+      ]
+    ])
+    .mockResolvedValueOnce([{}]);
+
+  await adminService.deletarOrgao(3);
+
+  expect(db.query).toHaveBeenNthCalledWith(
+    1,
+    'SELECT id_usuario FROM orgao_governamental WHERE id_orgao = ?',
+    [3]
+  );
+
+  expect(db.query).toHaveBeenNthCalledWith(
+    2,
+    'DELETE FROM usuario WHERE id_usuario = ?',
+    [50]
+  );
+   });
+
+});
+
+describe('TEST-ADM-019 - deletarOrgao() não existente', () => {
+
+   it('Não deve deletar usuário quando órgão não existir', async () => {
+  db.query.mockResolvedValueOnce([[]]);
+
+  await adminService.deletarOrgao(999);
+
+  expect(db.query).toHaveBeenCalledTimes(1);
+
+  expect(db.query).toHaveBeenCalledWith(
+    'SELECT id_usuario FROM orgao_governamental WHERE id_orgao = ?',
+    [999]
+  );
+   });
+
+});
