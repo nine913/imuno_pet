@@ -9,3 +9,12 @@
 - [x] TEST-ADM-005 - deletarClinica() existente
 - [x] TEST-ADM-006 - obterClinicaPorId() encontrada
 - [x] TEST-ADM-007 - obterClinicaPorId() não encontrada
+
+## Gestor
+
+- [x] TEST-ADM-008 - listarGestores() sem filtro
+- [x] TEST-ADM-009 - listarGestores() com filtro
+- [x] TEST-ADM-010 - cadastrarGestor()
+- [x] TEST-ADM-011 - editarGestor()
+- [x] TEST-ADM-012 - deletarGestor() quando existir
+- [x] TEST-ADM-013 - deletarGestor() quando não existir

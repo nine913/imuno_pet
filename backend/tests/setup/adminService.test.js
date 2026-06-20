@@ -6,6 +6,10 @@ const bcrypt = require('bcrypt');
 jest.mock('../../db');
 jest.mock('bcrypt');
 
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
 describe('TEST-ADM-001 - listarClinicas() sem filtro', () => {
 
    it('Deve listar todas as clínicas sem filtro', async () => {
@@ -203,6 +207,177 @@ describe('TEST-ADM-007 - obterClinicaPorId() não encontrada', () => {
   );
 
   expect(resultado).toBeNull();
+   });
+
+});
+
+describe('TEST-ADM-008 - listarClinicas() sem filtro', () => {
+
+   it('Deve listar todos os gestores sem filtro', async () => {
+  const mockGestores = [
+    {
+      id_gestor: 1,
+      nome_completo: 'João Silva',
+      email: 'joao@email.com',
+      nome_fantasia: 'Pet Vida'
+    }
+  ];
+
+  db.query.mockResolvedValue([mockGestores]);
+
+  const resultado = await adminService.listarGestores();
+
+  expect(db.query).toHaveBeenCalledWith(
+    `
+      SELECT g.id_gestor, g.id_clinica, g.nome_completo, u.email, c.nome_fantasia 
+      FROM gestor g
+      JOIN usuario u ON g.id_usuario = u.id_usuario
+      JOIN clinica c ON g.id_clinica = c.id_clinica
+     ORDER BY g.nome_completo ASC`,
+    []
+  );
+
+  expect(resultado).toEqual(mockGestores);
+   });
+
+});
+
+describe('TEST-ADM-009 - listarGestores() com filtro', () => {
+
+    it('Deve listar gestores utilizando filtro', async () => {
+  const termo = 'João';
+
+  const mockGestores = [
+    {
+      id_gestor: 1,
+      nome_completo: 'João Silva'
+    }
+  ];
+
+  db.query.mockResolvedValue([mockGestores]);
+
+  const resultado = await adminService.listarGestores(termo);
+
+  expect(db.query).toHaveBeenCalledWith(
+    `
+      SELECT g.id_gestor, g.id_clinica, g.nome_completo, u.email, c.nome_fantasia 
+      FROM gestor g
+      JOIN usuario u ON g.id_usuario = u.id_usuario
+      JOIN clinica c ON g.id_clinica = c.id_clinica
+     WHERE g.nome_completo LIKE ? OR u.email LIKE ? ORDER BY g.nome_completo ASC`,
+    ['%João%', '%João%']
+  );
+
+  expect(resultado).toEqual(mockGestores);
+    });
+});
+
+
+describe('TEST-ADM-010 - cadastrarGestor() novo', () => {
+
+    it('Deve cadastrar um gestor', async () => {
+  const dados = {
+    email: 'gestor@email.com',
+    senha: '123456',
+    id_clinica: 2,
+    nome_completo: 'João Silva'
+  };
+
+  bcrypt.hash.mockResolvedValue('senha-hash');
+
+  db.query
+    .mockResolvedValueOnce([
+      {
+        insertId: 15
+      }
+    ])
+    .mockResolvedValueOnce([{}]);
+
+  await adminService.cadastrarGestor(dados);
+
+  expect(bcrypt.hash).toHaveBeenCalledWith(
+    '123456',
+    10
+  );
+
+  expect(db.query).toHaveBeenNthCalledWith(
+    1,
+    'INSERT INTO usuario (email, senha, perfil) VALUES (?, ?, "GESTOR_CLINICA")',
+    ['gestor@email.com', 'senha-hash']
+  );
+
+  expect(db.query).toHaveBeenNthCalledWith(
+    2,
+    'INSERT INTO gestor (id_usuario, id_clinica, nome_completo) VALUES (?, ?, ?)',
+    [15, 2, 'João Silva']
+  );
+    });
+    
+});
+
+describe('TEST-ADM-011 - editarGestor() existente', () => {
+
+   it('Deve editar um gestor', async () => {
+  const dados = {
+    id_clinica: 3,
+    nome_completo: 'João Atualizado'
+  };
+
+  db.query.mockResolvedValue([{}]);
+
+  await adminService.editarGestor(5, dados);
+
+  expect(db.query).toHaveBeenCalledWith(
+    'UPDATE gestor SET id_clinica = ?, nome_completo = ? WHERE id_gestor = ?',
+    [3, 'João Atualizado', 5]
+  );
+   });
+
+});
+
+describe('TEST-ADM-012 - deletarGestor() existente', () => {
+
+   it('Deve deletar o usuário vinculado ao gestor', async () => {
+  db.query
+    .mockResolvedValueOnce([
+      [
+        {
+          id_usuario: 20
+        }
+      ]
+    ])
+    .mockResolvedValueOnce([{}]);
+
+  await adminService.deletarGestor(5);
+
+  expect(db.query).toHaveBeenNthCalledWith(
+    1,
+    'SELECT id_usuario FROM gestor WHERE id_gestor = ?',
+    [5]
+  );
+
+  expect(db.query).toHaveBeenNthCalledWith(
+    2,
+    'DELETE FROM usuario WHERE id_usuario = ?',
+    [20]
+  );
+   });
+
+});
+
+describe('TEST-ADM-013 - deletarGestor() não existente', () => {
+
+   it('Não deve deletar usuário quando gestor não existir', async () => {
+  db.query.mockResolvedValueOnce([[]]);
+
+  await adminService.deletarGestor(999);
+
+  expect(db.query).toHaveBeenCalledTimes(1);
+
+  expect(db.query).toHaveBeenCalledWith(
+    'SELECT id_usuario FROM gestor WHERE id_gestor = ?',
+    [999]
+  );
    });
 
 });
