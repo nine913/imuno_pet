@@ -177,18 +177,55 @@ export default function Login() {
     </div>
   );
 }
-
 const styles = {
-  container: { display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', backgroundColor: '#f0f2f5' },
-  loginBox: { backgroundColor: 'white', padding: '40px', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', width: '100%', maxWidth: '400px' },
-  title: { textAlign: 'center', color: '#0056b3', marginBottom: '10px', marginTop: 0 },
-  subtitle: { textAlign: 'center', color: '#333', marginBottom: '30px' },
-  form: { display: 'flex', flexDirection: 'column' },
-  input: { padding: '12px', marginBottom: '15px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '16px', width: '100%', boxSizing: 'border-box', color: '#333' },
-  button: { padding: '12px', backgroundColor: '#0056b3', color: 'white', border: 'none', borderRadius: '4px', fontSize: '16px', cursor: 'pointer', fontWeight: 'bold' },
-  btnCancelar: { padding: '12px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '4px', fontSize: '16px', cursor: 'pointer', fontWeight: 'bold' },
-  btnLink: { background: 'none', border: 'none', color: '#0056b3', textDecoration: 'underline', cursor: 'pointer', fontSize: '14px' },
-  errorBox: { backgroundColor: '#f8d7da', color: '#721c24', padding: '10px', borderRadius: '4px', marginBottom: '15px', border: '1px solid #f5c6cb', fontSize: '14px', textAlign: 'center' },
-  modalOverlay: { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 },
-  modalContent: { backgroundColor: '#fff', padding: '30px', borderRadius: '8px', width: '400px', boxShadow: '0 4px 20px rgba(0,0,0,0.2)' }
+  container: {
+    marginBottom: '20px',
+    padding: '15px',
+    borderRadius: '4px',
+    borderLeft: '5px solid',
+    borderRight: '1px solid #ddd',
+    borderTop: '1px solid #ddd',
+    borderBottom: '1px solid #ddd',
+    position: 'relative',
+    transition: 'all 0.3s ease-in-out'
+  },
+  header: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '8px'
+  },
+  title: {
+    margin: 0,
+    fontSize: '16px',
+    fontWeight: 'bold',
+  },
+  mensagem: {
+    margin: 0,
+    fontSize: '14px',
+    lineHeight: '1.4'
+  },
+  controles: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    backgroundColor: 'rgba(255, 255, 255, 0.4)',
+    padding: '2px 8px',
+    borderRadius: '12px'
+  },
+  btnNav: {
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    fontSize: '16px',
+    fontWeight: 'bold',
+    padding: '2px 6px',
+    transition: 'transform 0.1s'
+  },
+  contador: {
+    fontSize: '12px',
+    fontWeight: 'bold',
+    minWidth: '35px',
+    textAlign: 'center'
+  }
 };

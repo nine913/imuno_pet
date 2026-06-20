@@ -1,4 +1,11 @@
 .env
+*.env
+.vscode/
+.env.local
 next.config.mjs
 node_modules
 dist
+coverage/
+*.log
+nextconfig.mjs
+*.config.mjs
