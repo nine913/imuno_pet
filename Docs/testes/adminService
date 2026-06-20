@@ -27,3 +27,8 @@
 - [x] TEST-ADM-017 - editarOrgao() existente
 - [x] TEST-ADM-018 - deletarOrgao() quando existir
 - [x] TEST-ADM-019 - deletarOrgao() quando não existir
+
+## Estatísticas
+
+- [x] TEST-ADM-020 - obterEstatisticas()
+- [x] TEST-ADM-021 - obterEstatisticas() com banco vazio

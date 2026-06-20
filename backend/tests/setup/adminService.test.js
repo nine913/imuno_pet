@@ -563,3 +563,92 @@ describe('TEST-ADM-019 - deletarOrgao() não existente', () => {
    });
 
 });
+
+describe('TEST-ADM-020 - obterEstatisticas()', () => {
+
+   it('Deve retornar as estatísticas do sistema', async () => {
+  db.query
+    .mockResolvedValueOnce([
+      [
+        {
+          total: 10
+        }
+      ]
+    ])
+    .mockResolvedValueOnce([
+      [
+        {
+          total: 50
+        }
+      ]
+    ])
+    .mockResolvedValueOnce([
+      [
+        {
+          total: 25
+        }
+      ]
+    ]);
+
+  const resultado = await adminService.obterEstatisticas();
+
+  expect(db.query).toHaveBeenNthCalledWith(
+    1,
+    'SELECT COUNT(*) as total FROM clinica'
+  );
+
+  expect(db.query).toHaveBeenNthCalledWith(
+    2,
+    'SELECT COUNT(*) as total FROM usuario'
+  );
+
+  expect(db.query).toHaveBeenNthCalledWith(
+    3,
+    'SELECT COUNT(*) as total FROM vacina'
+  );
+
+  expect(resultado).toEqual({
+    total_clinicas: 10,
+    total_usuarios: 50,
+    total_vacinas: 25
+  });
+   });
+
+});
+
+describe('TEST-ADM-021 - obterEstatisticas() sem registros', () => {
+
+   it('Deve retornar estatísticas zeradas quando não houver registros', async () => {
+  db.query
+    .mockResolvedValueOnce([
+      [
+        {
+          total: 0
+        }
+      ]
+    ])
+    .mockResolvedValueOnce([
+      [
+        {
+          total: 0
+        }
+      ]
+    ])
+    .mockResolvedValueOnce([
+      [
+        {
+          total: 0
+        }
+      ]
+    ]);
+
+  const resultado = await adminService.obterEstatisticas();
+
+  expect(resultado).toEqual({
+    total_clinicas: 0,
+    total_usuarios: 0,
+    total_vacinas: 0
+  });
+   });
+
+});
