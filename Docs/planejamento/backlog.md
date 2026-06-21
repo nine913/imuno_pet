@@ -85,7 +85,7 @@
 - [x] Criar regras de negócio
 - [ ] Criar padronização de commits
 - [ ] Criar fluxo de versionamento
-- [ ] Melhorar organização do repositório
+- [x] Melhorar organização do repositório
 
 ---
 
