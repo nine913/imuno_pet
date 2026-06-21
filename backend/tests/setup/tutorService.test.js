@@ -26,7 +26,6 @@ beforeEach(() => {
 // - Exclusão efetiva de tutor e usuário
 // ============================================================================
 
-describe('TEST-TUT-000 - tutorService', () => {
   // ============================================================================
   // Testes: deletarTutor
   // ============================================================================
@@ -353,5 +352,3 @@ describe('TEST-TUT-000 - tutorService', () => {
         .toContain('UPDATE registro_vacinacao');
     });
   });
-});
-

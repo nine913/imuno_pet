@@ -5,12 +5,11 @@ jest.mock('../../db', () => ({
 const db = require('../../db');
 const vacinaService = require('../../services/vacinaService');
 
-describe('TEST-VAC-000 - vacinaService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  // TEST-VAC-000
+  // TEST-VAC-003
   describe('TEST-VAC-003 - cadastrarVacina()', () => {
 
     it('Deve cadastrar uma vacina corretamente', async () => {
@@ -553,4 +552,3 @@ describe('TEST-VAC-000 - vacinaService', () => {
 });
 
   });
-});

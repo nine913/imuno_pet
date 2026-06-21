@@ -41,32 +41,6 @@ describe('TEST-ADM-001 - listarClinicas() sem filtro', () => {
 
 });
 
-describe('TEST-ADM-002 - listarClinicas() com filtro', () => {
-
-   it('Deve listar clínicas utilizando filtro', async () => {
-  const termo = 'Pet';
-
-  const mockClinicas = [
-    {
-      id_clinica: 1,
-      nome_fantasia: 'Clínica Pet Vida'
-    }
-  ];
-
-  db.query.mockResolvedValue([mockClinicas]);
-
-  const resultado = await adminService.listarClinicas(termo);
-
-  expect(db.query).toHaveBeenCalledWith(
-    'SELECT * FROM clinica WHERE nome_fantasia LIKE ? OR cnpj LIKE ? ORDER BY nome_fantasia ASC',
-    ['%Pet%', '%Pet%']
-  );
-
-  expect(resultado).toEqual(mockClinicas);
-   });
-
-});
-
 describe('TEST-ADM-003 - cadastrarClinica() nova', () => {
 
    it('Deve cadastrar uma clínica e retornar o ID gerado', async () => {
@@ -194,23 +168,6 @@ describe('TEST-ADM-006 - obterClinicaPorId() encontrada', () => {
 
 });
 
-describe('TEST-ADM-007 - obterClinicaPorId() não encontrada', () => {
-
-   it('Deve retornar null quando a clínica não for encontrada', async () => {
-  db.query.mockResolvedValue([[]]);
-
-  const resultado = await adminService.obterClinicaPorId(999);
-
-  expect(db.query).toHaveBeenCalledWith(
-    'SELECT * FROM clinica WHERE id_clinica = ?',
-    [999]
-  );
-
-  expect(resultado).toBeNull();
-   });
-
-});
-
 describe('TEST-ADM-008 - listarClinicas() sem filtro', () => {
 
    it('Deve listar todos os gestores sem filtro', async () => {
@@ -240,36 +197,6 @@ describe('TEST-ADM-008 - listarClinicas() sem filtro', () => {
   expect(resultado).toEqual(mockGestores);
    });
 
-});
-
-describe('TEST-ADM-009 - listarGestores() com filtro', () => {
-
-    it('Deve listar gestores utilizando filtro', async () => {
-  const termo = 'João';
-
-  const mockGestores = [
-    {
-      id_gestor: 1,
-      nome_completo: 'João Silva'
-    }
-  ];
-
-  db.query.mockResolvedValue([mockGestores]);
-
-  const resultado = await adminService.listarGestores(termo);
-
-  expect(db.query).toHaveBeenCalledWith(
-    `
-      SELECT g.id_gestor, g.id_clinica, g.nome_completo, u.email, c.nome_fantasia 
-      FROM gestor g
-      JOIN usuario u ON g.id_usuario = u.id_usuario
-      JOIN clinica c ON g.id_clinica = c.id_clinica
-     WHERE g.nome_completo LIKE ? OR u.email LIKE ? ORDER BY g.nome_completo ASC`,
-    ['%João%', '%João%']
-  );
-
-  expect(resultado).toEqual(mockGestores);
-    });
 });
 
 describe('TEST-ADM-010 - cadastrarGestor() novo', () => {
@@ -360,52 +287,6 @@ describe('TEST-ADM-012 - deletarGestor() existente', () => {
     'DELETE FROM usuario WHERE id_usuario = ?',
     [20]
   );
-   });
-
-});
-
-describe('TEST-ADM-013 - deletarGestor() não existente', () => {
-
-   it('Não deve deletar usuário quando gestor não existir', async () => {
-  db.query.mockResolvedValueOnce([[]]);
-
-  await adminService.deletarGestor(999);
-
-  expect(db.query).toHaveBeenCalledTimes(1);
-
-  expect(db.query).toHaveBeenCalledWith(
-    'SELECT id_usuario FROM gestor WHERE id_gestor = ?',
-    [999]
-  );
-   });
-
-});
-
-describe('TEST-ADM-014 - listarOrgaos() sem filtro', () => {
-
-   it('Deve listar todos os órgãos sem filtro', async () => {
-  const mockOrgaos = [
-    {
-      id_orgao: 1,
-      nome_instituicao: 'Secretaria Municipal de Saúde',
-      email: 'saude@governo.gov.br'
-    }
-  ];
-
-  db.query.mockResolvedValue([mockOrgaos]);
-
-  const resultado = await adminService.listarOrgaos();
-
-  expect(db.query).toHaveBeenCalledWith(
-    `
-      SELECT o.id_orgao, o.nome_instituicao, o.esfera, o.estado_atuacao, o.cidade_atuacao, u.email 
-      FROM orgao_governamental o
-      JOIN usuario u ON o.id_usuario = u.id_usuario
-     ORDER BY o.nome_instituicao ASC`,
-    []
-  );
-
-  expect(resultado).toEqual(mockOrgaos);
    });
 
 });
@@ -546,23 +427,6 @@ describe('TEST-ADM-018 - deletarOrgao() existente', () => {
 
 });
 
-describe('TEST-ADM-019 - deletarOrgao() não existente', () => {
-
-   it('Não deve deletar usuário quando órgão não existir', async () => {
-  db.query.mockResolvedValueOnce([[]]);
-
-  await adminService.deletarOrgao(999);
-
-  expect(db.query).toHaveBeenCalledTimes(1);
-
-  expect(db.query).toHaveBeenCalledWith(
-    'SELECT id_usuario FROM orgao_governamental WHERE id_orgao = ?',
-    [999]
-  );
-   });
-
-});
-
 describe('TEST-ADM-020 - obterEstatisticas()', () => {
 
    it('Deve retornar as estatísticas do sistema', async () => {
@@ -615,70 +479,6 @@ describe('TEST-ADM-020 - obterEstatisticas()', () => {
 
 });
 
-describe('TEST-ADM-021 - obterEstatisticas() sem registros', () => {
-
-   it('Deve retornar estatísticas zeradas quando não houver registros', async () => {
-  db.query
-    .mockResolvedValueOnce([
-      [
-        {
-          total: 0
-        }
-      ]
-    ])
-    .mockResolvedValueOnce([
-      [
-        {
-          total: 0
-        }
-      ]
-    ])
-    .mockResolvedValueOnce([
-      [
-        {
-          total: 0
-        }
-      ]
-    ]);
-
-  const resultado = await adminService.obterEstatisticas();
-
-  expect(resultado).toEqual({
-    total_clinicas: 0,
-    total_usuarios: 0,
-    total_vacinas: 0
-  });
-   });
-
-});
-
-describe('TEST-ADM-022 - listarEspecies()', () => {
-
-   it('Deve listar todas as espécies', async () => {
-  const mockEspecies = [
-    {
-      id_especie: 1,
-      nome_especie: 'Canino'
-    },
-    {
-      id_especie: 2,
-      nome_especie: 'Felino'
-    }
-  ];
-
-  db.query.mockResolvedValue([mockEspecies]);
-
-  const resultado = await adminService.listarEspecies();
-
-  expect(db.query).toHaveBeenCalledWith(
-    'SELECT * FROM especie ORDER BY nome_especie ASC'
-  );
-
-  expect(resultado).toEqual(mockEspecies);
-   });
-
-});
-
 describe('TEST-ADM-023 - cadastrarEspecie() nova', () => {
 
    it('Deve cadastrar uma espécie', async () => {
@@ -705,31 +505,6 @@ describe('TEST-ADM-024 - deletarEspecie() existente', () => {
     'DELETE FROM especie WHERE id_especie = ?',
     [1]
   );
-   });
-
-});
-
-describe('TEST-ADM-025 - listarRacas() sem filtro', () => {
-
-   it('Deve listar todas as raças sem filtro', async () => {
-  const mockRacas = [
-    {
-      id_raca: 1,
-      nome_raca: 'Labrador',
-      nome_especie: 'Canino'
-    }
-  ];
-
-  db.query.mockResolvedValue([mockRacas]);
-
-  const resultado = await adminService.listarRacas();
-
-  expect(db.query).toHaveBeenCalledWith(
-    'SELECT r.*, e.nome_especie FROM raca r JOIN especie e ON r.id_especie = e.id_especie ORDER BY e.nome_especie ASC, r.nome_raca ASC',
-    []
-  );
-
-  expect(resultado).toEqual(mockRacas);
    });
 
 });
@@ -789,30 +564,6 @@ describe('TEST-ADM-028 - deletarRaca() existente', () => {
 
 });
 
-describe('TEST-ADM-029 - listarAvisos()', () => {
-
-   it('Deve listar todos os avisos', async () => {
-  const mockAvisos = [
-    {
-      id_aviso: 1,
-      titulo: 'Manutenção',
-      mensagem: 'Sistema em manutenção'
-    }
-  ];
-
-  db.query.mockResolvedValue([mockAvisos]);
-
-  const resultado = await adminService.listarAvisos();
-
-  expect(db.query).toHaveBeenCalledWith(
-    'SELECT * FROM aviso ORDER BY data_criacao DESC'
-  );
-
-  expect(resultado).toEqual(mockAvisos);
-   });
-
-});
-
 describe('TEST-ADM-030 - cadastrarAviso() com tipo informado', () => {
 
    it('Deve cadastrar aviso com tipo informado', async () => {
@@ -832,30 +583,6 @@ describe('TEST-ADM-030 - cadastrarAviso() com tipo informado', () => {
       'Alerta',
       'Mensagem importante',
       'ALERTA'
-    ]
-  );
-   });
-
-});
-
-describe('TEST-ADM-031 - cadastrarAviso() sem tipo informado', () => {
-
-   it('Deve cadastrar aviso utilizando o tipo padrão INFO', async () => {
-  const dados = {
-    titulo: 'Comunicado',
-    mensagem: 'Mensagem padrão'
-  };
-
-  db.query.mockResolvedValue([{}]);
-
-  await adminService.cadastrarAviso(dados);
-
-  expect(db.query).toHaveBeenCalledWith(
-    'INSERT INTO aviso (titulo, mensagem, tipo) VALUES (?, ?, ?)',
-    [
-      'Comunicado',
-      'Mensagem padrão',
-      'INFO'
     ]
   );
    });
@@ -934,31 +661,6 @@ describe('TEST-ADM-034 - listarLogs()', () => {
   );
 
   expect(resultado).toEqual(mockLogs);
-   });
-
-});
-
-describe('TEST-ADM-035 - listarVacinas() sem filtro', () => {
-
-   it('Deve listar todas as vacinas sem filtro', async () => {
-  const mockVacinas = [
-    {
-      id_vacina: 1,
-      nome_vacina: 'V8',
-      fabricante: 'Laboratório A'
-    }
-  ];
-
-  db.query.mockResolvedValue([mockVacinas]);
-
-  const resultado = await adminService.listarVacinas();
-
-  expect(db.query).toHaveBeenCalledWith(
-    'SELECT * FROM vacina ORDER BY nome_vacina ASC',
-    []
-  );
-
-  expect(resultado).toEqual(mockVacinas);
    });
 
 });

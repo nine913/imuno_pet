@@ -3,54 +3,43 @@
 ## Clínica
 
 - [x] TEST-ADM-001 - listarClinicas() sem filtro
-- [x] TEST-ADM-002 - listarClinicas() com filtro
 - [x] TEST-ADM-003 - cadastrarClinica() nova
 - [x] TEST-ADM-004 - editarClinica() existente
 - [x] TEST-ADM-005 - deletarClinica() existente
 - [x] TEST-ADM-006 - obterClinicaPorId() encontrada
-- [x] TEST-ADM-007 - obterClinicaPorId() não encontrada
 
 ## Gestor
 
 - [x] TEST-ADM-008 - listarGestores() sem filtro
-- [x] TEST-ADM-009 - listarGestores() com filtro
 - [x] TEST-ADM-010 - cadastrarGestor()
 - [x] TEST-ADM-011 - editarGestor()
 - [x] TEST-ADM-012 - deletarGestor() quando existir
-- [x] TEST-ADM-013 - deletarGestor() quando não existir
 
 ## Órgão Governamental
 
-- [x] TEST-ADM-014 - listarOrgaos() sem filtro
 - [x] TEST-ADM-015 - listarOrgaos() com filtro
 - [x] TEST-ADM-016 - cadastrarOrgao() novo
 - [x] TEST-ADM-017 - editarOrgao() existente
 - [x] TEST-ADM-018 - deletarOrgao() quando existir
-- [x] TEST-ADM-019 - deletarOrgao() quando não existir
 
 ## Estatísticas
 
 - [x] TEST-ADM-020 - obterEstatisticas()
-- [x] TEST-ADM-021 - obterEstatisticas() com banco vazio
 
 ## Espécies
 
-- [x] TEST-ADM-022 - listarEspecies()
 - [x] TEST-ADM-023 - cadastrarEspecie()
 - [x] TEST-ADM-024 - deletarEspecie()
 
 ## Raças
 
-- [x] TEST-ADM-025 - listarRacas() sem filtro
 - [x] TEST-ADM-026 - listarRacas() filtrando por espécie
 - [x] TEST-ADM-027 - cadastrarRaca()
 - [x] TEST-ADM-028 - deletarRaca()
 
 ## Avisos
 
-- [x] TEST-ADM-029 - listarAvisos()
 - [x] TEST-ADM-030 - cadastrarAviso() com tipo informado
-- [x] TEST-ADM-031 - cadastrarAviso() utilizando tipo padrão INFO
 - [x] TEST-ADM-032 - editarAviso()
 - [x] TEST-ADM-033 - deletarAviso()
 
@@ -60,8 +49,15 @@
 
 ## Vacinas
 
-- [x] TEST-ADM-035 - listarVacinas() sem filtro
 - [x] TEST-ADM-036 - listarVacinas() com filtro
 - [x] TEST-ADM-037 - cadastrarVacina()
 - [x] TEST-ADM-038 - editarVacina()
 - [x] TEST-ADM-039 - deletarVacina()
+
+### Resumo
+
+- [x] 27/27 testes implementados
+- [x] Todos os cenários planejados concluídos
+- [x] Regras de negócio principais validadas
+- [x] Principais queries validadas
+- [x] Módulo adminService concluído

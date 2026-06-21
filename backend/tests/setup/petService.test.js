@@ -52,7 +52,6 @@ describe('TEST-PET-001 - getTutorIdByUsuario()', () => {
 
 });
 
-
 describe('TEST-PET-002 - criarPet()', () => {
 
   // Este bloco valida a criação de um pet via SQL
@@ -116,7 +115,6 @@ describe('TEST-PET-002 - criarPet()', () => {
   });
 
 });
-
 
 describe('TEST-PET-003 - cadastrarAnimalVet()', () => {
 
@@ -190,7 +188,6 @@ describe('TEST-PET-003 - cadastrarAnimalVet()', () => {
   });
 
 });
-
 
 describe('TEST-PET-004 - cadastrarTutorEPet()', () => {
 
@@ -311,7 +308,6 @@ describe('TEST-PET-004 - cadastrarTutorEPet()', () => {
   });
 
 });
-
 
 describe('TEST-PET-005 - buscarAnimais()', () => {
 
@@ -437,7 +433,6 @@ describe('TEST-PET-005 - buscarAnimais()', () => {
 
 });
 
-
 describe('TEST-PET-006 - detalhesAnimal()', () => {
 
   // Este bloco valida a consulta que retorna detalhes do animal
@@ -490,7 +485,6 @@ describe('TEST-PET-006 - detalhesAnimal()', () => {
   });
 
 });
-
 
 describe('TEST-PET-007 - editarPetTutor()', () => {
 
@@ -613,7 +607,6 @@ describe('TEST-PET-007 - editarPetTutor()', () => {
 
 });
 
-
 describe('TEST-PET-008 - editarAnimalSimples()', () => {
 
   // Este bloco valida uma atualização simples apenas na tabela `animal`.
@@ -654,7 +647,6 @@ describe('TEST-PET-008 - editarAnimalSimples()', () => {
 
 });
 
-
 describe('TEST-PET-009 - deletarAnimal()', () => {
 
   // Este bloco valida o comportamento de deleção em cascata "manual":
@@ -686,7 +678,6 @@ describe('TEST-PET-009 - deletarAnimal()', () => {
   });
 
 });
-
 
 describe('TEST-PET-010 - relatorioVacinasVet()', () => {
 
