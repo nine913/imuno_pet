@@ -1,5 +1,5 @@
-const db = require('../../db');
-const tutorService = require('../../services/tutorService');
+const db = require('../../../db');
+const tutorService = require('../../../services/tutorService');
 const bcrypt = require('bcrypt');
 
 // ============================================================================
@@ -10,7 +10,7 @@ const bcrypt = require('bcrypt');
 // - Com isso, os testes não dependem de banco real nem de hash real.
 //
 jest.mock('bcrypt');
-jest.mock('../../db');
+jest.mock('../../../db');
 
 beforeEach(() => {
   jest.clearAllMocks();

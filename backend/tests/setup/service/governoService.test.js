@@ -1,9 +1,9 @@
-const db = require('../../db');
-const governoService = require('../../services/governoService');
+const db = require('../../../db');
+const governoService = require('../../../services/governoService');
 const bcrypt = require('bcrypt');
 
 
-jest.mock('../../db');
+jest.mock('../../../db');
 jest.mock('bcrypt');
 
 beforeEach(() => {

@@ -1,9 +1,9 @@
-jest.mock('../../db', () => ({
+jest.mock('../../../db', () => ({
   query: jest.fn()
 }));
 
-const db = require('../../db');
-const vacinaService = require('../../services/vacinaService');
+const db = require('../../../db');
+const vacinaService = require('../../../services/vacinaService');
 
   beforeEach(() => {
     jest.clearAllMocks();

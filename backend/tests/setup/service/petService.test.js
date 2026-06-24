@@ -1,12 +1,12 @@
 // Dependências do projeto (db e service que serão exercitados pelos testes)
-const db = require('../../db');
-const petService = require('../../services/petService');
+const db = require('../../../db');
+const petService = require('../../../services/petService');
 const bcrypt = require('bcrypt');
 
 // Mock de dependências externas para isolar a lógica do service
 // - db: para simular resultados de consultas SQL
 // - bcrypt: para simular geração de hash de senha
-jest.mock('../../db');
+jest.mock('../../../db');
 jest.mock('bcrypt');
 
 describe('TEST-PET-001 - getTutorIdByUsuario()', () => {
