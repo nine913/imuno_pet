@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import LayoutPainel from '../../components/LayoutPainel';
 
 export default function CadastrarTutor() {
   const router = useRouter();
@@ -12,6 +13,9 @@ export default function CadastrarTutor() {
   const [especies, setEspecies] = useState([]);
   const [racas, setRacas] = useState([]);
   const [idEspecieSel, setIdEspecieSel] = useState('');
+
+  const [tema, setTema] = useState('claro');
+  const [altoContraste, setAltoContraste] = useState(false);
 
   const [formDados, setFormDados] = useState({
     email: '',
@@ -37,7 +41,15 @@ export default function CadastrarTutor() {
     setIsMounted(true);
     const saved = localStorage.getItem('usuarioImunoPet');
     if (saved) {
-      setUsuario(JSON.parse(saved));
+      const user = JSON.parse(saved);
+      setUsuario(user);
+
+      const configSalvas = localStorage.getItem(`imunoPetConfig_${user.id_usuario}`);
+      if (configSalvas) {
+        const config = JSON.parse(configSalvas);
+        setTema(config.tema || 'claro');
+        setAltoContraste(config.altoContraste || false);
+      }
     } else {
       router.push('/');
     }
@@ -140,152 +152,154 @@ export default function CadastrarTutor() {
 
   if (!isMounted || !usuario) return null;
 
+  const isEscuro = tema === 'escuro';
+  const bgCard = isEscuro ? '#1e1e1e' : '#ffffff';
+  const textColor = isEscuro ? '#fdfdfd' : '#000000';
+  const textSecundario = isEscuro ? '#cccccc' : '#333333';
+  const borderColor = isEscuro ? '#444444' : '#e3e3e3';
+  const inputBg = isEscuro ? '#2d2d2d' : '#ffffff';
+  const headerColor = altoContraste ? '#ffcc00' : (isEscuro ? '#66b2ff' : '#0056b3');
+  const sectionBorder = isEscuro ? '#444' : '#e9ecef';
+
   return (
-    <div style={styles.body}>
-      <div style={styles.container}>
-        <button style={styles.btnVoltar} onClick={() => router.back()}>Voltar</button>
-        <h2 style={styles.h2}>Cadastrar Tutor e Pet</h2>
-
-        <form onSubmit={handleSubmit}>
-          <h3 style={styles.sectionTitle}>👨‍👩‍👧 Dados do Tutor</h3>
+    <LayoutPainel>
+      <div style={{ padding: '40px', maxWidth: '700px', margin: '0 auto', color: textColor }}>
+        <div style={{ background: bgCard, padding: '30px', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)', border: altoContraste ? '3px solid #ffcc00' : 'none' }}>
           
-          <label style={styles.label}>Nome Completo:</label>
-          <input type="text" value={formDados.nome_completo} onChange={e => setFormDados({...formDados, nome_completo: e.target.value})} required style={styles.input} />
+          <h2 style={{ color: headerColor, marginTop: 0, marginBottom: '20px' }}>Cadastrar Tutor e Pet</h2>
 
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <div style={{ flex: 1 }}>
-              <label style={styles.label}>CPF:</label>
-              <input 
-                type="text" 
-                value={formDados.cpf} 
-                onChange={e => setFormDados({...formDados, cpf: formatarCPF(e.target.value)})} 
-                required 
-                maxLength="14"
-                placeholder="000.000.000-00"
-                style={styles.input} 
-              />
+          <form onSubmit={handleSubmit}>
+            <h3 style={{ color: headerColor, marginTop: '25px', borderBottom: `2px solid ${sectionBorder}`, paddingBottom: '5px' }}>👨‍👩‍👧 Dados do Tutor</h3>
+            
+            <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Nome Completo:</label>
+            <input type="text" value={formDados.nome_completo} onChange={e => setFormDados({...formDados, nome_completo: e.target.value})} required style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} />
+
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>CPF:</label>
+                <input 
+                  type="text" 
+                  value={formDados.cpf} 
+                  onChange={e => setFormDados({...formDados, cpf: formatarCPF(e.target.value)})} 
+                  required 
+                  maxLength="14"
+                  placeholder="000.000.000-00"
+                  style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} 
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Telefone:</label>
+                <input 
+                  type="tel" 
+                  value={formDados.telefone} 
+                  onChange={e => setFormDados({...formDados, telefone: formatarTelefone(e.target.value)})} 
+                  maxLength="15"
+                  placeholder="(00) 00000-0000"
+                  style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} 
+                />
+              </div>
             </div>
-            <div style={{ flex: 1 }}>
-              <label style={styles.label}>Telefone:</label>
-              <input 
-                type="tel" 
-                value={formDados.telefone} 
-                onChange={e => setFormDados({...formDados, telefone: formatarTelefone(e.target.value)})} 
-                maxLength="15"
-                placeholder="(00) 00000-0000"
-                style={styles.input} 
-              />
+
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Estado (UF):</label>
+                <input 
+                  type="text" 
+                  maxLength="2" 
+                  value={formDados.estado} 
+                  onChange={e => setFormDados({...formDados, estado: formatarEstado(e.target.value)})} 
+                  required 
+                  placeholder="Ex: PA"
+                  style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} 
+                />
+              </div>
+              <div style={{ flex: 2 }}>
+                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Cidade:</label>
+                <input type="text" value={formDados.cidade} onChange={e => setFormDados({...formDados, cidade: e.target.value})} required style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} />
+              </div>
             </div>
-          </div>
 
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <div style={{ flex: 1 }}>
-              <label style={styles.label}>Estado (UF):</label>
-              <input 
-                type="text" 
-                maxLength="2" 
-                value={formDados.estado} 
-                onChange={e => setFormDados({...formDados, estado: formatarEstado(e.target.value)})} 
-                required 
-                placeholder="Ex: PA"
-                style={styles.input} 
-              />
+            <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Bairro:</label>
+            <input type="text" value={formDados.bairro} onChange={e => setFormDados({...formDados, bairro: e.target.value})} required style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} />
+
+            <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>E-mail (Login do Tutor):</label>
+            <input type="email" value={formDados.email} onChange={e => setFormDados({...formDados, email: e.target.value})} required style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} />
+
+            <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Senha de Acesso:</label>
+            <input type="password" value={formDados.senha} onChange={e => setFormDados({...formDados, senha: e.target.value})} required style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} />
+
+            <h3 style={{ color: headerColor, marginTop: '25px', borderBottom: `2px solid ${sectionBorder}`, paddingBottom: '5px' }}>🐾 Dados do Pet</h3>
+
+            <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Nome do Animal:</label>
+            <input type="text" value={formDados.nome_pet} onChange={e => setFormDados({...formDados, nome_pet: e.target.value})} required style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} />
+
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Espécie:</label>
+                <select value={idEspecieSel} onChange={handleEspecieChange} required style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }}>
+                  <option value="">Selecione a espécie...</option>
+                  {especies.map((e, index) => (
+                    <option key={e.id_especie || `esp-${index}`} value={e.id_especie}>{e.nome_especie}</option>
+                  ))}
+                </select>
+              </div>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Raça:</label>
+                <select value={formDados.raca} onChange={e => setFormDados({...formDados, raca: e.target.value})} required style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} disabled={!idEspecieSel}>
+                  <option value="">Selecione a raça...</option>
+                  {racas.map((r, index) => (
+                    <option key={r.id_raca || `raca-${index}`} value={r.nome_raca}>{r.nome_raca}</option>
+                  ))}
+                </select>
+              </div>
             </div>
-            <div style={{ flex: 2 }}>
-              <label style={styles.label}>Cidade:</label>
-              <input type="text" value={formDados.cidade} onChange={e => setFormDados({...formDados, cidade: e.target.value})} required style={styles.input} />
+
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Porte:</label>
+                <select value={formDados.porte} onChange={e => setFormDados({...formDados, porte: e.target.value})} required style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }}>
+                  <option value="">Selecione...</option>
+                  <option value="PEQUENO">Pequeno</option>
+                  <option value="MEDIO">Médio</option>
+                  <option value="GRANDE">Grande</option>
+                </select>
+              </div>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Fase da Vida:</label>
+                <select value={formDados.fase_vida} required style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: sectionBorder, color: textColor, fontSize: 'inherit' }} disabled>
+                  <option value="">Automático</option>
+                  <option value="FILHOTE">Filhote</option>
+                  <option value="ADULTO">Adulto</option>
+                  <option value="IDOSO">Idoso</option>
+                </select>
+              </div>
             </div>
-          </div>
 
-          <label style={styles.label}>Bairro:</label>
-          <input type="text" value={formDados.bairro} onChange={e => setFormDados({...formDados, bairro: e.target.value})} required style={styles.input} />
+            <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Data de Nascimento:</label>
+            <input 
+              type="date" 
+              value={formDados.data_nascimento} 
+              max={hoje}
+              onChange={e => {
+                const novaData = e.target.value;
+                setFormDados({
+                  ...formDados, 
+                  data_nascimento: novaData,
+                  fase_vida: calcularFaseVida(novaData)
+                });
+              }} 
+              required 
+              style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} 
+            />
 
-          <label style={styles.label}>E-mail (Login do Tutor):</label>
-          <input type="email" value={formDados.email} onChange={e => setFormDados({...formDados, email: e.target.value})} required style={styles.input} />
+            <button type="submit" style={{ backgroundColor: '#28a745', color: 'white', border: 'none', padding: '15px', borderRadius: '4px', cursor: 'pointer', width: '100%', fontWeight: 'bold', marginTop: '20px', fontSize: 'inherit' }}>
+              Salvar Cadastros
+            </button>
+          </form>
 
-          <label style={styles.label}>Senha de Acesso:</label>
-          <input type="password" value={formDados.senha} onChange={e => setFormDados({...formDados, senha: e.target.value})} required style={styles.input} />
-
-          <h3 style={styles.sectionTitle}>🐾 Dados do Pet</h3>
-
-          <label style={styles.label}>Nome do Animal:</label>
-          <input type="text" value={formDados.nome_pet} onChange={e => setFormDados({...formDados, nome_pet: e.target.value})} required style={styles.input} />
-
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <div style={{ flex: 1 }}>
-              <label style={styles.label}>Espécie:</label>
-              <select value={idEspecieSel} onChange={handleEspecieChange} required style={styles.input}>
-                <option value="">Selecione a espécie...</option>
-                {especies.map((e, index) => (
-                  <option key={e.id_especie || `esp-${index}`} value={e.id_especie}>{e.nome_especie}</option>
-                ))}
-              </select>
-            </div>
-            <div style={{ flex: 1 }}>
-              <label style={styles.label}>Raça:</label>
-              <select value={formDados.raca} onChange={e => setFormDados({...formDados, raca: e.target.value})} required style={styles.input} disabled={!idEspecieSel}>
-                <option value="">Selecione a raça...</option>
-                {racas.map((r, index) => (
-                  <option key={r.id_raca || `raca-${index}`} value={r.nome_raca}>{r.nome_raca}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <div style={{ flex: 1 }}>
-              <label style={styles.label}>Porte:</label>
-              <select value={formDados.porte} onChange={e => setFormDados({...formDados, porte: e.target.value})} required style={styles.input}>
-                <option value="">Selecione...</option>
-                <option value="PEQUENO">Pequeno</option>
-                <option value="MEDIO">Médio</option>
-                <option value="GRANDE">Grande</option>
-              </select>
-            </div>
-            <div style={{ flex: 1 }}>
-              <label style={styles.label}>Fase da Vida (Automático):</label>
-              <select value={formDados.fase_vida} required style={{...styles.input, backgroundColor: '#e9ecef'}} disabled>
-                <option value="">Selecione a data...</option>
-                <option value="FILHOTE">Filhote</option>
-                <option value="ADULTO">Adulto</option>
-                <option value="IDOSO">Idoso</option>
-              </select>
-            </div>
-          </div>
-
-          <label style={styles.label}>Data de Nascimento:</label>
-          <input 
-            type="date" 
-            value={formDados.data_nascimento} 
-            max={hoje}
-            onChange={e => {
-              const novaData = e.target.value;
-              setFormDados({
-                ...formDados, 
-                data_nascimento: novaData,
-                fase_vida: calcularFaseVida(novaData)
-              });
-            }} 
-            required 
-            style={styles.input} 
-          />
-
-          <button type="submit" style={styles.btnSub}>Salvar Cadastros</button>
-        </form>
-
-        {msg.texto && <div style={{ textAlign: 'center', marginTop: '15px', fontWeight: 'bold', color: msg.cor }}>{msg.texto}</div>}
+          {msg.texto && <div style={{ textAlign: 'center', marginTop: '15px', fontWeight: 'bold', color: msg.cor }}>{msg.texto}</div>}
+        </div>
       </div>
-    </div>
+    </LayoutPainel>
   );
 }
-
-const styles = {
-  body: { fontFamily: 'Arial, sans-serif', backgroundColor: '#f4f4f9', margin: 0, padding: '20px', minHeight: '100vh' },
-  container: { maxWidth: '700px', margin: 'auto', background: 'white', padding: '30px', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' },
-  h2: { color: '#000000', marginTop: 0, marginBottom: '20px' },
-  sectionTitle: { color: '#0056b3', marginTop: '25px', borderBottom: '2px solid #e9ecef', paddingBottom: '5px' },
-  btnVoltar: { backgroundColor: '#6c757d', color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', marginBottom: '20px', fontWeight: 'bold' },
-  input: { width: '100%', padding: '10px', margin: '8px 0 15px 0', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box', color: '#333' },
-  label: { fontWeight: 'bold', color: '#333', fontSize: '14px' },
-  btnSub: { backgroundColor: '#28a745', color: 'white', border: 'none', padding: '15px', borderRadius: '4px', cursor: 'pointer', width: '100%', fontSize: '16px', fontWeight: 'bold', marginTop: '20px' }
-};

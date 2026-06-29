@@ -2,6 +2,7 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import LayoutPainel from '../../components/LayoutPainel';
 
 function FormularioVacina() {
   const router = useRouter();
@@ -11,6 +12,9 @@ function FormularioVacina() {
   
   const [isMounted, setIsMounted] = useState(false);
   const [usuario, setUsuario] = useState(null);
+
+  const [tema, setTema] = useState('claro');
+  const [altoContraste, setAltoContraste] = useState(false);
 
   const [animal, setAnimal] = useState(null);
   const [vacinas, setVacinas] = useState([]);
@@ -28,7 +32,15 @@ function FormularioVacina() {
     setIsMounted(true);
     const saved = localStorage.getItem('usuarioImunoPet');
     if (saved) {
-      setUsuario(JSON.parse(saved));
+      const user = JSON.parse(saved);
+      setUsuario(user);
+
+      const configSalvas = localStorage.getItem(`imunoPetConfig_${user.id_usuario}`);
+      if (configSalvas) {
+        const config = JSON.parse(configSalvas);
+        setTema(config.tema || 'claro');
+        setAltoContraste(config.altoContraste || false);
+      }
     } else {
       router.push('/');
     }
@@ -152,101 +164,104 @@ function FormularioVacina() {
 
   if (!isMounted || !usuario) return null;
 
+  const isEscuro = tema === 'escuro';
+  const bgCard = isEscuro ? '#1e1e1e' : '#ffffff';
+  const textColor = isEscuro ? '#fdfdfd' : '#000000';
+  const textSecundario = isEscuro ? '#cccccc' : '#333333';
+  const borderColor = isEscuro ? '#444444' : '#e3e3e3';
+  const inputBg = isEscuro ? '#2d2d2d' : '#ffffff';
+  const headerColor = altoContraste ? '#ffcc00' : (isEscuro ? '#66b2ff' : '#0056b3');
+  
+  const infoCardBg = isEscuro ? '#2d2d2d' : '#e9ecef';
+  const infoCardBorder = isEscuro ? '#66b2ff' : '#0056b3';
+  const aplicanteBoxBg = isEscuro ? '#003366' : '#cce5ff';
+  const aplicanteBoxBorder = isEscuro ? '#004085' : '#b8daff';
+  const aplicanteBoxText = isEscuro ? '#99ccff' : '#004085';
+
   return (
-    <div style={styles.container}>
-      <button style={styles.btnVoltar} onClick={() => router.back()}>Voltar</button>
-      
-      <h2 style={styles.h2}>Registrar Vacinação ou Agendamento</h2>
-
-      {animal && (
-        <div style={styles.infoCard}>
-          <p style={{ margin: '5px 0', color: '#333' }}><strong>Paciente:</strong> {animal.nome_animal}</p>
-          <p style={{ margin: '5px 0', color: '#333' }}><strong>Espécie:</strong> {animal.especie} | <strong>Raça:</strong> {animal.raca || 'Não informada'}</p>
-          <p style={{ margin: '5px 0', color: '#333' }}><strong>Tutor Responsável:</strong> {animal.nome_tutor}</p>
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} style={styles.formContainer}>
+    <LayoutPainel>
+      <div style={{ padding: '40px', maxWidth: '600px', margin: '0 auto', color: textColor }}>
+        <button style={{ backgroundColor: '#6c757d', color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', marginBottom: '20px', fontWeight: 'bold', fontSize: 'inherit' }} onClick={() => router.back()}>Voltar</button>
         
-        <label style={styles.label}>Situação do Registro:</label>
-        <select value={formDados.status} onChange={handleStatusChange} required style={styles.input}>
-          <option value="APLICADA">✅ Vacina Aplicada (Registrar agora)</option>
-          <option value="PENDENTE">📅 Pendente (Agendar próxima dose)</option>
-        </select>
+        <div style={{ background: bgCard, padding: '30px', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)', border: altoContraste ? '3px solid #ffcc00' : `1px solid ${borderColor}` }}>
+          <h2 style={{ color: headerColor, marginTop: 0, marginBottom: '20px' }}>Registrar Vacinação ou Agendamento</h2>
 
-        {formDados.status === 'APLICADA' && (
-          <div style={styles.aplicanteBox}>
-            <span style={{ fontSize: '14px', color: '#004085' }}>
-              <strong>Aplicante logado:</strong> {usuario.email} 
-              <br/>
-              <small>(O sistema vinculará o seu perfil como o profissional responsável)</small>
-            </span>
-          </div>
-        )}
+          {animal && (
+            <div style={{ backgroundColor: infoCardBg, padding: '15px', borderRadius: '4px', marginBottom: '20px', borderLeft: `4px solid ${infoCardBorder}` }}>
+              <p style={{ margin: '5px 0', color: textSecundario }}><strong>Paciente:</strong> {animal.nome_animal}</p>
+              <p style={{ margin: '5px 0', color: textSecundario }}><strong>Espécie:</strong> {animal.especie} | <strong>Raça:</strong> {animal.raca || 'Não informada'}</p>
+              <p style={{ margin: '5px 0', color: textSecundario }}><strong>Tutor Responsável:</strong> {animal.nome_tutor}</p>
+            </div>
+          )}
 
-        <label style={styles.label}>Selecione a Vacina:</label>
-        <select value={formDados.id_vacina} onChange={handleVacinaChange} required style={styles.input}>
-          <option value="">Escolha no catálogo...</option>
-          {vacinas.map(v => (
-            <option key={v.id_vacina} value={v.id_vacina}>
-              {v.nome_vacina} {v.fabricante ? `(${v.fabricante})` : ''}
-            </option>
-          ))}
-        </select>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column' }}>
+            
+            <label style={{ fontWeight: 'bold', color: textSecundario, marginBottom: '5px' }}>Situação do Registro:</label>
+            <select value={formDados.status} onChange={handleStatusChange} required style={{ width: '100%', padding: '10px', margin: '8px 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }}>
+              <option value="APLICADA">✅ Vacina Aplicada (Registrar agora)</option>
+              <option value="PENDENTE">📅 Pendente (Agendar próxima dose)</option>
+            </select>
 
-        {formDados.status === 'APLICADA' && (
-          <>
-            <label style={styles.label}>Data da Aplicação:</label>
+            {formDados.status === 'APLICADA' && (
+              <div style={{ backgroundColor: aplicanteBoxBg, padding: '10px', borderRadius: '4px', marginBottom: '15px', border: `1px solid ${aplicanteBoxBorder}` }}>
+                <span style={{ color: aplicanteBoxText }}>
+                  <strong>Aplicante logado:</strong> {usuario.email} 
+                  <br/>
+                  <small style={{ fontSize: '0.85em' }}>O sistema vinculará o seu perfil como o profissional responsável</small>
+                </span>
+              </div>
+            )}
+
+            <label style={{ fontWeight: 'bold', color: textSecundario, marginBottom: '5px' }}>Selecione a Vacina:</label>
+            <select value={formDados.id_vacina} onChange={handleVacinaChange} required style={{ width: '100%', padding: '10px', margin: '8px 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }}>
+              <option value="">Escolha no catálogo...</option>
+              {vacinas.map(v => (
+                <option key={v.id_vacina} value={v.id_vacina}>
+                  {v.nome_vacina} {v.fabricante ? `(${v.fabricante})` : ''}
+                </option>
+              ))}
+            </select>
+
+            {formDados.status === 'APLICADA' && (
+              <>
+                <label style={{ fontWeight: 'bold', color: textSecundario, marginBottom: '5px' }}>Data da Aplicação:</label>
+                <input 
+                  type="date" 
+                  value={formDados.data_aplicacao} 
+                  onChange={handleDataAplicacaoChange} 
+                  required 
+                  max={dataHoje}
+                  style={{ width: '100%', padding: '10px', margin: '8px 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} 
+                />
+              </>
+            )}
+
+            <label style={{ fontWeight: 'bold', color: textSecundario, marginBottom: '5px' }}>
+              {formDados.status === 'APLICADA' ? 'Data da Próxima Dose (Revacinação):' : 'Data Agendada (Próxima Dose):'}
+            </label>
             <input 
               type="date" 
-              value={formDados.data_aplicacao} 
-              onChange={handleDataAplicacaoChange} 
+              value={formDados.data_proxima_dose} 
+              onChange={e => setFormDados({...formDados, data_proxima_dose: e.target.value})} 
               required 
-              max={dataHoje}
-              style={styles.input} 
+              min={formDados.status === 'PENDENTE' ? dataHoje : (formDados.data_aplicacao || '')}
+              style={{ width: '100%', padding: '10px', margin: '8px 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} 
             />
-          </>
-        )}
 
-        <label style={styles.label}>
-          {formDados.status === 'APLICADA' ? 'Data da Próxima Dose (Revacinação):' : 'Data Agendada (Próxima Dose):'}
-        </label>
-        <input 
-          type="date" 
-          value={formDados.data_proxima_dose} 
-          onChange={e => setFormDados({...formDados, data_proxima_dose: e.target.value})} 
-          required 
-          min={formDados.status === 'PENDENTE' ? dataHoje : (formDados.data_aplicacao || '')}
-          style={styles.input} 
-        />
+            <button type="submit" style={{ backgroundColor: '#28a745', color: 'white', border: 'none', padding: '15px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', marginTop: '10px', fontSize: 'inherit' }}>Salvar Registro</button>
+          </form>
 
-        <button type="submit" style={styles.btnAcao}>Salvar Registro</button>
-      </form>
-
-      {msg.texto && <div style={{ textAlign: 'center', marginTop: '15px', fontWeight: 'bold', color: msg.cor }}>{msg.texto}</div>}
-    </div>
+          {msg.texto && <div style={{ textAlign: 'center', marginTop: '15px', fontWeight: 'bold', color: msg.cor }}>{msg.texto}</div>}
+        </div>
+      </div>
+    </LayoutPainel>
   );
 }
 
 export default function VacinarAnimal() {
   return (
-    <div style={styles.body}>
-      <Suspense fallback={<div style={{ textAlign: 'center', padding: '50px' }}>Carregando formulário...</div>}>
-        <FormularioVacina />
-      </Suspense>
-    </div>
+    <Suspense fallback={<div style={{ textAlign: 'center', padding: '50px' }}>Carregando formulário...</div>}>
+      <FormularioVacina />
+    </Suspense>
   );
 }
-
-const styles = {
-  body: { fontFamily: 'Arial, sans-serif', backgroundColor: '#f4f4f9', margin: 0, padding: '20px', minHeight: '100vh' },
-  container: { maxWidth: '600px', margin: 'auto', background: 'white', padding: '30px', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' },
-  h2: { color: '#000000', marginTop: 0, marginBottom: '20px' },
-  infoCard: { backgroundColor: '#e9ecef', padding: '15px', borderRadius: '4px', marginBottom: '20px', borderLeft: '4px solid #0056b3' },
-  aplicanteBox: { backgroundColor: '#cce5ff', padding: '10px', borderRadius: '4px', marginBottom: '15px', border: '1px solid #b8daff' },
-  formContainer: { display: 'flex', flexDirection: 'column' },
-  btnVoltar: { backgroundColor: '#6c757d', color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', marginBottom: '20px' },
-  input: { width: '100%', padding: '10px', margin: '8px 0 15px 0', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box', color: '#333' },
-  label: { fontWeight: 'bold', color: '#333', fontSize: '14px' },
-  btnAcao: { backgroundColor: '#28a745', color: 'white', border: 'none', padding: '15px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: '16px', marginTop: '10px' }
-};

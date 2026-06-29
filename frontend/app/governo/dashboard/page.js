@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Chart from 'chart.js/auto';
+import LayoutPainel from '../../components/LayoutPainel';
 
 export default function GovernoDashboard() {
   const [usuario, setUsuario] = useState(null);
@@ -11,6 +12,9 @@ export default function GovernoDashboard() {
   const [dadosTabela, setDadosTabela] = useState([]);
   const [mostrarTodosTabela, setMostrarTodosTabela] = useState(false);
   
+  const [tema, setTema] = useState('claro');
+  const [altoContraste, setAltoContraste] = useState(false);
+
   const [chartDataEspecie, setChartDataEspecie] = useState([]);
   const [chartDataEvolucao, setChartDataEvolucao] = useState([]);
   const [chartDataTop, setChartDataTop] = useState([]);
@@ -38,6 +42,13 @@ export default function GovernoDashboard() {
       return;
     }
     setUsuario(user);
+
+    const configSalvas = localStorage.getItem(`imunoPetConfig_${user.id_usuario}`);
+    if (configSalvas) {
+      const config = JSON.parse(configSalvas);
+      setTema(config.tema || 'claro');
+      setAltoContraste(config.altoContraste || false);
+    }
 
     const initialInicio = '2023-01-01';
     const initialFim = '2026-12-31';
@@ -83,9 +94,7 @@ export default function GovernoDashboard() {
         setChartDataEvolucao(dados.evolucaoTemporal || []);
         setChartDataTop(dados.topVacinas || []);
       }
-    } catch (erro) {
-      console.error(erro);
-    }
+    } catch (erro) {}
   };
 
   const handleFiltrar = () => {
@@ -94,6 +103,8 @@ export default function GovernoDashboard() {
 
   useEffect(() => {
     const renderCharts = () => {
+      const chartTextColor = tema === 'escuro' ? '#cccccc' : '#666666';
+
       if (chartEspecieInstance.current) chartEspecieInstance.current.destroy();
       if (canvasEspecieRef.current) {
         const ctx = canvasEspecieRef.current.getContext('2d');
@@ -113,7 +124,7 @@ export default function GovernoDashboard() {
               borderWidth: 1
             }]
           },
-          options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+          options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { color: chartTextColor } } } }
         });
       }
 
@@ -144,7 +155,14 @@ export default function GovernoDashboard() {
               borderWidth: 3
             }]
           },
-          options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+          options: { 
+            responsive: true, 
+            scales: { 
+              x: { ticks: { color: chartTextColor } },
+              y: { beginAtZero: true, ticks: { stepSize: 1, color: chartTextColor } } 
+            },
+            plugins: { legend: { labels: { color: chartTextColor } } }
+          }
         });
       }
 
@@ -169,7 +187,15 @@ export default function GovernoDashboard() {
               borderRadius: 4
             }]
           },
-          options: { responsive: true, indexAxis: 'y', scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+          options: { 
+            responsive: true, 
+            indexAxis: 'y', 
+            scales: { 
+              x: { beginAtZero: true, ticks: { stepSize: 1, color: chartTextColor } },
+              y: { ticks: { color: chartTextColor } } 
+            },
+            plugins: { legend: { labels: { color: chartTextColor } } }
+          }
         });
       }
     };
@@ -177,95 +203,101 @@ export default function GovernoDashboard() {
     if (usuario) {
       renderCharts();
     }
-  }, [chartDataEspecie, chartDataEvolucao, chartDataTop, usuario]);
+  }, [chartDataEspecie, chartDataEvolucao, chartDataTop, usuario, tema]);
 
   if (!usuario) return null;
 
   const linhasVisiveis = mostrarTodosTabela ? dadosTabela : dadosTabela.slice(0, limiteLinhas);
 
+  const isEscuro = tema === 'escuro';
+  const bgCard = isEscuro ? '#1e1e1e' : '#ffffff';
+  const textColor = isEscuro ? '#fdfdfd' : '#000000';
+  const textSecundario = isEscuro ? '#cccccc' : '#333333';
+  const borderColor = isEscuro ? '#444444' : '#e3e3e3';
+  const inputBg = isEscuro ? '#2d2d2d' : '#ffffff';
+  const headerColor = altoContraste ? '#ffcc00' : (isEscuro ? '#ffb3b8' : '#fd7e14');
+
   return (
-    <div style={styles.body}>
-      <div style={styles.container}>
-        <button style={styles.btnVoltar} onClick={() => router.push('/dashboard')}>Voltar ao Painel</button>
+    <LayoutPainel>
+      <div style={{ padding: '40px', maxWidth: '1200px', margin: '0 auto', color: textColor }}>
+        <h2 style={{ color: headerColor, marginTop: 0, marginBottom: '20px' }}>Monitoramento Epidemiológico e Controle de Endemias</h2>
         
-        <h2 style={styles.h2}>Monitoramento Epidemiológico e Controle de Endemias</h2>
-        
-        <div style={styles.filtrosBox}>
-          <div style={styles.filtroItem}>
-            <label style={styles.label}>Data Início:</label>
-            <input type="date" value={filtros.inicio} onChange={e => setFiltros({...filtros, inicio: e.target.value})} style={styles.input} />
+        <div style={{ display: 'flex', gap: '15px', backgroundColor: isEscuro ? '#2d2d2d' : '#e9ecef', padding: '15px', borderRadius: '8px', marginBottom: '25px', alignItems: 'flex-end', flexWrap: 'wrap', border: `1px solid ${borderColor}` }}>
+          <div style={{ flex: 1, minWidth: '150px' }}>
+            <label style={{ display: 'block', fontWeight: 'bold', color: textSecundario, marginBottom: '5px' }}>Data Início:</label>
+            <input type="date" value={filtros.inicio} onChange={e => setFiltros({...filtros, inicio: e.target.value})} style={{ width: '100%', padding: '8px', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} />
           </div>
-          <div style={styles.filtroItem}>
-            <label style={styles.label}>Data Fim:</label>
-            <input type="date" value={filtros.fim} onChange={e => setFiltros({...filtros, fim: e.target.value})} style={styles.input} />
+          <div style={{ flex: 1, minWidth: '150px' }}>
+            <label style={{ display: 'block', fontWeight: 'bold', color: textSecundario, marginBottom: '5px' }}>Data Fim:</label>
+            <input type="date" value={filtros.fim} onChange={e => setFiltros({...filtros, fim: e.target.value})} style={{ width: '100%', padding: '8px', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} />
           </div>
-          <div style={styles.filtroItem}>
-            <label style={styles.label}>Espécie:</label>
-            <select value={filtros.especie} onChange={e => setFiltros({...filtros, especie: e.target.value})} style={styles.input}>
+          <div style={{ flex: 1, minWidth: '150px' }}>
+            <label style={{ display: 'block', fontWeight: 'bold', color: textSecundario, marginBottom: '5px' }}>Espécie:</label>
+            <select value={filtros.especie} onChange={e => setFiltros({...filtros, especie: e.target.value})} style={{ width: '100%', padding: '8px', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }}>
               <option value="">Todas as Espécies</option>
               <option value="Cachorro">Cachorro</option>
               <option value="Gato">Gato</option>
               <option value="Outro">Outro</option>
             </select>
           </div>
-          <div style={styles.filtroItem}>
-            <label style={styles.label}>Localidade (Bairro/Cidade):</label>
-            <input type="text" value={filtros.localidade} onChange={e => setFiltros({...filtros, localidade: e.target.value})} placeholder="Ex: Centro" style={styles.input} />
+          <div style={{ flex: 1, minWidth: '150px' }}>
+            <label style={{ display: 'block', fontWeight: 'bold', color: textSecundario, marginBottom: '5px' }}>Localidade (Bairro/Cidade):</label>
+            <input type="text" value={filtros.localidade} onChange={e => setFiltros({...filtros, localidade: e.target.value})} placeholder="Ex: Centro" style={{ width: '100%', padding: '8px', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} />
           </div>
-          <button style={styles.btnFiltrar} onClick={handleFiltrar}>Filtrar</button>
+          <button style={{ padding: '9px 20px', backgroundColor: '#fd7e14', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', height: 'auto', fontSize: 'inherit' }} onClick={handleFiltrar}>Filtrar</button>
         </div>
 
-        <div style={styles.kpiGrid}>
-          <div style={{ ...styles.kpiCard, backgroundColor: '#007bff' }}>
-            <h3 style={styles.kpiTitle}>Total de Doses Aplicadas</h3>
-            <h1 style={styles.kpiValue}>{kpis.aplicadas}</h1>
+        <div style={{ display: 'flex', gap: '20px', marginBottom: '25px', flexWrap: 'wrap' }}>
+          <div style={{ flex: 1, minWidth: '200px', padding: '20px', borderRadius: '8px', color: 'white', textAlign: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', backgroundColor: '#007bff' }}>
+            <h3 style={{ margin: 0, textTransform: 'uppercase', color: 'white' }}>Total de Doses Aplicadas</h3>
+            <h1 style={{ margin: '10px 0 0 0', fontSize: '2em' }}>{kpis.aplicadas}</h1>
           </div>
-          <div style={{ ...styles.kpiCard, backgroundColor: '#ffc107', color: '#333' }}>
-            <h3 style={{ ...styles.kpiTitle, color: '#333' }}>Doses Pendentes (Agendadas)</h3>
-            <h1 style={styles.kpiValue}>{kpis.pendentes}</h1>
+          <div style={{ flex: 1, minWidth: '200px', padding: '20px', borderRadius: '8px', textAlign: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', backgroundColor: '#ffc107', color: '#333' }}>
+            <h3 style={{ margin: 0, textTransform: 'uppercase', color: '#333' }}>Doses Pendentes</h3>
+            <h1 style={{ margin: '10px 0 0 0', fontSize: '2em' }}>{kpis.pendentes}</h1>
           </div>
-          <div style={{ ...styles.kpiCard, backgroundColor: '#dc3545' }}>
-            <h3 style={styles.kpiTitle}>Doses em Atraso (Risco)</h3>
-            <h1 style={styles.kpiValue}>{kpis.atrasadas}</h1>
+          <div style={{ flex: 1, minWidth: '200px', padding: '20px', borderRadius: '8px', color: 'white', textAlign: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', backgroundColor: '#dc3545' }}>
+            <h3 style={{ margin: 0, textTransform: 'uppercase', color: 'white' }}>Doses em Atraso (Risco)</h3>
+            <h1 style={{ margin: '10px 0 0 0', fontSize: '2em' }}>{kpis.atrasadas}</h1>
           </div>
-          <div style={{ ...styles.kpiCard, backgroundColor: '#28a745' }}>
-            <h3 style={styles.kpiTitle}>Localidades Monitoradas</h3>
-            <h1 style={styles.kpiValue}>{kpis.localidades}</h1>
+          <div style={{ flex: 1, minWidth: '200px', padding: '20px', borderRadius: '8px', color: 'white', textAlign: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', backgroundColor: '#28a745' }}>
+            <h3 style={{ margin: 0, textTransform: 'uppercase', color: 'white' }}>Localidades Monitoradas</h3>
+            <h1 style={{ margin: '10px 0 0 0', fontSize: '2em' }}>{kpis.localidades}</h1>
           </div>
         </div>
 
-        <div style={styles.layoutGrid}>
-          <div style={{ ...styles.box, flex: 2 }}>
-            <h3 style={styles.boxTitle}>Evolução Temporal de Imunização</h3>
+        <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginBottom: '20px' }}>
+          <div style={{ flex: 2, minWidth: '350px', backgroundColor: bgCard, border: `1px solid ${borderColor}`, padding: '20px', borderRadius: '8px', boxSizing: 'border-box' }}>
+            <h3 style={{ margin: '0 0 15px 0', color: textSecundario }}>Evolução Temporal de Imunização</h3>
             <canvas ref={canvasEvolucaoRef}></canvas>
           </div>
-          <div style={styles.box}>
-            <h3 style={styles.boxTitle}>Cobertura por Espécie</h3>
+          <div style={{ flex: 1, minWidth: '350px', backgroundColor: bgCard, border: `1px solid ${borderColor}`, padding: '20px', borderRadius: '8px', boxSizing: 'border-box' }}>
+            <h3 style={{ margin: '0 0 15px 0', color: textSecundario }}>Cobertura por Espécie</h3>
             <canvas ref={canvasEspecieRef}></canvas>
           </div>
         </div>
 
-        <div style={styles.layoutGrid}>
-          <div style={styles.box}>
-            <h3 style={styles.boxTitle}>Top 5 Vacinas Mais Aplicadas</h3>
+        <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginBottom: '20px' }}>
+          <div style={{ flex: 1, minWidth: '350px', backgroundColor: bgCard, border: `1px solid ${borderColor}`, padding: '20px', borderRadius: '8px', boxSizing: 'border-box' }}>
+            <h3 style={{ margin: '0 0 15px 0', color: textSecundario }}>Top 5 Vacinas Mais Aplicadas</h3>
             <canvas ref={canvasTopRef}></canvas>
           </div>
-          <div style={{ ...styles.box, flex: 2 }}>
-            <h3 style={styles.boxTitle}>Mapeamento de Risco por Localidade</h3>
+          <div style={{ flex: 2, minWidth: '350px', backgroundColor: bgCard, border: `1px solid ${borderColor}`, padding: '20px', borderRadius: '8px', boxSizing: 'border-box' }}>
+            <h3 style={{ margin: '0 0 15px 0', color: textSecundario }}>Mapeamento de Risco por Localidade</h3>
             <div style={{ overflowX: 'auto' }}>
-              <table style={styles.tabela}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '15px' }}>
                 <thead>
                   <tr>
-                    <th style={styles.th}>Bairro</th>
-                    <th style={styles.th}>Cidade</th>
-                    <th style={styles.th}>Doses Aplicadas</th>
-                    <th style={styles.th}>Doses Atrasadas</th>
-                    <th style={styles.th}>Nível de Risco</th>
+                    <th style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left', backgroundColor: isEscuro ? '#b34700' : '#fd7e14', color: 'white' }}>Bairro</th>
+                    <th style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left', backgroundColor: isEscuro ? '#b34700' : '#fd7e14', color: 'white' }}>Cidade</th>
+                    <th style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left', backgroundColor: isEscuro ? '#b34700' : '#fd7e14', color: 'white' }}>Doses Aplicadas</th>
+                    <th style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left', backgroundColor: isEscuro ? '#b34700' : '#fd7e14', color: 'white' }}>Doses Atrasadas</th>
+                    <th style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left', backgroundColor: isEscuro ? '#b34700' : '#fd7e14', color: 'white' }}>Nível de Risco</th>
                   </tr>
                 </thead>
                 <tbody>
                   {dadosTabela.length === 0 ? (
-                    <tr><td colSpan="5" style={{ textAlign: 'center', padding: '10px', color: '#333' }}>Nenhum dado registrado para estes filtros.</td></tr>
+                    <tr><td colSpan="5" style={{ textAlign: 'center', padding: '10px', color: textSecundario, border: `1px solid ${borderColor}` }}>Nenhum dado registrado para estes filtros.</td></tr>
                   ) : (
                     linhasVisiveis.map((item, idx) => {
                       const aplicadas = parseInt(item.total_aplicadas) || 0;
@@ -286,15 +318,15 @@ export default function GovernoDashboard() {
                         }
                       }
 
-                      const bgColor = idx % 2 === 0 ? '#fff' : '#f2f2f2';
+                      const bgColor = idx % 2 === 0 ? (isEscuro ? '#1e1e1e' : '#ffffff') : (isEscuro ? '#2d2d2d' : '#f2f2f2');
 
                       return (
-                        <tr key={idx} style={{ backgroundColor: bgColor, color: '#333' }}>
-                          <td style={styles.td}>{item.bairro}</td>
-                          <td style={styles.td}>{item.cidade}</td>
-                          <td style={styles.td}>{aplicadas}</td>
-                          <td style={styles.td}>{atrasadas}</td>
-                          <td style={{ ...styles.td, color: corRisco, fontWeight: 'bold' }}>{nivelRisco}</td>
+                        <tr key={idx} style={{ backgroundColor: bgColor, color: textColor }}>
+                          <td style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left' }}>{item.bairro}</td>
+                          <td style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left' }}>{item.cidade}</td>
+                          <td style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left' }}>{aplicadas}</td>
+                          <td style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left' }}>{atrasadas}</td>
+                          <td style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left', color: corRisco, fontWeight: 'bold' }}>{nivelRisco}</td>
                         </tr>
                       );
                     })
@@ -306,7 +338,7 @@ export default function GovernoDashboard() {
             {dadosTabela.length > limiteLinhas && (
               <button 
                 onClick={() => setMostrarTodosTabela(!mostrarTodosTabela)} 
-                style={styles.btnMostrarTudo}
+                style={{ marginTop: '15px', padding: '10px', width: '100%', backgroundColor: isEscuro ? '#444' : '#f8f9fa', border: `1px solid ${borderColor}`, borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', color: textColor, fontSize: 'inherit', transition: 'background-color 0.2s' }}
               >
                 {mostrarTodosTabela ? 'Ver Menos ▲' : `Ver Mais (${dadosTabela.length - limiteLinhas} ocultos) ▼`}
               </button>
@@ -314,29 +346,6 @@ export default function GovernoDashboard() {
           </div>
         </div>
       </div>
-    </div>
+    </LayoutPainel>
   );
 }
-
-const styles = {
-  body: { fontFamily: 'Arial, sans-serif', backgroundColor: '#f4f4f9', margin: 0, padding: '20px', minHeight: '100vh' },
-  container: { maxWidth: '1200px', margin: 'auto', background: 'white', padding: '30px', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' },
-  h2: { color: '#000000', marginTop: 0, marginBottom: '20px' },
-  btnVoltar: { backgroundColor: '#6c757d', color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px', marginBottom: '20px', fontWeight: 'bold' },
-  filtrosBox: { display: 'flex', gap: '15px', backgroundColor: '#e9ecef', padding: '15px', borderRadius: '8px', marginBottom: '25px', alignItems: 'flex-end', flexWrap: 'wrap' },
-  filtroItem: { flex: 1, minWidth: '150px' },
-  label: { display: 'block', fontSize: '14px', fontWeight: 'bold', color: '#333', marginBottom: '5px' },
-  input: { width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box', color: '#333' },
-  btnFiltrar: { padding: '9px 20px', backgroundColor: '#fd7e14', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', height: '35px' },
-  kpiGrid: { display: 'flex', gap: '20px', marginBottom: '25px', flexWrap: 'wrap' },
-  kpiCard: { flex: 1, minWidth: '200px', padding: '20px', borderRadius: '8px', color: 'white', textAlign: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' },
-  kpiTitle: { margin: 0, fontSize: '14px', textTransform: 'uppercase', color: 'white' },
-  kpiValue: { margin: '10px 0 0 0', fontSize: '36px' },
-  layoutGrid: { display: 'flex', gap: '20px', flexWrap: 'wrap', marginBottom: '20px' },
-  box: { flex: 1, minWidth: '350px', backgroundColor: '#fdfdfd', border: '1px solid #e3e3e3', padding: '20px', borderRadius: '8px', boxSizing: 'border-box' },
-  boxTitle: { margin: '0 0 15px 0', color: '#333' },
-  tabela: { width: '100%', borderCollapse: 'collapse', marginTop: '15px', fontSize: '14px' },
-  th: { border: '1px solid #ddd', padding: '10px', textAlign: 'left', backgroundColor: '#fd7e14', color: 'white' },
-  td: { border: '1px solid #ddd', padding: '10px', textAlign: 'left' },
-  btnMostrarTudo: { marginTop: '15px', padding: '10px', width: '100%', backgroundColor: '#f8f9fa', border: '1px solid #dee2e6', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', color: '#495057', fontSize: '14px', transition: 'background-color 0.2s' }
-};

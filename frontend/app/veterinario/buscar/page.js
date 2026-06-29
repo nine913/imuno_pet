@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import LayoutPainel from '../../components/LayoutPainel';
 
 export default function BuscarAnimal() {
   const router = useRouter();
@@ -35,46 +36,52 @@ export default function BuscarAnimal() {
   const [modalDeleteOpen, setModalDeleteOpen] = useState(false);
   const [animalToDelete, setAnimalToDelete] = useState(null);
 
+  const [tema, setTema] = useState('claro');
+  const [altoContraste, setAltoContraste] = useState(false);
+
   const hoje = new Date().toISOString().split('T')[0];
 
   useEffect(() => {
     setIsMounted(true);
     const saved = localStorage.getItem('usuarioImunoPet');
     if (saved) {
-      setUsuario(JSON.parse(saved));
-    } else {
-      router.push('/');
-    }
-  }, [router]);
-
-  useEffect(() => {
-    if (usuario) {
-      if (usuario.perfil !== 'VETERINARIO' && usuario.perfil !== 'GESTOR_CLINICA' && usuario.perfil !== 'ADMINISTRADOR') {
+      const user = JSON.parse(saved);
+      setUsuario(user);
+      if (user.perfil !== 'VETERINARIO' && user.perfil !== 'GESTOR_CLINICA' && user.perfil !== 'ADMINISTRADOR') {
         router.push('/dashboard');
       } else {
         carregarEspecies();
-        carregarTutores();
-        buscarAnimais(usuario.id_clinica);
+        carregarTutores(user.id_clinica);
+        buscarAnimais(user.id_clinica);
       }
+    } else {
+      router.push('/');
     }
-  }, [usuario, router]);
+
+    const configSalvas = localStorage.getItem(`imunoPetConfig_${JSON.parse(saved)?.id_usuario}`);
+    if (configSalvas) {
+      const config = JSON.parse(configSalvas);
+      setTema(config.tema || 'claro');
+      setAltoContraste(config.altoContraste || false);
+    }
+  }, [router]);
 
   const carregarEspecies = async () => {
     try {
       const res = await fetch('http://localhost:3000/admin/especies');
       if (res.ok) setEspecies(await res.json());
-    } catch (e) {
-      console.error(e);
-    }
+    } catch (e) {}
   };
 
-  const carregarTutores = async () => {
+  const carregarTutores = async (id_clinica) => {
     try {
-      const res = await fetch('http://localhost:3000/listar-tutores');
+      let url = 'http://localhost:3000/listar-tutores';
+      if (id_clinica) {
+        url += `?id_clinica=${id_clinica}`;
+      }
+      const res = await fetch(url);
       if (res.ok) setTutores(await res.json());
-    } catch (e) {
-      console.error(e);
-    }
+    } catch (e) {}
   };
 
   const buscarAnimais = async (clinicaId = null) => {
@@ -90,9 +97,7 @@ export default function BuscarAnimal() {
       if (res.ok) {
         setAnimais(await res.json());
       }
-    } catch (err) {
-      console.error(err);
-    }
+    } catch (err) {}
   };
 
   const calcularFaseVida = (data) => {
@@ -186,9 +191,7 @@ export default function BuscarAnimal() {
     try {
       const res = await fetch(`http://localhost:3000/admin/racas?id_especie=${value}`);
       if (res.ok) setRacas(await res.json());
-    } catch (err) {
-      console.error(err);
-    }
+    } catch (err) {}
   };
 
   const submitForm = async (e) => {
@@ -249,21 +252,26 @@ export default function BuscarAnimal() {
         setAnimalToDelete(null);
         buscarAnimais();
       }
-    } catch (err) {
-      console.error(err);
-    }
+    } catch (err) {}
   };
 
   if (!isMounted || !usuario) return null;
 
+  const isEscuro = tema === 'escuro';
+  const bgCard = isEscuro ? '#1e1e1e' : '#ffffff';
+  const textColor = isEscuro ? '#fdfdfd' : '#000000';
+  const textSecundario = isEscuro ? '#cccccc' : '#333333';
+  const borderColor = isEscuro ? '#444444' : '#e3e3e3';
+  const inputBg = isEscuro ? '#2d2d2d' : '#ffffff';
+  const headerColor = altoContraste ? '#ffcc00' : (isEscuro ? '#66b2ff' : '#0056b3');
+
   return (
-    <div style={styles.body}>
-      <div style={styles.container}>
-        <button style={styles.btnVoltar} onClick={() => router.push('/dashboard')}>Voltar ao Painel</button>
+    <LayoutPainel>
+      <div style={{ padding: '40px', maxWidth: '1000px', margin: '0 auto', color: textColor }}>
         
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-            <h2 style={styles.h2}>Buscar e Gerenciar Pacientes</h2>
-            <button style={{ backgroundColor: '#28a745', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }} onClick={abrirModalCadastro}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '15px' }}>
+            <h2 style={{ margin: 0, color: headerColor }}>Buscar e Gerenciar Pacientes</h2>
+            <button style={{ backgroundColor: '#28a745', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: 'inherit' }} onClick={abrirModalCadastro}>
               + Novo Paciente
             </button>
         </div>
@@ -275,32 +283,32 @@ export default function BuscarAnimal() {
             onChange={(e) => setTermoBusca(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && buscarAnimais()}
             placeholder="Pesquisar por nome do pet ou CPF do tutor..."
-            style={{ ...styles.input, margin: 0, flex: 1 }}
+            style={{ width: '100%', padding: '10px', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit', margin: 0, flex: 1 }}
           />
-          <button style={{ ...styles.btnAcao, width: 'auto', margin: 0 }} onClick={() => buscarAnimais()}>Pesquisar</button>
+          <button style={{ backgroundColor: '#0056b3', color: 'white', border: 'none', padding: '10px 15px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', width: 'auto', margin: 0, fontSize: 'inherit' }} onClick={() => buscarAnimais()}>Pesquisar</button>
         </div>
 
         <div>
-          {animais.length === 0 ? <p style={{color: '#333'}}>Nenhum paciente encontrado na sua clínica.</p> : animais.map((animal, idx) => (
-            <div key={`animal-${animal.id_animal || idx}`} style={styles.card}>
+          {animais.length === 0 ? <p style={{ color: textSecundario }}>Nenhum paciente encontrado na sua clínica.</p> : animais.map((animal, idx) => (
+            <div key={`animal-${animal.id_animal || idx}`} style={{ border: `1px solid ${borderColor}`, padding: '20px', borderRadius: '8px', marginBottom: '15px', backgroundColor: bgCard, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
               <div style={{ flex: 1 }}>
-                <h3 style={{ margin: '0 0 10px 0', color: '#0056b3' }}>🐾 {animal.nome || animal.nome_animal}</h3>
-                <p style={{ margin: '5px 0', color: '#333' }}><strong>Tutor:</strong> {animal.nome_tutor} (CPF: {animal.cpf})</p>
+                <h3 style={{ margin: '0 0 10px 0', color: headerColor }}>🐾 {animal.nome || animal.nome_animal}</h3>
+                <p style={{ margin: '5px 0', color: textSecundario }}><strong>Tutor:</strong> {animal.nome_tutor} (CPF: {animal.cpf})</p>
                 <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
-                  <p style={{ margin: '5px 0', color: '#333' }}><strong>Espécie:</strong> {animal.especie}</p>
-                  <p style={{ margin: '5px 0', color: '#333' }}><strong>Raça:</strong> {animal.raca || 'Não informada'}</p>
+                  <p style={{ margin: '5px 0', color: textSecundario }}><strong>Espécie:</strong> {animal.especie}</p>
+                  <p style={{ margin: '5px 0', color: textSecundario }}><strong>Raça:</strong> {animal.raca || 'Não informada'}</p>
                 </div>
                 <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
-                  <p style={{ margin: '5px 0', color: '#333' }}><strong>Porte:</strong> {animal.porte || 'Não informado'}</p>
-                  <p style={{ margin: '5px 0', color: '#333' }}><strong>Fase:</strong> {animal.fase_vida || 'Não informada'}</p>
+                  <p style={{ margin: '5px 0', color: textSecundario }}><strong>Porte:</strong> {animal.porte || 'Não informado'}</p>
+                  <p style={{ margin: '5px 0', color: textSecundario }}><strong>Fase:</strong> {animal.fase_vida || 'Não informada'}</p>
                 </div>
-                <p style={{ margin: '5px 0', color: '#333' }}><strong>Nascimento:</strong> {animal.data_nascimento ? new Date(animal.data_nascimento).toLocaleDateString('pt-BR', {timeZone: 'UTC'}) : '-'}</p>
+                <p style={{ margin: '5px 0', color: textSecundario }}><strong>Nascimento:</strong> {animal.data_nascimento ? new Date(animal.data_nascimento).toLocaleDateString('pt-BR', {timeZone: 'UTC'}) : '-'}</p>
               </div>
-              <div style={styles.actionGroup}>
-                <button style={{ ...styles.btnCard, backgroundColor: '#17a2b8' }} onClick={() => router.push(`/veterinario/historico?id=${animal.id_animal}`)}>📜 Histórico</button>
-                <button style={{ ...styles.btnCard, backgroundColor: '#28a745' }} onClick={() => router.push(`/veterinario/vacinar?id=${animal.id_animal}`)}>💉 Vacinar</button>
-                <button style={{ ...styles.btnCard, backgroundColor: '#ffc107', color: '#333' }} onClick={() => abrirModalEdicao(animal)}>✏️ Editar</button>
-                <button style={{ ...styles.btnCard, backgroundColor: '#dc3545' }} onClick={() => abrirModalDelete(animal.id_animal, animal.nome || animal.nome_animal)}>🗑️ Excluir</button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '150px' }}>
+                <button style={{ color: 'white', border: 'none', padding: '10px 15px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', width: '100%', fontSize: 'inherit', backgroundColor: '#17a2b8' }} onClick={() => router.push(`/veterinario/historico?id=${animal.id_animal}`)}>📜 Histórico</button>
+                <button style={{ color: 'white', border: 'none', padding: '10px 15px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', width: '100%', fontSize: 'inherit', backgroundColor: '#28a745' }} onClick={() => router.push(`/veterinario/vacinar?id=${animal.id_animal}`)}>💉 Vacinar</button>
+                <button style={{ color: '#333', border: 'none', padding: '10px 15px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', width: '100%', fontSize: 'inherit', backgroundColor: '#ffc107' }} onClick={() => abrirModalEdicao(animal)}>✏️ Editar</button>
+                <button style={{ color: 'white', border: 'none', padding: '10px 15px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', width: '100%', fontSize: 'inherit', backgroundColor: '#dc3545' }} onClick={() => abrirModalDelete(animal.id_animal, animal.nome || animal.nome_animal)}>🗑️ Excluir</button>
               </div>
             </div>
           ))}
@@ -308,18 +316,17 @@ export default function BuscarAnimal() {
       </div>
 
       {modalFormOpen && (
-        <div style={styles.modalOverlay}>
-          <div style={styles.modalContent}>
-            <h3 style={{ marginTop: 0, color: '#333', marginBottom: '20px' }}>{isEdicao ? '✏️ Editar Paciente' : 'Cadastrar Novo Paciente'}</h3>
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.7)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+          <div style={{ backgroundColor: bgCard, padding: '30px', borderRadius: '8px', width: '450px', boxShadow: '0 4px 20px rgba(0,0,0,0.5)', maxHeight: '90vh', overflowY: 'auto', color: textColor, border: altoContraste ? '2px solid #ffcc00' : `1px solid ${borderColor}` }}>
+            <h3 style={{ marginTop: 0, color: headerColor, marginBottom: '20px' }}>{isEdicao ? '✏️ Editar Paciente' : 'Cadastrar Novo Paciente'}</h3>
             <form onSubmit={submitForm}>
               
-              <label style={styles.label}>Tutor do Paciente:</label>
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario, textAlign: 'left' }}>Tutor do Paciente:</label>
               <select 
                 value={formDados.id_tutor} 
                 onChange={e => setFormDados({...formDados, id_tutor: e.target.value})} 
                 required 
-                style={styles.input}
-                disabled={isEdicao}
+                style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }}
               >
                 <option value="">Selecione o tutor...</option>
                 {tutores.map((tutor, idx) => (
@@ -329,13 +336,13 @@ export default function BuscarAnimal() {
                 ))}
               </select>
 
-              <label style={styles.label}>Nome do Paciente:</label>
-              <input type="text" value={formDados.nome} onChange={e => setFormDados({...formDados, nome: e.target.value})} required style={styles.input} />
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario, textAlign: 'left' }}>Nome do Paciente:</label>
+              <input type="text" value={formDados.nome} onChange={e => setFormDados({...formDados, nome: e.target.value})} required style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} />
 
               <div style={{ display: 'flex', gap: '10px' }}>
                 <div style={{ flex: 1 }}>
-                  <label style={styles.label}>Espécie:</label>
-                  <select value={idEspecieSel} onChange={handleEspecieChange} required style={styles.input}>
+                  <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario, textAlign: 'left' }}>Espécie:</label>
+                  <select value={idEspecieSel} onChange={handleEspecieChange} required style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }}>
                     <option value="">Selecione...</option>
                     {especies.map((e, idx) => (
                       <option key={`esp-${e.id_especie || idx}`} value={String(e.id_especie)}>{e.nome_especie}</option>
@@ -343,8 +350,8 @@ export default function BuscarAnimal() {
                   </select>
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label style={styles.label}>Raça:</label>
-                  <select value={formDados.raca} onChange={e => setFormDados({...formDados, raca: e.target.value})} required style={styles.input} disabled={!idEspecieSel}>
+                  <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario, textAlign: 'left' }}>Raça:</label>
+                  <select value={formDados.raca} onChange={e => setFormDados({...formDados, raca: e.target.value})} required style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} disabled={!idEspecieSel}>
                     <option value="">Selecione...</option>
                     {racas.map((r, idx) => (
                       <option key={`raca-${r.id_raca || idx}`} value={String(r.nome_raca)}>{r.nome_raca}</option>
@@ -355,8 +362,8 @@ export default function BuscarAnimal() {
 
               <div style={{ display: 'flex', gap: '10px' }}>
                 <div style={{ flex: 1 }}>
-                  <label style={styles.label}>Porte:</label>
-                  <select value={formDados.porte} onChange={e => setFormDados({...formDados, porte: e.target.value})} required style={styles.input}>
+                  <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario, textAlign: 'left' }}>Porte:</label>
+                  <select value={formDados.porte} onChange={e => setFormDados({...formDados, porte: e.target.value})} required style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }}>
                     <option value="">Selecione...</option>
                     <option value="PEQUENO">Pequeno</option>
                     <option value="MEDIO">Médio</option>
@@ -364,9 +371,9 @@ export default function BuscarAnimal() {
                   </select>
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label style={styles.label}>Fase da Vida (Automático):</label>
-                  <select value={formDados.fase_vida} required style={{...styles.input, backgroundColor: '#e9ecef'}} disabled>
-                    <option value="">Selecione a data...</option>
+                  <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario, textAlign: 'left' }}>Fase da Vida:</label>
+                  <select value={formDados.fase_vida} required style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: isEscuro ? '#444' : '#e9ecef', color: textColor, fontSize: 'inherit' }} disabled>
+                    <option value="">Automático</option>
                     <option value="FILHOTE">Filhote</option>
                     <option value="ADULTO">Adulto</option>
                     <option value="IDOSO">Idoso</option>
@@ -374,7 +381,7 @@ export default function BuscarAnimal() {
                 </div>
               </div>
 
-              <label style={styles.label}>Data de Nascimento:</label>
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario, textAlign: 'left' }}>Data de Nascimento:</label>
               <input 
                 type="date" 
                 value={formDados.data_nascimento} 
@@ -388,12 +395,12 @@ export default function BuscarAnimal() {
                   });
                 }} 
                 required 
-                style={styles.input} 
+                style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} 
               />
 
               <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
-                <button type="submit" style={{ ...styles.btnAcao, flex: 1, margin: 0 }}>{isEdicao ? 'Salvar Alterações' : 'Cadastrar'}</button>
-                <button type="button" onClick={() => setModalFormOpen(false)} style={{ ...styles.btnVoltar, flex: 1, margin: 0, width: 'auto' }}>Cancelar</button>
+                <button type="submit" style={{ backgroundColor: '#28a745', color: 'white', border: 'none', padding: '10px 15px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', flex: 1, margin: 0, fontSize: 'inherit' }}>{isEdicao ? 'Salvar Alterações' : 'Cadastrar'}</button>
+                <button type="button" onClick={() => setModalFormOpen(false)} style={{ backgroundColor: '#6c757d', color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', flex: 1, margin: 0, width: 'auto', fontSize: 'inherit' }}>Cancelar</button>
               </div>
             </form>
             {mensagemForm.texto && <div style={{ textAlign: 'center', marginTop: '10px', fontWeight: 'bold', color: mensagemForm.cor }}>{mensagemForm.texto}</div>}
@@ -402,35 +409,19 @@ export default function BuscarAnimal() {
       )}
 
       {modalDeleteOpen && (
-        <div style={styles.modalOverlay}>
-          <div style={styles.modalContentSmall}>
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.7)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+          <div style={{ background: bgCard, padding: '20px', borderRadius: '8px', width: '320px', textAlign: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.5)', border: altoContraste ? '2px solid #dc3545' : `1px solid ${borderColor}`, color: textColor }}>
             <h3 style={{ marginTop: 0, color: '#dc3545' }}>Atenção!</h3>
-            <p style={{ color: '#333' }}>Tem certeza que deseja excluir o paciente <strong>{animalToDelete?.nome}</strong>?</p>
-            <p style={{ fontSize: '14px', color: '#333' }}>O histórico de vacinas e todos os registros associados também serão apagados permanentemente.</p>
+            <p style={{ color: textSecundario }}>Tem certeza que deseja excluir o paciente <strong>{animalToDelete?.nome}</strong>?</p>
+            <p style={{ fontSize: '0.9em', color: textSecundario }}>O histórico de vacinas e todos os registros associados também serão apagados permanentemente.</p>
             
             <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-              <button onClick={confirmarDelecao} style={{ ...styles.btnAcao, backgroundColor: '#dc3545', flex: 1, margin: 0 }}>Sim, excluir</button>
-              <button onClick={() => setModalDeleteOpen(false)} style={{ ...styles.btnVoltar, flex: 1, margin: 0, width: 'auto' }}>Cancelar</button>
+              <button onClick={confirmarDelecao} style={{ backgroundColor: '#dc3545', color: 'white', border: 'none', padding: '10px 15px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', flex: 1, margin: 0, fontSize: 'inherit' }}>Sim, excluir</button>
+              <button onClick={() => setModalDeleteOpen(false)} style={{ backgroundColor: '#6c757d', color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', flex: 1, margin: 0, width: 'auto', fontSize: 'inherit' }}>Cancelar</button>
             </div>
           </div>
         </div>
       )}
-    </div>
+    </LayoutPainel>
   );
 }
-
-const styles = {
-  body: { fontFamily: 'Arial, sans-serif', backgroundColor: '#f4f4f9', margin: 0, padding: '20px', minHeight: '100vh' },
-  container: { maxWidth: '900px', margin: 'auto', background: 'white', padding: '30px', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' },
-  h2: { color: '#000000', margin: 0 },
-  btnVoltar: { backgroundColor: '#6c757d', color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', marginBottom: '20px', fontWeight: 'bold' },
-  input: { width: '100%', padding: '10px', margin: '0 0 15px 0', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box', color: '#333' },
-  label: { display: 'block', fontWeight: 'bold', marginBottom: '5px', color: '#333', fontSize: '14px', textAlign: 'left' },
-  btnAcao: { backgroundColor: '#28a745', color: 'white', border: 'none', padding: '10px 15px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', width: '100%' },
-  btnCard: { color: 'white', border: 'none', padding: '10px 15px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', width: '100%' },
-  card: { border: '1px solid #e3e3e3', padding: '20px', borderRadius: '8px', marginBottom: '15px', backgroundColor: '#fdfdfd', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' },
-  actionGroup: { display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '150px' },
-  modalOverlay: { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 },
-  modalContent: { backgroundColor: '#fff', padding: '30px', borderRadius: '8px', width: '450px', boxShadow: '0 4px 20px rgba(0,0,0,0.2)', maxHeight: '90vh', overflowY: 'auto' },
-  modalContentSmall: { background: 'white', padding: '20px', borderRadius: '8px', width: '320px', textAlign: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.2)' }
-};

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import LayoutPainel from '../components/LayoutPainel';
 
 export default function Configuracoes() {
+  const [usuario, setUsuario] = useState(null);
   const [mensagem, setMensagem] = useState({ texto: '', cor: '' });
 
   const [tema, setTema] = useState('claro');
@@ -13,7 +14,16 @@ export default function Configuracoes() {
   const [notificacoesWhatsapp, setNotificacoesWhatsapp] = useState(true);
 
   useEffect(() => {
-    const configSalvas = localStorage.getItem('imunoPetConfig');
+    const usuarioString = localStorage.getItem('usuarioImunoPet');
+    if (!usuarioString) {
+      window.location.href = '/';
+      return;
+    }
+    
+    const user = JSON.parse(usuarioString);
+    setUsuario(user);
+
+    const configSalvas = localStorage.getItem(`imunoPetConfig_${user.id_usuario}`);
     if (configSalvas) {
       const config = JSON.parse(configSalvas);
       setTema(config.tema || 'claro');
@@ -35,7 +45,7 @@ export default function Configuracoes() {
       notificacoesWhatsapp
     };
 
-    localStorage.setItem('imunoPetConfig', JSON.stringify(novasConfiguracoes));
+    localStorage.setItem(`imunoPetConfig_${usuario.id_usuario}`, JSON.stringify(novasConfiguracoes));
     
     setMensagem({ texto: 'Configurações salvas! Atualizando o sistema...', cor: 'green' });
     
@@ -43,6 +53,8 @@ export default function Configuracoes() {
       window.location.reload();
     }, 1000);
   };
+
+  if (!usuario) return null;
 
   const bgContainer = tema === 'escuro' ? '#1e1e1e' : 'white';
   const textColor = tema === 'escuro' ? '#fdfdfd' : '#000000';

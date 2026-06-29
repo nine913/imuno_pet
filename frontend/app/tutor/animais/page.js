@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import LayoutPainel from '../../components/LayoutPainel';
 
 export default function MeusAnimaisTutor() {
   const [usuario, setUsuario] = useState(null);
@@ -10,6 +11,8 @@ export default function MeusAnimaisTutor() {
   const [alertas, setAlertas] = useState([]);
   const [termoBusca, setTermoBusca] = useState('');
   const [erro, setErro] = useState('');
+  const [tema, setTema] = useState('claro');
+  const [altoContraste, setAltoContraste] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -20,6 +23,13 @@ export default function MeusAnimaisTutor() {
       const user = JSON.parse(usuarioString);
       setUsuario(user);
       buscarDadosIniciais(user.id_usuario);
+    }
+
+    const configSalvas = localStorage.getItem('imunoPetConfig');
+    if (configSalvas) {
+      const config = JSON.parse(configSalvas);
+      setTema(config.tema || 'claro');
+      setAltoContraste(config.altoContraste || false);
     }
   }, [router]);
 
@@ -53,17 +63,27 @@ export default function MeusAnimaisTutor() {
     setPetsExibidos(filtrados);
   };
 
-  if (!usuario) return <h2 style={{ padding: '20px' }}>Carregando...</h2>;
+  if (!usuario) return null;
+
+  const isEscuro = tema === 'escuro';
+  const bgCard = isEscuro ? '#1e1e1e' : '#ffffff';
+  const textColor = isEscuro ? '#fdfdfd' : '#000000';
+  const textSecundario = isEscuro ? '#cccccc' : '#333333';
+  const borderColor = isEscuro ? '#444444' : '#e3e3e3';
+  const inputBg = isEscuro ? '#2d2d2d' : '#ffffff';
+  const headerColor = altoContraste ? '#ffcc00' : (isEscuro ? '#66b2ff' : '#0056b3');
+
+  const alertaAtrasadoBg = isEscuro ? '#4a191e' : '#f8d7da';
+  const alertaAtrasadoText = isEscuro ? '#ffb3b8' : '#721c24';
+  const alertaLembreteBg = isEscuro ? '#4d3a00' : '#fff3cd';
+  const alertaLembreteText = isEscuro ? '#ffdf7e' : '#856404';
 
   return (
-    <div style={styles.body}>
-      <div style={styles.container}>
-        <button style={styles.btnVoltar} onClick={() => router.push('/dashboard')}>
-          Voltar ao Painel
-        </button>
-        <h2 style={styles.h2}>Meus Animais</h2>
+    <LayoutPainel>
+      <div style={{ padding: '40px', maxWidth: '1000px', margin: '0 auto', color: textColor }}>
+        <h2 style={{ color: headerColor, marginTop: 0 }}>Meus Animais</h2>
 
-        <div style={styles.areaAlertas}>
+        <div style={{ marginBottom: '20px' }}>
           {alertas.map((alerta, index) => {
             const dataLim = new Date(alerta.data_proxima_dose);
             const hoje = new Date();
@@ -76,13 +96,13 @@ export default function MeusAnimaisTutor() {
 
             if (alerta.status === 'ATRASADA') {
               return (
-                <div key={index} style={styles.alertaAtrasado}>
+                <div key={index} style={{ backgroundColor: alertaAtrasadoBg, color: alertaAtrasadoText, border: `1px solid ${alertaAtrasadoText}`, padding: '15px', borderRadius: '6px', marginBottom: '15px', fontSize: 'inherit' }}>
                   🚨 <strong>Atenção Inadimplência:</strong> A vacina <strong>{alerta.nome_vacina}</strong> do seu pet <strong>{alerta.nome_animal}</strong> está vencida desde <strong>{dataFormatada}</strong>. Regularize a imunização o quanto antes!
                 </div>
               );
             } else if (diffDays <= 30 && diffDays >= 0) {
               return (
-                <div key={index} style={styles.alertaLembrete}>
+                <div key={index} style={{ backgroundColor: alertaLembreteBg, color: alertaLembreteText, border: `1px solid ${alertaLembreteText}`, padding: '15px', borderRadius: '6px', marginBottom: '15px', fontSize: 'inherit' }}>
                   📅 <strong>Lembrete de Vacina:</strong> A dose da vacina <strong>{alerta.nome_vacina}</strong> para o seu pet <strong>{alerta.nome_animal}</strong> está chegando! Vencimento em <strong>{dataFormatada}</strong> (Faltam {diffDays} dias).
                 </div>
               );
@@ -91,33 +111,33 @@ export default function MeusAnimaisTutor() {
           })}
         </div>
 
-        <div style={styles.searchContainer}>
+        <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
           <input
             type="text"
             value={termoBusca}
             onChange={(e) => setTermoBusca(e.target.value)}
             placeholder="Pesquisar por nome do pet ou raça..."
-            style={styles.input}
+            style={{ width: '100%', padding: '10px', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }}
           />
-          <button style={styles.btnBuscar} onClick={handleBuscar}>Pesquisar</button>
+          <button style={{ padding: '10px 15px', backgroundColor: '#0056b3', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: 'inherit', fontWeight: 'bold' }} onClick={handleBuscar}>Pesquisar</button>
         </div>
 
         {erro ? (
-          <p style={{ color: 'red' }}>{erro}</p>
+          <p style={{ color: '#dc3545', fontWeight: 'bold' }}>{erro}</p>
         ) : petsExibidos.length === 0 ? (
-          <p>Nenhum animal encontrado.</p>
+          <p style={{ color: textSecundario }}>Nenhum animal encontrado.</p>
         ) : (
           <div>
             {petsExibidos.map(pet => (
-              <div key={pet.id_animal} style={styles.petCard}>
+              <div key={pet.id_animal} style={{ border: `1px solid ${borderColor}`, padding: '20px', borderRadius: '8px', marginBottom: '15px', backgroundColor: bgCard, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <strong style={{ fontSize: '20px', color: '#0056b3' }}>🐾 {pet.nome}</strong><br />
-                  <span style={{ fontSize: '15px', color: '#333' }}>
+                  <strong style={{ fontSize: '1.2em', color: headerColor }}>🐾 {pet.nome}</strong><br />
+                  <span style={{ fontSize: '0.9em', color: textSecundario, display: 'inline-block', marginTop: '5px' }}>
                     Espécie: {pet.especie} | Raça: {pet.raca || 'Não informada'}
                   </span>
                 </div>
                 <button 
-                  style={styles.btnHistorico} 
+                  style={{ backgroundColor: '#17a2b8', color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: 'inherit', fontWeight: 'bold' }} 
                   onClick={() => router.push(`/tutor/historico?id=${pet.id_animal}`)}
                 >
                   📋 Carteira de Vacinação
@@ -127,21 +147,6 @@ export default function MeusAnimaisTutor() {
           </div>
         )}
       </div>
-    </div>
+    </LayoutPainel>
   );
 }
-
-const styles = {
-  body: { fontFamily: 'Arial, sans-serif', backgroundColor: '#f4f4f9', margin: 0, padding: '20px', minHeight: '100vh' },
-  container: { maxWidth: '800px', margin: 'auto', background: 'white', padding: '30px', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' },
-  h2: { color: '#0056b3', marginTop: 0 },
-  btnVoltar: { backgroundColor: '#6c757d', color: 'white', border: 'none', padding: '10px 15px', borderRadius: '4px', cursor: 'pointer', fontSize: '16px', marginBottom: '20px' },
-  areaAlertas: { marginBottom: '20px' },
-  alertaAtrasado: { backgroundColor: '#f8d7da', color: '#721c24', border: '1px solid #f5c6cb', padding: '15px', borderRadius: '6px', marginBottom: '15px', fontSize: '14px' },
-  alertaLembrete: { backgroundColor: '#fff3cd', color: '#856404', border: '1px solid #ffeeba', padding: '15px', borderRadius: '6px', marginBottom: '15px', fontSize: '14px' },
-  searchContainer: { display: 'flex', gap: '10px', marginBottom: '20px' },
-  input: { width: '100%', padding: '10px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box' },
-  btnBuscar: { padding: '10px 15px', backgroundColor: '#0056b3', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px' },
-  petCard: { border: '1px solid #ccc', padding: '15px', borderRadius: '8px', marginTop: '15px', backgroundColor: '#fdfdfd', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
-  btnHistorico: { backgroundColor: '#17a2b8', color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold', marginTop: '5px' }
-};

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import LayoutPainel from '../../components/LayoutPainel';
 
 function HistoricoConteudo() {
   const [usuario, setUsuario] = useState(null);
@@ -16,6 +17,9 @@ function HistoricoConteudo() {
 
   const [modalExcluir, setModalExcluir] = useState(false);
   const [idExcluir, setIdExcluir] = useState(null);
+
+  const [tema, setTema] = useState('claro');
+  const [altoContraste, setAltoContraste] = useState(false);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -34,6 +38,14 @@ function HistoricoConteudo() {
       return;
     }
     setUsuario(user);
+
+    const configSalvas = localStorage.getItem(`imunoPetConfig_${user.id_usuario}`);
+    if (configSalvas) {
+      const config = JSON.parse(configSalvas);
+      setTema(config.tema || 'claro');
+      setAltoContraste(config.altoContraste || false);
+    }
+
     carregarVacinas();
     buscarHistorico(user.id_usuario);
   }, [idAnimal, router]);
@@ -174,36 +186,44 @@ function HistoricoConteudo() {
 
   if (!usuario) return null;
 
-  return (
-    <div style={styles.body}>
-      <div style={styles.container}>
-        <button style={styles.btnVoltar} onClick={() => router.push('/veterinario/buscar')}>Voltar para Busca</button>
-        <h2 style={styles.h2}>Histórico de Vacinação do Paciente</h2>
+  const isEscuro = tema === 'escuro';
+  const bgCard = isEscuro ? '#1e1e1e' : '#ffffff';
+  const textColor = isEscuro ? '#fdfdfd' : '#000000';
+  const textSecundario = isEscuro ? '#cccccc' : '#333333';
+  const borderColor = isEscuro ? '#444444' : '#e3e3e3';
+  const inputBg = isEscuro ? '#2d2d2d' : '#ffffff';
+  const headerColor = altoContraste ? '#ffcc00' : (isEscuro ? '#66b2ff' : '#0056b3');
 
-        <div style={styles.filterBar}>
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <input type="text" value={termoBusca} onChange={e => setTermoBusca(e.target.value)} placeholder="Buscar por nome da vacina..." style={{...styles.input, flex: 2, margin: 0}} />
-            <select value={statusFiltro} onChange={e => setStatusFiltro(e.target.value)} style={{...styles.input, flex: 1, margin: 0}}>
+  return (
+    <LayoutPainel>
+      <div style={{ padding: '40px', maxWidth: '1000px', margin: '0 auto', color: textColor }}>
+        <button style={{ backgroundColor: '#6c757d', color: 'white', border: 'none', padding: '10px 15px', borderRadius: '4px', cursor: 'pointer', marginBottom: '20px', fontWeight: 'bold', fontSize: 'inherit' }} onClick={() => router.push('/veterinario/buscar')}>Voltar para Busca</button>
+        <h2 style={{ color: headerColor, marginTop: 0, marginBottom: '20px' }}>Histórico de Vacinação do Paciente</h2>
+
+        <div style={{ backgroundColor: isEscuro ? '#2d2d2d' : '#e9ecef', padding: '15px', borderRadius: '8px', marginBottom: '20px', border: `1px solid ${borderColor}` }}>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <input type="text" value={termoBusca} onChange={e => setTermoBusca(e.target.value)} placeholder="Buscar por nome da vacina..." style={{ flex: 2, minWidth: '200px', padding: '10px', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, margin: 0, fontSize: 'inherit' }} />
+            <select value={statusFiltro} onChange={e => setStatusFiltro(e.target.value)} style={{ flex: 1, minWidth: '150px', padding: '10px', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, margin: 0, fontSize: 'inherit' }}>
               <option value="">Status da Vacina: Todos</option>
               <option value="APLICADA">Aplicada</option>
               <option value="PENDENTE">Pendente (Agendada)</option>
               <option value="ATRASADA">Atrasada</option>
             </select>
-            <button style={{...styles.btnPesquisar, flex: 1}} onClick={() => buscarHistorico()}>Pesquisar</button>
+            <button style={{ flex: 1, minWidth: '120px', padding: '10px 15px', backgroundColor: '#0056b3', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', margin: 0, fontWeight: 'bold', fontSize: 'inherit' }} onClick={() => buscarHistorico()}>Pesquisar</button>
           </div>
         </div>
 
         <div>
-          {historico.length === 0 ? <p>Nenhum registro encontrado.</p> : historico.map(reg => (
-            <div key={reg.id_registro} style={styles.card}>
+          {historico.length === 0 ? <p style={{ color: textSecundario }}>Nenhum registro encontrado.</p> : historico.map(reg => (
+            <div key={reg.id_registro} style={{ border: `1px solid ${borderColor}`, padding: '20px', borderRadius: '8px', marginBottom: '15px', backgroundColor: bgCard, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
               <div>
-                <h3 style={styles.h3}>💉 {reg.nome_vacina}</h3>
-                <p><strong>Status:</strong> <span style={{ color: reg.status === 'APLICADA' ? 'green' : reg.status === 'ATRASADA' ? 'red' : 'orange', fontWeight: 'bold' }}>{reg.status}</span></p>
-                <p><strong>Aplicação:</strong> {reg.data_aplicacao ? new Date(reg.data_aplicacao).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-'} | <strong>Próxima:</strong> {reg.data_proxima_dose ? new Date(reg.data_proxima_dose).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-'}</p>
+                <h3 style={{ color: headerColor, margin: '0 0 10px 0' }}>💉 {reg.nome_vacina}</h3>
+                <p style={{ margin: '5px 0', color: textSecundario }}><strong>Status:</strong> <span style={{ color: reg.status === 'APLICADA' ? '#28a745' : reg.status === 'ATRASADA' ? '#dc3545' : '#fd7e14', fontWeight: 'bold' }}>{reg.status}</span></p>
+                <p style={{ margin: '5px 0', color: textSecundario }}><strong>Aplicação:</strong> {reg.data_aplicacao ? new Date(reg.data_aplicacao).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-'} | <strong>Próxima:</strong> {reg.data_proxima_dose ? new Date(reg.data_proxima_dose).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-'}</p>
               </div>
-              <div style={{ display: 'flex', gap: '10px', flexDirection: 'column' }}>
-                <button style={{...styles.btnAcao, backgroundColor: '#ffc107', color: 'black'}} onClick={() => abrirEditar(reg)}>✏️ Editar</button>
-                <button style={{...styles.btnAcao, backgroundColor: '#dc3545'}} onClick={() => { setIdExcluir(reg.id_registro); setModalExcluir(true); }}>🗑️ Excluir</button>
+              <div style={{ display: 'flex', gap: '10px', flexDirection: 'column', minWidth: '150px' }}>
+                <button style={{ backgroundColor: '#ffc107', color: 'black', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', width: '100%', fontWeight: 'bold', fontSize: 'inherit' }} onClick={() => abrirEditar(reg)}>✏️ Editar</button>
+                <button style={{ backgroundColor: '#dc3545', color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', width: '100%', fontWeight: 'bold', fontSize: 'inherit' }} onClick={() => { setIdExcluir(reg.id_registro); setModalExcluir(true); }}>🗑️ Excluir</button>
               </div>
             </div>
           ))}
@@ -211,91 +231,74 @@ function HistoricoConteudo() {
       </div>
 
       {modalEditar && (
-        <div style={styles.overlay}>
-          <div style={styles.modal}>
-            <h3 style={styles.h3}>✏️ Editar Registro</h3>
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.7)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+          <div style={{ background: bgCard, padding: '30px', borderRadius: '8px', width: '450px', boxShadow: '0 4px 20px rgba(0,0,0,0.5)', color: textColor, border: altoContraste ? '2px solid #ffcc00' : `1px solid ${borderColor}`, maxHeight: '90vh', overflowY: 'auto' }}>
+            <h3 style={{ color: headerColor, marginTop: 0, marginBottom: '20px' }}>✏️ Editar Registro</h3>
             <form onSubmit={submitEditar}>
-              <label style={styles.label}>Vacina:</label>
-              <select value={editDados.id_vacina} onChange={handleChangeVacina} style={styles.input} required>
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Vacina:</label>
+              <select value={editDados.id_vacina} onChange={handleChangeVacina} style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} required>
                 <option value="">Selecione a vacina...</option>
                 {vacinasBase.map(v => <option key={v.id_vacina} value={v.id_vacina}>{v.nome_vacina}</option>)}
               </select>
 
-              <label style={styles.label}>Status:</label>
-              <select value={editDados.status} onChange={handleChangeStatus} style={styles.input} required>
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Status:</label>
+              <select value={editDados.status} onChange={handleChangeStatus} style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} required>
                 <option value="APLICADA">Aplicada</option>
                 <option value="PENDENTE">Agendada (Pendente)</option>
                 {editDados.status === 'ATRASADA' && <option value="ATRASADA">Atrasada (Automático)</option>}
               </select>
 
-              <label style={styles.label}>Data de Aplicação:</label>
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Data de Aplicação:</label>
               <input
                 type="date"
                 value={editDados.data_aplicacao}
                 onChange={handleChangeDataAplicacao}
-                style={styles.input}
+                style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }}
                 disabled={editDados.status === 'PENDENTE' || editDados.status === 'ATRASADA'}
                 required={editDados.status === 'APLICADA'}
                 max={dataHoje}
               />
 
-              <label style={styles.label}>Data da Próxima Dose / Vencimento:</label>
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Data da Próxima Dose / Vencimento:</label>
               <input
                 type="date"
                 value={editDados.data_proxima_dose}
                 onChange={e => setEditDados({...editDados, data_proxima_dose: e.target.value})}
-                style={styles.input}
+                style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }}
                 min={editDados.status === 'PENDENTE' ? dataHoje : (editDados.data_aplicacao || '')}
                 required
               />
 
               <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
-                <button type="submit" style={{ ...styles.btnAcao, backgroundColor: '#28a745', margin: 0, width: '100%' }}>Salvar Alterações</button>
-                <button type="button" onClick={() => setModalEditar(false)} style={{...styles.btnVoltar, width: '100%', margin: 0}}>Cancelar</button>
+                <button type="submit" style={{ backgroundColor: '#28a745', color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', flex: 1, margin: 0, fontWeight: 'bold', fontSize: 'inherit' }}>Salvar Alterações</button>
+                <button type="button" onClick={() => setModalEditar(false)} style={{ backgroundColor: '#6c757d', color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', flex: 1, margin: 0, fontWeight: 'bold', fontSize: 'inherit' }}>Cancelar</button>
               </div>
             </form>
-            {msgEditar.texto && <div style={{ textAlign: 'center', marginTop: '10px', fontWeight: 'bold', color: msgEditar.cor }}>{msgEditar.texto}</div>}
+            {msgEditar.texto && <div style={{ textAlign: 'center', marginTop: '15px', fontWeight: 'bold', color: msgEditar.cor }}>{msgEditar.texto}</div>}
           </div>
         </div>
       )}
 
       {modalExcluir && (
-        <div style={styles.overlay}>
-          <div style={styles.modalSmall}>
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.7)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+          <div style={{ background: bgCard, padding: '20px', borderRadius: '8px', width: '320px', textAlign: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.5)', border: altoContraste ? '2px solid #dc3545' : `1px solid ${borderColor}`, color: textColor }}>
             <h3 style={{ color: '#dc3545', marginTop: 0 }}>Atenção!</h3>
-            <p>Tem certeza que deseja excluir este registro de vacina do histórico?</p>
+            <p style={{ color: textSecundario }}>Tem certeza que deseja excluir este registro de vacina do histórico?</p>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '20px' }}>
-              <button style={{ backgroundColor: '#dc3545', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '4px', cursor: 'pointer' }} onClick={confirmarExcluir}>Sim, Excluir</button>
-              <button style={{ backgroundColor: '#6c757d', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '4px', cursor: 'pointer' }} onClick={() => setModalExcluir(false)}>Cancelar</button>
+              <button style={{ backgroundColor: '#dc3545', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', flex: 1, fontSize: 'inherit' }} onClick={confirmarExcluir}>Sim, Excluir</button>
+              <button style={{ backgroundColor: '#6c757d', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', flex: 1, fontSize: 'inherit' }} onClick={() => setModalExcluir(false)}>Cancelar</button>
             </div>
           </div>
         </div>
       )}
-    </div>
+    </LayoutPainel>
   );
 }
 
 export default function Historico() {
   return (
-    <Suspense fallback={<div>Carregando...</div>}>
+    <Suspense fallback={<div style={{ padding: '20px', fontFamily: 'Arial' }}>Carregando...</div>}>
       <HistoricoConteudo />
     </Suspense>
   );
 }
-
-const styles = {
-  body: { fontFamily: 'Arial, sans-serif', backgroundColor: '#f4f4f9', margin: 0, padding: '20px', minHeight: '100vh' },
-  container: { maxWidth: '800px', margin: 'auto', background: 'white', padding: '30px', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' },
-  h2: { color: '#0056b3', marginTop: 0 },
-  h3: { color: '#0056b3', margin: '0 0 10px 0' },
-  label: { display: 'block', fontSize: '14px', fontWeight: 'bold', marginBottom: '5px', color: '#333' },
-  input: { width: '100%', padding: '10px', margin: '0 0 15px 0', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box' },
-  filterBar: { backgroundColor: '#e9ecef', padding: '15px', borderRadius: '8px', marginBottom: '20px' },
-  btnPesquisar: { padding: '10px 15px', backgroundColor: '#0056b3', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', margin: 0 },
-  btnVoltar: { backgroundColor: '#6c757d', color: 'white', border: 'none', padding: '10px 15px', borderRadius: '4px', cursor: 'pointer', marginBottom: '20px' },
-  btnAcao: { padding: '10px 15px', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '14px' },
-  card: { border: '1px solid #ccc', padding: '15px', borderRadius: '8px', marginTop: '15px', backgroundColor: '#fdfdfd', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
-  overlay: { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center' },
-  modal: { background: '#e9ecef', padding: '20px', borderRadius: '8px', width: '400px', boxShadow: '0 4px 10px rgba(0,0,0,0.2)' },
-  modalSmall: { background: 'white', padding: '20px', borderRadius: '8px', width: '300px', textAlign: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.2)' }
-};

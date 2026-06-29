@@ -2,12 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import LayoutPainel from '../../components/LayoutPainel';
 
 export default function VetAtrasados() {
   const [usuario, setUsuario] = useState(null);
   const [atrasados, setAtrasados] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState('');
+  const [tema, setTema] = useState('claro');
+  const [altoContraste, setAltoContraste] = useState(false);
 
   const router = useRouter();
 
@@ -24,6 +27,13 @@ export default function VetAtrasados() {
     }
     setUsuario(user);
     carregarAtrasados(user.id_clinica);
+
+    const configSalvas = localStorage.getItem(`imunoPetConfig_${user.id_usuario}`);
+    if (configSalvas) {
+      const config = JSON.parse(configSalvas);
+      setTema(config.tema || 'claro');
+      setAltoContraste(config.altoContraste || false);
+    }
   }, [router]);
 
   const carregarAtrasados = async (id_clinica) => {
@@ -52,22 +62,28 @@ export default function VetAtrasados() {
 
   if (!usuario) return null;
 
+  const isEscuro = tema === 'escuro';
+  const bgCard = isEscuro ? '#1e1e1e' : '#ffffff';
+  const textColor = isEscuro ? '#fdfdfd' : '#000000';
+  const textSecundario = isEscuro ? '#cccccc' : '#333333';
+  const borderColor = isEscuro ? '#444444' : '#e3e3e3';
+  
+  const headerColor = altoContraste ? '#ffcc00' : (isEscuro ? '#ff6b6b' : '#dc3545');
+  const accentRed = altoContraste ? '#ffcc00' : '#dc3545';
+
   return (
-    <div style={styles.body}>
-      <div style={styles.container}>
-        <button style={styles.btnVoltar} onClick={() => router.push('/dashboard')}>
-          Voltar ao Painel
-        </button>
-        <h2 style={styles.h2}>⚠️ Controle de Vacinação Atrasada</h2>
-        <p>Lista de pacientes com doses pendentes após a data de vencimento:</p>
+    <LayoutPainel>
+      <div style={{ padding: '40px', maxWidth: '1000px', margin: '0 auto', color: textColor }}>
+        <h2 style={{ color: headerColor, marginTop: 0 }}>⚠️ Controle de Vacinação Atrasada</h2>
+        <p style={{ color: textSecundario }}>Lista de pacientes com doses pendentes após a data de vencimento:</p>
         
-        <div>
+        <div style={{ marginTop: '20px' }}>
           {carregando ? (
-            <p>Carregando...</p>
+            <p style={{ color: textSecundario }}>Carregando...</p>
           ) : erro ? (
-            <p style={{ color: 'red' }}>{erro}</p>
+            <p style={{ color: '#dc3545', fontWeight: 'bold' }}>{erro}</p>
           ) : atrasados.length === 0 ? (
-            <p style={{ color: 'green', fontWeight: 'bold', fontSize: '18px' }}>
+            <p style={{ color: '#28a745', fontWeight: 'bold', fontSize: '1.2em' }}>
               Nenhuma vacina atrasada no sistema!
             </p>
           ) : (
@@ -78,13 +94,27 @@ export default function VetAtrasados() {
               const linkWhats = `https://wa.me/55${telLimpo}?text=${encodeURIComponent(mensagemWhats)}`;
 
               return (
-                <div key={index} style={styles.atrasadoCard}>
+                <div key={index} style={{ 
+                  border: `1px solid ${borderColor}`, 
+                  borderLeft: `5px solid ${accentRed}`, 
+                  padding: '20px', 
+                  borderRadius: '8px', 
+                  marginBottom: '15px', 
+                  backgroundColor: bgCard, 
+                  color: textColor, 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center', 
+                  flexWrap: 'wrap', 
+                  gap: '15px',
+                  boxShadow: isEscuro ? 'none' : '0 2px 5px rgba(0,0,0,0.05)'
+                }}>
                   <div>
-                    <strong style={{ fontSize: '18px' }}>🐾 {item.nome_animal} ({item.especie})</strong><br />
-                    <span>Vacina: <strong>{item.nome_vacina}</strong> (Venceu em: {dataVenc})</span><br />
-                    <span style={{ fontSize: '13px', color: '#333' }}>Tutor: {item.nome_tutor} | Contato: {item.telefone}</span>
+                    <strong style={{ fontSize: '1.2em' }}>🐾 {item.nome_animal} ({item.especie})</strong><br />
+                    <span style={{ display: 'inline-block', margin: '5px 0' }}>Vacina: <strong>{item.nome_vacina}</strong> (Venceu em: {dataVenc})</span><br />
+                    <span style={{ fontSize: '0.9em', color: textSecundario }}>Tutor: {item.nome_tutor} | Contato: {item.telefone}</span>
                   </div>
-                  <a href={linkWhats} target="_blank" rel="noopener noreferrer" style={styles.btnContato}>
+                  <a href={linkWhats} target="_blank" rel="noopener noreferrer" style={{ backgroundColor: '#28a745', color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', textDecoration: 'none', textAlign: 'center', fontSize: 'inherit' }}>
                     📱 Entrar em Contato
                   </a>
                 </div>
@@ -93,64 +123,6 @@ export default function VetAtrasados() {
           )}
         </div>
       </div>
-    </div>
+    </LayoutPainel>
   );
 }
-
-const styles = {
-  body: {
-    fontFamily: 'Arial, sans-serif',
-    backgroundColor: '#f4f4f9',
-    margin: 0,
-    padding: '20px',
-    minHeight: '100vh'
-  },
-  container: {
-    maxWidth: '900px',
-    margin: 'auto',
-    background: 'white',
-    padding: '30px',
-    borderRadius: '8px',
-    boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
-  },
-  h2: {
-    color: '#dc3545',
-    marginTop: 0
-  },
-  btnVoltar: {
-    backgroundColor: '#6c757d',
-    color: 'white',
-    padding: '10px 15px',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontSize: '16px',
-    marginBottom: '20px',
-    fontWeight: 'bold'
-  },
-  atrasadoCard: {
-    border: '1px solid #f5c6cb',
-    padding: '15px',
-    borderRadius: '8px',
-    marginTop: '15px',
-    backgroundColor: '#f8d7da',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    color: '#721c24',
-    flexWrap: 'wrap',
-    gap: '15px'
-  },
-  btnContato: {
-    backgroundColor: '#28a745',
-    color: 'white',
-    padding: '10px 15px',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontWeight: 'bold',
-    textDecoration: 'none',
-    fontSize: '14px',
-    textAlign: 'center'
-  }
-};
