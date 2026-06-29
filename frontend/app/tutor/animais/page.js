@@ -67,24 +67,51 @@ export default function MeusAnimaisTutor() {
   if (!usuario) return null;
 
   const isEscuro = tema === 'escuro';
-  const bgCard = isEscuro ? '#1e1e1e' : '#ffffff';
-  const textColor = isEscuro ? '#fdfdfd' : '#000000';
-  const textSecundario = isEscuro ? '#cccccc' : '#333333';
-  const borderColor = isEscuro ? '#444444' : '#e3e3e3';
-  const inputBg = isEscuro ? '#2d2d2d' : '#ffffff';
-  const headerColor = altoContraste ? '#ffcc00' : (isEscuro ? '#66b2ff' : '#0056b3');
+  const bgCard = isEscuro ? '#1e293b' : '#ffffff';
+  const textColor = isEscuro ? '#f8fafc' : '#0f172a';
+  const textSecundario = isEscuro ? '#94a3b8' : '#64748b';
+  const borderColor = isEscuro ? '#334155' : '#e2e8f0';
+  const inputBg = isEscuro ? '#0f172a' : '#f8fafc';
+  const headerColor = altoContraste ? '#ffcc00' : (isEscuro ? '#60a5fa' : '#2563eb');
 
-  const alertaAtrasadoBg = isEscuro ? '#4a191e' : '#f8d7da';
-  const alertaAtrasadoText = isEscuro ? '#ffb3b8' : '#721c24';
-  const alertaLembreteBg = isEscuro ? '#4d3a00' : '#fff3cd';
-  const alertaLembreteText = isEscuro ? '#ffdf7e' : '#856404';
+  const alertaAtrasadoBg = isEscuro ? '#7f1d1d' : '#fef2f2';
+  const alertaAtrasadoText = isEscuro ? '#fecaca' : '#dc2626';
+  const alertaAtrasadoBorder = isEscuro ? '#991b1b' : '#fecaca';
+
+  const alertaLembreteBg = isEscuro ? '#78350f' : '#fffbeb';
+  const alertaLembreteText = isEscuro ? '#fde68a' : '#d97706';
+  const alertaLembreteBorder = isEscuro ? '#92400e' : '#fde68a';
 
   return (
     <LayoutPainel>
-      <div style={{ padding: '40px', maxWidth: '1000px', margin: '0 auto', color: textColor }}>
-        <h2 style={{ color: headerColor, marginTop: 0, marginBottom: '20px' }}>Meus Animais</h2>
+      <style>{`
+        .premium-input:focus {
+          border-color: #2563eb !important;
+          box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1) !important;
+        }
+        .premium-btn {
+          transition: all 0.2s ease;
+        }
+        .premium-btn:hover {
+          transform: translateY(-1px);
+          filter: brightness(1.05);
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .premium-card {
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .premium-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+      `}</style>
 
-        <div style={{ marginBottom: '20px' }}>
+      <div style={{ padding: '40px', maxWidth: '1000px', margin: '0 auto', color: textColor, fontFamily: '"Inter", sans-serif' }}>
+        <h2 style={{ color: headerColor, marginTop: 0, marginBottom: '24px', fontSize: '28px', fontWeight: '800', letterSpacing: '-0.5px' }}>
+          Meus Pets
+        </h2>
+
+        <div style={{ marginBottom: '24px' }}>
           {alertas.map((alerta, index) => {
             const dataLim = new Date(alerta.data_proxima_dose);
             const hoje = new Date();
@@ -97,14 +124,20 @@ export default function MeusAnimaisTutor() {
 
             if (alerta.status === 'ATRASADA') {
               return (
-                <div key={index} style={{ backgroundColor: alertaAtrasadoBg, color: alertaAtrasadoText, border: `1px solid ${alertaAtrasadoText}`, padding: '15px', borderRadius: '6px', marginBottom: '15px', fontSize: 'inherit' }}>
-                  🚨 <strong>Atenção Inadimplência:</strong> A vacina <strong>{alerta.nome_vacina}</strong> do seu pet <strong>{alerta.nome_animal}</strong> está vencida desde <strong>{dataFormatada}</strong>. Regularize a imunização o quanto antes!
+                <div key={index} style={{ backgroundColor: alertaAtrasadoBg, color: alertaAtrasadoText, border: `1px solid ${alertaAtrasadoBorder}`, padding: '16px 20px', borderRadius: '12px', marginBottom: '16px', fontSize: '15px', display: 'flex', alignItems: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                  <span style={{ fontSize: '20px', marginRight: '12px' }}>🚨</span>
+                  <div>
+                    <strong style={{ fontWeight: '700' }}>Atenção:</strong> A vacina <strong>{alerta.nome_vacina}</strong> do(a) <strong>{alerta.nome_animal}</strong> está vencida desde <strong>{dataFormatada}</strong>.
+                  </div>
                 </div>
               );
             } else if (diffDays <= 30 && diffDays >= 0) {
               return (
-                <div key={index} style={{ backgroundColor: alertaLembreteBg, color: alertaLembreteText, border: `1px solid ${alertaLembreteText}`, padding: '15px', borderRadius: '6px', marginBottom: '15px', fontSize: 'inherit' }}>
-                  📅 <strong>Lembrete de Vacina:</strong> A dose da vacina <strong>{alerta.nome_vacina}</strong> para o seu pet <strong>{alerta.nome_animal}</strong> está chegando! Vencimento em <strong>{dataFormatada}</strong> (Faltam {diffDays} dias).
+                <div key={index} style={{ backgroundColor: alertaLembreteBg, color: alertaLembreteText, border: `1px solid ${alertaLembreteBorder}`, padding: '16px 20px', borderRadius: '12px', marginBottom: '16px', fontSize: '15px', display: 'flex', alignItems: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                  <span style={{ fontSize: '20px', marginRight: '12px' }}>📅</span>
+                  <div>
+                    <strong style={{ fontWeight: '700' }}>Lembrete:</strong> A vacina <strong>{alerta.nome_vacina}</strong> para o(a) <strong>{alerta.nome_animal}</strong> vence em <strong>{dataFormatada}</strong> (Faltam {diffDays} dias).
+                  </div>
                 </div>
               );
             }
@@ -112,36 +145,53 @@ export default function MeusAnimaisTutor() {
           })}
         </div>
 
-        <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', gap: '12px', marginBottom: '32px' }}>
           <input
             type="text"
+            className="premium-input"
             value={termoBusca}
             onChange={(e) => setTermoBusca(e.target.value)}
-            placeholder="Pesquisar por nome do pet ou raça..."
-            style={{ width: '100%', padding: '10px', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }}
+            placeholder="Buscar por nome ou raça..."
+            style={{ width: '100%', padding: '14px 16px', border: `1px solid ${borderColor}`, borderRadius: '10px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: '15px', outline: 'none', transition: 'all 0.2s' }}
           />
-          <button style={{ padding: '10px 15px', backgroundColor: '#0056b3', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: 'inherit', fontWeight: 'bold' }} onClick={handleBuscar}>Pesquisar</button>
+          <button className="premium-btn" style={{ padding: '0 24px', backgroundColor: '#2563eb', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: '15px', fontWeight: '600' }} onClick={handleBuscar}>
+            Pesquisar
+          </button>
         </div>
 
         {erro ? (
-          <p style={{ color: '#dc3545', fontWeight: 'bold' }}>{erro}</p>
+          <div style={{ backgroundColor: '#fef2f2', color: '#dc2626', padding: '16px', borderRadius: '12px', border: '1px solid #fecaca', fontWeight: '500' }}>{erro}</div>
         ) : petsExibidos.length === 0 ? (
-          <p style={{ color: textSecundario }}>Nenhum animal encontrado.</p>
+          <div style={{ textAlign: 'center', padding: '40px', backgroundColor: bgCard, borderRadius: '16px', border: `1px dashed ${borderColor}`, color: textSecundario }}>
+            <span style={{ fontSize: '40px', display: 'block', marginBottom: '10px' }}>🐕</span>
+            Nenhum animal encontrado.
+          </div>
         ) : (
-          <div>
+          <div style={{ display: 'grid', gap: '20px' }}>
             {petsExibidos.map(pet => (
-              <div key={pet.id_animal} style={{ border: `1px solid ${borderColor}`, padding: '20px', borderRadius: '8px', marginBottom: '15px', backgroundColor: bgCard, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
-                <div>
-                  <strong style={{ fontSize: '1.2em', color: headerColor }}>🐾 {pet.nome}</strong><br />
-                  <span style={{ fontSize: '0.9em', color: textSecundario, display: 'inline-block', marginTop: '5px' }}>
-                    Espécie: {pet.especie} | Raça: {pet.raca || 'Não informada'}
-                  </span>
+              <div key={pet.id_animal} className="premium-card" style={{ border: `1px solid ${borderColor}`, padding: '24px', borderRadius: '16px', backgroundColor: bgCard, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <div style={{ width: '56px', height: '56px', borderRadius: '50%', backgroundColor: isEscuro ? '#1e3a8a' : '#dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>
+                    🐾
+                  </div>
+                  <div>
+                    <h3 style={{ fontSize: '20px', color: headerColor, margin: '0 0 4px 0', fontWeight: '700' }}>{pet.nome}</h3>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <span style={{ fontSize: '13px', color: textSecundario, backgroundColor: inputBg, padding: '4px 10px', borderRadius: '20px', border: `1px solid ${borderColor}`, fontWeight: '500' }}>
+                        {pet.especie}
+                      </span>
+                      <span style={{ fontSize: '13px', color: textSecundario, backgroundColor: inputBg, padding: '4px 10px', borderRadius: '20px', border: `1px solid ${borderColor}`, fontWeight: '500' }}>
+                        {pet.raca || 'Raça não informada'}
+                      </span>
+                    </div>
+                  </div>
                 </div>
                 <button 
-                  style={{ backgroundColor: '#17a2b8', color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: 'inherit', fontWeight: 'bold' }} 
+                  className="premium-btn"
+                  style={{ backgroundColor: '#0f766e', color: 'white', padding: '12px 20px', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: '14px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px' }} 
                   onClick={() => router.push(`/tutor/historico?id=${pet.id_animal}`)}
                 >
-                  📋 Carteira de Vacinação
+                  <span style={{ fontSize: '16px' }}>📋</span> Carteira de Vacinação
                 </button>
               </div>
             ))}
