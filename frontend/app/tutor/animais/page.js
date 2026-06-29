@@ -19,13 +19,14 @@ export default function MeusAnimaisTutor() {
     const usuarioString = localStorage.getItem('usuarioImunoPet');
     if (!usuarioString) {
       router.push('/');
-    } else {
-      const user = JSON.parse(usuarioString);
-      setUsuario(user);
-      buscarDadosIniciais(user.id_usuario);
-    }
+      return;
+    } 
+    
+    const user = JSON.parse(usuarioString);
+    setUsuario(user);
+    buscarDadosIniciais(user.id_usuario);
 
-    const configSalvas = localStorage.getItem('imunoPetConfig');
+    const configSalvas = localStorage.getItem(`imunoPetConfig_${user.id_usuario}`);
     if (configSalvas) {
       const config = JSON.parse(configSalvas);
       setTema(config.tema || 'claro');
@@ -81,7 +82,7 @@ export default function MeusAnimaisTutor() {
   return (
     <LayoutPainel>
       <div style={{ padding: '40px', maxWidth: '1000px', margin: '0 auto', color: textColor }}>
-        <h2 style={{ color: headerColor, marginTop: 0 }}>Meus Animais</h2>
+        <h2 style={{ color: headerColor, marginTop: 0, marginBottom: '20px' }}>Meus Animais</h2>
 
         <div style={{ marginBottom: '20px' }}>
           {alertas.map((alerta, index) => {
@@ -129,7 +130,7 @@ export default function MeusAnimaisTutor() {
         ) : (
           <div>
             {petsExibidos.map(pet => (
-              <div key={pet.id_animal} style={{ border: `1px solid ${borderColor}`, padding: '20px', borderRadius: '8px', marginBottom: '15px', backgroundColor: bgCard, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div key={pet.id_animal} style={{ border: `1px solid ${borderColor}`, padding: '20px', borderRadius: '8px', marginBottom: '15px', backgroundColor: bgCard, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
                 <div>
                   <strong style={{ fontSize: '1.2em', color: headerColor }}>🐾 {pet.nome}</strong><br />
                   <span style={{ fontSize: '0.9em', color: textSecundario, display: 'inline-block', marginTop: '5px' }}>

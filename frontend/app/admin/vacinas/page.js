@@ -2,16 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import LayoutPainel from '../../components/LayoutPainel';
 
 export default function AdminVacinas() {
-  const [usuario, setUsuario] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('usuarioImunoPet');
-      if (saved) return JSON.parse(saved);
-    }
-    return null;
-  });
-
+  const [usuario, setUsuario] = useState(null);
   const [vacinas, setVacinas] = useState([]);
   const [termoBusca, setTermoBusca] = useState('');
   
@@ -29,17 +23,35 @@ export default function AdminVacinas() {
   const [modalExclusaoOpen, setModalExclusaoOpen] = useState(false);
   const [idParaExcluir, setIdParaExcluir] = useState(null);
 
+  const [tema, setTema] = useState('claro');
+  const [altoContraste, setAltoContraste] = useState(false);
+
   const router = useRouter();
 
   useEffect(() => {
-    if (!usuario) {
-      router.push('/');
-    } else if (usuario.perfil.toUpperCase() !== 'ADMINISTRADOR') {
-      router.push('/dashboard');
-    } else {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('usuarioImunoPet');
+      if (!saved) {
+        router.push('/');
+        return;
+      }
+      const user = JSON.parse(saved);
+      if (user.perfil.toUpperCase() !== 'ADMINISTRADOR') {
+        router.push('/dashboard');
+        return;
+      }
+      setUsuario(user);
+
+      const configSalvas = localStorage.getItem(`imunoPetConfig_${user.id_usuario}`);
+      if (configSalvas) {
+        const config = JSON.parse(configSalvas);
+        setTema(config.tema || 'claro');
+        setAltoContraste(config.altoContraste || false);
+      }
+
       buscarVacinas('');
     }
-  }, [usuario, router]);
+  }, [router]);
 
   const buscarVacinas = async (termo = termoBusca) => {
     try {
@@ -140,48 +152,54 @@ export default function AdminVacinas() {
         fecharModais();
       }
     } catch (erro) {
-      alert('Erro de conexão.');
       fecharModais();
     }
   };
 
   if (!usuario) return null;
 
+  const isEscuro = tema === 'escuro';
+  const bgCard = isEscuro ? '#1e1e1e' : '#ffffff';
+  const textColor = isEscuro ? '#fdfdfd' : '#000000';
+  const textSecundario = isEscuro ? '#cccccc' : '#333333';
+  const borderColor = isEscuro ? '#444444' : '#e3e3e3';
+  const inputBg = isEscuro ? '#2d2d2d' : '#ffffff';
+  const headerColor = altoContraste ? '#ffcc00' : (isEscuro ? '#66b2ff' : '#000000');
+
   return (
-    <div style={styles.body}>
-      <div style={styles.container}>
-        <button style={styles.btnVoltar} onClick={() => router.push('/dashboard')}>Voltar ao Dashboard</button>
+    <LayoutPainel>
+      <div style={{ padding: '40px', maxWidth: '900px', margin: '0 auto', color: textColor }}>
         
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-          <h2 style={{ margin: 0, color: '#000000' }}>Catálogo Global de Vacinas</h2>
-          <button style={{ backgroundColor: '#28a745', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '4px', cursor: 'pointer' }} onClick={abrirModalCadastro}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '15px' }}>
+          <h2 style={{ margin: 0, color: headerColor }}>Catálogo Global de Vacinas</h2>
+          <button style={{ backgroundColor: '#28a745', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: 'inherit' }} onClick={abrirModalCadastro}>
             + Nova Vacina
           </button>
         </div>
         
-        <div style={{ display: 'flex', gap: '10px', backgroundColor: '#e9ecef', padding: '15px', borderRadius: '8px', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', gap: '10px', backgroundColor: isEscuro ? '#2d2d2d' : '#e9ecef', padding: '15px', borderRadius: '8px', marginBottom: '20px', border: `1px solid ${borderColor}` }}>
           <input 
             type="text" 
             value={termoBusca} 
             onChange={(e) => setTermoBusca(e.target.value)} 
             placeholder="Pesquisar por nome ou fabricante..." 
-            style={{ ...styles.input, margin: 0, flex: 2 }} 
+            style={{ padding: '10px', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, margin: 0, flex: 2, fontSize: 'inherit' }} 
           />
-          <button style={{ ...styles.btnAcao, backgroundColor: '#0056b3', flex: 1, margin: 0 }} onClick={() => buscarVacinas(termoBusca)}>Pesquisar</button>
+          <button style={{ backgroundColor: '#0056b3', color: 'white', border: 'none', padding: '10px 15px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', flex: 1, margin: 0, fontSize: 'inherit' }} onClick={() => buscarVacinas(termoBusca)}>Pesquisar</button>
         </div>
 
         <div>
-          {vacinas.length === 0 ? <p>Nenhuma vacina cadastrada.</p> : vacinas.map(vacina => (
-            <div key={vacina.id_vacina} style={styles.card}>
-              <div>
-                <h3 style={{ marginTop: 0, color: '#007bff' }}>💉 {vacina.nome_vacina}</h3>
-                <p style={{ margin: '5px 0' }}><strong>Fabricante:</strong> {vacina.fabricante || 'Não informado'}</p>
-                <p style={{ margin: '5px 0' }}><strong>Prevenção:</strong> {vacina.doencas_prevenidas}</p>
-                <p style={{ margin: '5px 0' }}><strong>Intervalo entre doses:</strong> {vacina.intervalo_doses_dias ? `${vacina.intervalo_doses_dias} dias` : 'Dose única / Não se aplica'}</p>
+          {vacinas.length === 0 ? <p style={{ color: textSecundario }}>Nenhuma vacina cadastrada.</p> : vacinas.map(vacina => (
+            <div key={vacina.id_vacina} style={{ border: `1px solid ${borderColor}`, padding: '20px', borderRadius: '8px', marginTop: '15px', backgroundColor: bgCard, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
+              <div style={{ flex: 1 }}>
+                <h3 style={{ marginTop: 0, color: isEscuro ? '#66b2ff' : '#007bff' }}>💉 {vacina.nome_vacina}</h3>
+                <p style={{ margin: '5px 0', color: textSecundario }}><strong>Fabricante:</strong> {vacina.fabricante || 'Não informado'}</p>
+                <p style={{ margin: '5px 0', color: textSecundario }}><strong>Prevenção:</strong> {vacina.doencas_prevenidas}</p>
+                <p style={{ margin: '5px 0', color: textSecundario }}><strong>Intervalo entre doses:</strong> {vacina.intervalo_doses_dias ? `${vacina.intervalo_doses_dias} dias` : 'Dose única / Não se aplica'}</p>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', minWidth: '120px' }}>
-                <button style={{ ...styles.btnAcao, backgroundColor: '#ffc107', color: 'black', margin: 0 }} onClick={() => abrirModalEdicao(vacina)}>✏️ Editar</button>
-                <button style={{ ...styles.btnAcao, backgroundColor: '#dc3545', margin: 0 }} onClick={() => { setIdParaExcluir(vacina.id_vacina); setModalExclusaoOpen(true); }}>🗑️ Excluir</button>
+                <button style={{ backgroundColor: '#ffc107', color: 'black', border: 'none', padding: '10px 15px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: 'inherit' }} onClick={() => abrirModalEdicao(vacina)}>✏️ Editar</button>
+                <button style={{ backgroundColor: '#dc3545', color: 'white', border: 'none', padding: '10px 15px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: 'inherit' }} onClick={() => { setIdParaExcluir(vacina.id_vacina); setModalExclusaoOpen(true); }}>🗑️ Excluir</button>
               </div>
             </div>
           ))}
@@ -189,25 +207,25 @@ export default function AdminVacinas() {
       </div>
 
       {modalFormOpen && (
-        <div style={styles.modalOverlay}>
-          <div style={styles.modalContent}>
-            <h3 style={{ color: '#000000', marginTop: 0 }}>{isEdicao ? '✏️ Editar Vacina' : 'Cadastrar Nova Vacina'}</h3>
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.7)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+          <div style={{ background: bgCard, padding: '30px', borderRadius: '8px', width: '450px', boxShadow: '0 4px 20px rgba(0,0,0,0.5)', border: altoContraste ? '2px solid #ffcc00' : `1px solid ${borderColor}`, maxHeight: '90vh', overflowY: 'auto' }}>
+            <h3 style={{ color: headerColor, marginTop: 0 }}>{isEdicao ? '✏️ Editar Vacina' : 'Cadastrar Nova Vacina'}</h3>
             <form onSubmit={submitForm}>
-              <label style={styles.label}>Nome da Vacina:</label>
-              <input type="text" value={formDados.nome_vacina} onChange={e => setFormDados({...formDados, nome_vacina: e.target.value})} required style={styles.input} />
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Nome da Vacina:</label>
+              <input type="text" value={formDados.nome_vacina} onChange={e => setFormDados({...formDados, nome_vacina: e.target.value})} required style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} />
 
-              <label style={styles.label}>Fabricante:</label>
-              <input type="text" value={formDados.fabricante} onChange={e => setFormDados({...formDados, fabricante: e.target.value})} style={styles.input} />
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Fabricante:</label>
+              <input type="text" value={formDados.fabricante} onChange={e => setFormDados({...formDados, fabricante: e.target.value})} style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} />
 
-              <label style={styles.label}>Doenças Prevenidas:</label>
-              <input type="text" value={formDados.doencas_prevenidas} onChange={e => setFormDados({...formDados, doencas_prevenidas: e.target.value})} required style={styles.input} />
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Doenças Prevenidas:</label>
+              <input type="text" value={formDados.doencas_prevenidas} onChange={e => setFormDados({...formDados, doencas_prevenidas: e.target.value})} required style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} />
 
-              <label style={styles.label}>Intervalo entre doses (em dias):</label>
-              <input type="number" min="0" value={formDados.intervalo_doses_dias} onChange={e => setFormDados({...formDados, intervalo_doses_dias: e.target.value})} placeholder="Deixe em branco se for dose única" style={styles.input} />
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Intervalo entre doses (em dias):</label>
+              <input type="number" min="0" value={formDados.intervalo_doses_dias} onChange={e => setFormDados({...formDados, intervalo_doses_dias: e.target.value})} placeholder="Deixe em branco se for dose única" style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} />
 
               <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
-                <button type="submit" style={{ ...styles.btnAcao, backgroundColor: '#28a745', margin: 0, width: '100%' }}>Salvar Dados</button>
-                <button type="button" style={{ ...styles.btnVoltar, margin: 0, width: '100%' }} onClick={fecharModais}>Cancelar</button>
+                <button type="submit" style={{ backgroundColor: '#28a745', color: 'white', border: 'none', padding: '10px 15px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', flex: 1, margin: 0, fontSize: 'inherit' }}>Salvar Dados</button>
+                <button type="button" style={{ backgroundColor: '#6c757d', color: 'white', border: 'none', padding: '10px 15px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', flex: 1, margin: 0, fontSize: 'inherit' }} onClick={fecharModais}>Cancelar</button>
               </div>
             </form>
             {mensagemForm.texto && <div style={{ textAlign: 'center', marginTop: '10px', fontWeight: 'bold', color: mensagemForm.cor }}>{mensagemForm.texto}</div>}
@@ -216,29 +234,17 @@ export default function AdminVacinas() {
       )}
 
       {modalExclusaoOpen && (
-        <div style={styles.modalOverlay}>
-          <div style={{ background: 'white', padding: '20px', borderRadius: '8px', textAlign: 'center', width: '320px', boxShadow: '0 4px 10px rgba(0,0,0,0.2)' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.7)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+          <div style={{ background: bgCard, padding: '20px', borderRadius: '8px', textAlign: 'center', width: '320px', boxShadow: '0 4px 10px rgba(0,0,0,0.2)', border: altoContraste ? '2px solid #dc3545' : `1px solid ${borderColor}`, color: textColor }}>
             <h3 style={{ color: '#dc3545', marginTop: 0 }}>Atenção!</h3>
-            <p>Confirma a exclusão desta vacina do catálogo global?</p>
+            <p style={{ color: textSecundario }}>Confirma a exclusão desta vacina do catálogo global?</p>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '20px' }}>
-              <button style={{ backgroundColor: '#dc3545', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '4px', cursor: 'pointer' }} onClick={confirmarExclusao}>Sim, Excluir</button>
-              <button style={{ backgroundColor: '#6c757d', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '4px', cursor: 'pointer' }} onClick={fecharModais}>Cancelar</button>
+              <button style={{ backgroundColor: '#dc3545', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: 'inherit' }} onClick={confirmarExclusao}>Sim, Excluir</button>
+              <button style={{ backgroundColor: '#6c757d', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: 'inherit' }} onClick={fecharModais}>Cancelar</button>
             </div>
           </div>
         </div>
       )}
-    </div>
+    </LayoutPainel>
   );
 }
-
-const styles = {
-  body: { fontFamily: 'Arial, sans-serif', backgroundColor: '#f4f4f9', margin: 0, padding: '20px', minHeight: '100vh' },
-  container: { maxWidth: '900px', margin: 'auto', background: 'white', padding: '30px', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' },
-  input: { width: '100%', padding: '10px', margin: '8px 0 15px 0', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box' },
-  label: { fontWeight: 'bold', color: '#333', fontSize: '14px' },
-  btnVoltar: { backgroundColor: '#6c757d', color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px', marginBottom: '20px' },
-  btnAcao: { color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px', width: '100%' },
-  card: { border: '1px solid #e3e3e3', padding: '20px', borderRadius: '8px', marginTop: '15px', backgroundColor: '#fdfdfd', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
-  modalOverlay: { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center' },
-  modalContent: { backgroundColor: '#fff', padding: '30px', borderRadius: '8px', width: '450px', boxShadow: '0 4px 20px rgba(0,0,0,0.2)' }
-};

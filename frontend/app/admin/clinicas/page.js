@@ -32,24 +32,27 @@ export default function AdminClinicas() {
   const router = useRouter();
 
   useEffect(() => {
-    const usuarioString = localStorage.getItem('usuarioImunoPet');
-    if (!usuarioString) {
-      router.push('/');
-      return;
-    }
-    const user = JSON.parse(usuarioString);
-    if (user.perfil.toUpperCase() !== 'ADMINISTRADOR') {
-      router.push('/dashboard');
-      return;
-    }
-    setUsuario(user);
-    buscarClinicas('');
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('usuarioImunoPet');
+      if (!saved) {
+        router.push('/');
+        return;
+      }
+      const user = JSON.parse(saved);
+      if (user.perfil.toUpperCase() !== 'ADMINISTRADOR') {
+        router.push('/dashboard');
+        return;
+      }
+      setUsuario(user);
 
-    const configSalvas = localStorage.getItem('imunoPetConfig');
-    if (configSalvas) {
-      const config = JSON.parse(configSalvas);
-      setTema(config.tema || 'claro');
-      setAltoContraste(config.altoContraste || false);
+      const configSalvas = localStorage.getItem(`imunoPetConfig_${user.id_usuario}`);
+      if (configSalvas) {
+        const config = JSON.parse(configSalvas);
+        setTema(config.tema || 'claro');
+        setAltoContraste(config.altoContraste || false);
+      }
+
+      buscarClinicas('');
     }
   }, [router]);
 
@@ -193,7 +196,7 @@ export default function AdminClinicas() {
     <LayoutPainel>
       <div style={{ padding: '40px', maxWidth: '1000px', margin: '0 auto', color: textColor }}>
         
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '15px' }}>
           <h2 style={{ margin: 0, color: headerColor }}>Gerenciamento de Clínicas</h2>
           <button style={{ backgroundColor: '#28a745', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: 'inherit' }} onClick={abrirModalCadastro}>
             + Nova Clínica
@@ -213,7 +216,7 @@ export default function AdminClinicas() {
 
         <div>
           {clinicas.length === 0 ? <p style={{ color: textSecundario }}>Nenhuma clínica encontrada.</p> : clinicas.map(clinica => (
-            <div key={clinica.id_clinica} style={{ border: `1px solid ${borderColor}`, padding: '20px', borderRadius: '8px', marginBottom: '15px', backgroundColor: bgCard, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '15px' }}>
+            <div key={clinica.id_clinica} style={{ border: `1px solid ${borderColor}`, padding: '20px', borderRadius: '8px', marginBottom: '15px', backgroundColor: bgCard, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
               <div style={{ flex: 1 }}>
                 <h3 style={{ marginTop: 0, margin: '0 0 10px 0', color: headerColor }}>🏥 {clinica.nome_fantasia}</h3>
                 <p style={{ margin: '5px 0', color: textSecundario }}><strong>CNPJ:</strong> {clinica.cnpj || 'Não cadastrado'} | <strong>Telefone:</strong> {clinica.telefone || 'Não cadastrado'}</p>
@@ -271,8 +274,8 @@ export default function AdminClinicas() {
             <h3 style={{ color: '#dc3545', marginTop: 0 }}>Atenção!</h3>
             <p style={{ color: textSecundario }}>Confirma a exclusão desta clínica? Certifique-se de que não há usuários vinculados a ela.</p>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '20px' }}>
-              <button style={{ backgroundColor: '#dc3545', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: 'inherit' }} onClick={confirmarExclusao}>Sim, Excluir</button>
-              <button style={{ backgroundColor: '#6c757d', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: 'inherit' }} onClick={fecharModais}>Cancelar</button>
+              <button style={{ backgroundColor: '#dc3545', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: 'inherit', flex: 1 }} onClick={confirmarExclusao}>Sim, Excluir</button>
+              <button style={{ backgroundColor: '#6c757d', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: 'inherit', flex: 1 }} onClick={fecharModais}>Cancelar</button>
             </div>
           </div>
         </div>

@@ -41,12 +41,15 @@ async function dadosDashboard(query) {
   const [vacinasAplicadas] = await db.query(queryTopVacinas, paramsAplicadas);
 
   const queryEvolucao = `
-    SELECT DATE_FORMAT(data_aplicacao, '%Y-%m') as mes, COUNT(id_registro) as quantidade
-    FROM registro_vacinacao rv
-    WHERE ${condicaoAplicadas}
-    GROUP BY mes
+    SELECT * FROM (
+      SELECT DATE_FORMAT(data_aplicacao, '%Y-%m') as mes, COUNT(id_registro) as quantidade
+      FROM registro_vacinacao rv
+      WHERE ${condicaoAplicadas}
+      GROUP BY mes
+      ORDER BY mes DESC
+      LIMIT 6
+    ) as subquery
     ORDER BY mes ASC
-    LIMIT 6
   `;
   const [atendimentosMes] = await db.query(queryEvolucao, paramsAplicadas);
 

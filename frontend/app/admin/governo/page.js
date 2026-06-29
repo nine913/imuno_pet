@@ -2,18 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import LayoutPainel from '../../components/LayoutPainel';
 
 export default function AdminGoverno() {
   const router = useRouter();
 
-  const [usuario, setUsuario] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('usuarioImunoPet');
-      if (saved) return JSON.parse(saved);
-    }
-    return null;
-  });
-
+  const [usuario, setUsuario] = useState(null);
   const [orgaos, setOrgaos] = useState([]);
   const [termoBusca, setTermoBusca] = useState('');
   
@@ -33,15 +27,33 @@ export default function AdminGoverno() {
   const [modalExclusaoOpen, setModalExclusaoOpen] = useState(false);
   const [idParaExcluir, setIdParaExcluir] = useState(null);
 
+  const [tema, setTema] = useState('claro');
+  const [altoContraste, setAltoContraste] = useState(false);
+
   useEffect(() => {
-    if (!usuario) {
-      router.push('/');
-    } else if (usuario.perfil.toUpperCase() !== 'ADMINISTRADOR') {
-      router.push('/dashboard');
-    } else {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('usuarioImunoPet');
+      if (!saved) {
+        router.push('/');
+        return;
+      }
+      const user = JSON.parse(saved);
+      if (user.perfil.toUpperCase() !== 'ADMINISTRADOR') {
+        router.push('/dashboard');
+        return;
+      }
+      setUsuario(user);
+
+      const configSalvas = localStorage.getItem(`imunoPetConfig_${user.id_usuario}`);
+      if (configSalvas) {
+        const config = JSON.parse(configSalvas);
+        setTema(config.tema || 'claro');
+        setAltoContraste(config.altoContraste || false);
+      }
+
       buscarOrgaos('');
     }
-  }, [usuario, router]);
+  }, [router]);
 
   const buscarOrgaos = async (termo = termoBusca) => {
     try {
@@ -51,9 +63,7 @@ export default function AdminGoverno() {
       } else {
         setOrgaos([]);
       }
-    } catch (erro) {
-      console.error(erro);
-    }
+    } catch (erro) {}
   };
 
   const abrirModalCadastro = () => {
@@ -142,48 +152,54 @@ export default function AdminGoverno() {
         fecharModais();
       }
     } catch (erro) {
-      alert('Erro de conexão.');
       fecharModais();
     }
   };
 
   if (!usuario) return null;
 
+  const isEscuro = tema === 'escuro';
+  const bgCard = isEscuro ? '#1e1e1e' : '#ffffff';
+  const textColor = isEscuro ? '#fdfdfd' : '#000000';
+  const textSecundario = isEscuro ? '#cccccc' : '#333333';
+  const borderColor = isEscuro ? '#444444' : '#e3e3e3';
+  const inputBg = isEscuro ? '#2d2d2d' : '#ffffff';
+  const headerColor = altoContraste ? '#ffcc00' : (isEscuro ? '#66b2ff' : '#000000');
+
   return (
-    <div style={styles.body}>
-      <div style={styles.container}>
-        <button style={styles.btnVoltar} onClick={() => router.push('/dashboard')}>Voltar ao Dashboard</button>
+    <LayoutPainel>
+      <div style={{ padding: '40px', maxWidth: '900px', margin: '0 auto', color: textColor }}>
         
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-          <h2 style={{ margin: 0, color: '#000000' }}>Gerenciamento de Órgãos Governamentais</h2>
-          <button style={{ backgroundColor: '#28a745', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '4px', cursor: 'pointer' }} onClick={abrirModalCadastro}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '15px' }}>
+          <h2 style={{ margin: 0, color: headerColor }}>Gerenciamento de Órgãos Governamentais</h2>
+          <button style={{ backgroundColor: '#28a745', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: 'inherit' }} onClick={abrirModalCadastro}>
             + Novo Órgão
           </button>
         </div>
         
-        <div style={{ display: 'flex', gap: '10px', backgroundColor: '#e9ecef', padding: '15px', borderRadius: '8px', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', gap: '10px', backgroundColor: isEscuro ? '#2d2d2d' : '#e9ecef', padding: '15px', borderRadius: '8px', marginBottom: '20px', border: `1px solid ${borderColor}` }}>
           <input 
             type="text" 
             value={termoBusca} 
             onChange={(e) => setTermoBusca(e.target.value)} 
             placeholder="Pesquisar por nome da instituição ou e-mail..." 
-            style={{ ...styles.input, margin: 0, flex: 2 }} 
+            style={{ padding: '10px', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, margin: 0, flex: 2, fontSize: 'inherit' }} 
           />
-          <button style={{ ...styles.btnAcao, backgroundColor: '#0056b3', flex: 1, margin: 0 }} onClick={() => buscarOrgaos(termoBusca)}>Pesquisar</button>
+          <button style={{ backgroundColor: '#0056b3', color: 'white', border: 'none', padding: '10px 15px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', flex: 1, margin: 0, fontSize: 'inherit' }} onClick={() => buscarOrgaos(termoBusca)}>Pesquisar</button>
         </div>
 
         <div>
-          {orgaos.length === 0 ? <p>Nenhum órgão encontrado.</p> : orgaos.map(orgao => (
-            <div key={orgao.id_orgao} style={styles.card}>
-              <div>
-                <h3 style={{ marginTop: 0, color: '#007bff' }}>🏛️ {orgao.nome_instituicao}</h3>
-                <p style={{ margin: '5px 0' }}><strong>Esfera:</strong> {orgao.esfera}</p>
-                <p style={{ margin: '5px 0' }}><strong>Atuação:</strong> {orgao.cidade_atuacao} - {orgao.estado_atuacao}</p>
-                <p style={{ margin: '5px 0' }}><strong>E-mail (Login):</strong> {orgao.email}</p>
+          {orgaos.length === 0 ? <p style={{ color: textSecundario }}>Nenhum órgão encontrado.</p> : orgaos.map(orgao => (
+            <div key={orgao.id_orgao} style={{ border: `1px solid ${borderColor}`, padding: '20px', borderRadius: '8px', marginTop: '15px', backgroundColor: bgCard, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
+              <div style={{ flex: 1 }}>
+                <h3 style={{ marginTop: 0, color: isEscuro ? '#66b2ff' : '#007bff' }}>🏛️ {orgao.nome_instituicao}</h3>
+                <p style={{ margin: '5px 0', color: textSecundario }}><strong>Esfera:</strong> {orgao.esfera}</p>
+                <p style={{ margin: '5px 0', color: textSecundario }}><strong>Atuação:</strong> {orgao.cidade_atuacao} - {orgao.estado_atuacao}</p>
+                <p style={{ margin: '5px 0', color: textSecundario }}><strong>E-mail (Login):</strong> {orgao.email}</p>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', minWidth: '120px' }}>
-                <button style={{ ...styles.btnAcao, backgroundColor: '#ffc107', color: 'black', margin: 0 }} onClick={() => abrirModalEdicao(orgao)}>✏️ Editar</button>
-                <button style={{ ...styles.btnAcao, backgroundColor: '#dc3545', margin: 0 }} onClick={() => { setIdParaExcluir(orgao.id_orgao); setModalExclusaoOpen(true); }}>🗑️ Excluir</button>
+                <button style={{ backgroundColor: '#ffc107', color: 'black', border: 'none', padding: '10px 15px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: 'inherit' }} onClick={() => abrirModalEdicao(orgao)}>✏️ Editar</button>
+                <button style={{ backgroundColor: '#dc3545', color: 'white', border: 'none', padding: '10px 15px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: 'inherit' }} onClick={() => { setIdParaExcluir(orgao.id_orgao); setModalExclusaoOpen(true); }}>🗑️ Excluir</button>
               </div>
             </div>
           ))}
@@ -191,15 +207,15 @@ export default function AdminGoverno() {
       </div>
 
       {modalFormOpen && (
-        <div style={styles.modalOverlay}>
-          <div style={styles.modalContent}>
-            <h3 style={{ color: '#000000', marginTop: 0 }}>{isEdicao ? '✏️ Editar Órgão' : 'Cadastrar Novo Órgão'}</h3>
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.7)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+          <div style={{ background: bgCard, padding: '30px', borderRadius: '8px', width: '450px', boxShadow: '0 4px 20px rgba(0,0,0,0.5)', border: altoContraste ? '2px solid #ffcc00' : `1px solid ${borderColor}`, maxHeight: '90vh', overflowY: 'auto' }}>
+            <h3 style={{ color: headerColor, marginTop: 0 }}>{isEdicao ? '✏️ Editar Órgão' : 'Cadastrar Novo Órgão'}</h3>
             <form onSubmit={submitForm}>
-              <label style={styles.label}>Nome da Instituição:</label>
-              <input type="text" value={formDados.nome_instituicao} onChange={e => setFormDados({...formDados, nome_instituicao: e.target.value})} placeholder="Ex: Vigilância Sanitária" required style={styles.input} />
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Nome da Instituição:</label>
+              <input type="text" value={formDados.nome_instituicao} onChange={e => setFormDados({...formDados, nome_instituicao: e.target.value})} placeholder="Ex: Vigilância Sanitária" required style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} />
 
-              <label style={styles.label}>Esfera:</label>
-              <select value={formDados.esfera} onChange={e => setFormDados({...formDados, esfera: e.target.value})} required style={styles.input}>
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Esfera:</label>
+              <select value={formDados.esfera} onChange={e => setFormDados({...formDados, esfera: e.target.value})} required style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }}>
                 <option value="MUNICIPAL">Municipal</option>
                 <option value="ESTADUAL">Estadual</option>
                 <option value="FEDERAL">Federal</option>
@@ -207,28 +223,28 @@ export default function AdminGoverno() {
 
               <div style={{ display: 'flex', gap: '10px' }}>
                 <div style={{ flex: 1 }}>
-                  <label style={styles.label}>Estado (UF):</label>
-                  <input type="text" maxLength="2" value={formDados.estado_atuacao} onChange={e => setFormDados({...formDados, estado_atuacao: e.target.value})} required style={styles.input} />
+                  <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Estado (UF):</label>
+                  <input type="text" maxLength="2" value={formDados.estado_atuacao} onChange={e => setFormDados({...formDados, estado_atuacao: e.target.value})} required style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} />
                 </div>
                 <div style={{ flex: 2 }}>
-                  <label style={styles.label}>Cidade:</label>
-                  <input type="text" value={formDados.cidade_atuacao} onChange={e => setFormDados({...formDados, cidade_atuacao: e.target.value})} required style={styles.input} />
+                  <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Cidade:</label>
+                  <input type="text" value={formDados.cidade_atuacao} onChange={e => setFormDados({...formDados, cidade_atuacao: e.target.value})} required style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} />
                 </div>
               </div>
 
-              <label style={styles.label}>E-mail de Acesso:</label>
-              <input type="email" value={formDados.email} onChange={e => setFormDados({...formDados, email: e.target.value})} required disabled={isEdicao} style={styles.input} />
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>E-mail de Acesso:</label>
+              <input type="email" value={formDados.email} onChange={e => setFormDados({...formDados, email: e.target.value})} required disabled={isEdicao} style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} />
 
               {!isEdicao && (
                 <>
-                  <label style={styles.label}>Senha:</label>
-                  <input type="password" value={formDados.senha} onChange={e => setFormDados({...formDados, senha: e.target.value})} required style={styles.input} />
+                  <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Senha:</label>
+                  <input type="password" value={formDados.senha} onChange={e => setFormDados({...formDados, senha: e.target.value})} required style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} />
                 </>
               )}
 
               <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
-                <button type="submit" style={{ ...styles.btnAcao, backgroundColor: '#28a745', margin: 0, width: '100%' }}>Salvar Dados</button>
-                <button type="button" style={{ ...styles.btnVoltar, margin: 0, width: '100%' }} onClick={fecharModais}>Cancelar</button>
+                <button type="submit" style={{ backgroundColor: '#28a745', color: 'white', border: 'none', padding: '10px 15px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', flex: 1, fontSize: 'inherit' }}>Salvar Dados</button>
+                <button type="button" style={{ backgroundColor: '#6c757d', color: 'white', border: 'none', padding: '10px 15px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', flex: 1, fontSize: 'inherit' }} onClick={fecharModais}>Cancelar</button>
               </div>
             </form>
             {mensagemForm.texto && <div style={{ textAlign: 'center', marginTop: '10px', fontWeight: 'bold', color: mensagemForm.cor }}>{mensagemForm.texto}</div>}
@@ -237,29 +253,17 @@ export default function AdminGoverno() {
       )}
 
       {modalExclusaoOpen && (
-        <div style={styles.modalOverlay}>
-          <div style={{ background: 'white', padding: '20px', borderRadius: '8px', textAlign: 'center', width: '320px', boxShadow: '0 4px 10px rgba(0,0,0,0.2)' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.7)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+          <div style={{ background: bgCard, padding: '20px', borderRadius: '8px', textAlign: 'center', width: '320px', boxShadow: '0 4px 10px rgba(0,0,0,0.2)', border: altoContraste ? '2px solid #dc3545' : `1px solid ${borderColor}` }}>
             <h3 style={{ color: '#dc3545', marginTop: 0 }}>Atenção!</h3>
-            <p>Confirma a exclusão deste órgão e do seu acesso ao sistema?</p>
+            <p style={{ color: textSecundario }}>Confirma a exclusão deste órgão e do seu acesso ao sistema?</p>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '20px' }}>
-              <button style={{ backgroundColor: '#dc3545', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '4px', cursor: 'pointer' }} onClick={confirmarExclusao}>Sim, Excluir</button>
-              <button style={{ backgroundColor: '#6c757d', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '4px', cursor: 'pointer' }} onClick={fecharModais}>Cancelar</button>
+              <button style={{ backgroundColor: '#dc3545', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: 'inherit' }} onClick={confirmarExclusao}>Sim, Excluir</button>
+              <button style={{ backgroundColor: '#6c757d', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: 'inherit' }} onClick={fecharModais}>Cancelar</button>
             </div>
           </div>
         </div>
       )}
-    </div>
+    </LayoutPainel>
   );
 }
-
-const styles = {
-  body: { fontFamily: 'Arial, sans-serif', backgroundColor: '#f4f4f9', margin: 0, padding: '20px', minHeight: '100vh' },
-  container: { maxWidth: '900px', margin: 'auto', background: 'white', padding: '30px', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' },
-  input: { width: '100%', padding: '10px', margin: '8px 0 15px 0', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box' },
-  label: { fontWeight: 'bold', color: '#333', fontSize: '14px' },
-  btnVoltar: { backgroundColor: '#6c757d', color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px', marginBottom: '20px' },
-  btnAcao: { color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px', width: '100%' },
-  card: { border: '1px solid #e3e3e3', padding: '20px', borderRadius: '8px', marginTop: '15px', backgroundColor: '#fdfdfd', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
-  modalOverlay: { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center' },
-  modalContent: { backgroundColor: '#fff', padding: '30px', borderRadius: '8px', width: '450px', boxShadow: '0 4px 20px rgba(0,0,0,0.2)' }
-};

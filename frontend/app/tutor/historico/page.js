@@ -36,7 +36,7 @@ function HistoricoConteudo() {
     carregarDetalhesPet(user.id_usuario);
     carregarHistoricoTutor(user.id_usuario, '', '');
 
-    const configSalvas = localStorage.getItem('imunoPetConfig');
+    const configSalvas = localStorage.getItem(`imunoPetConfig_${user.id_usuario}`);
     if (configSalvas) {
       const config = JSON.parse(configSalvas);
       setTema(config.tema || 'claro');
@@ -102,6 +102,7 @@ function HistoricoConteudo() {
   if (!usuario) return null;
 
   const isEscuro = tema === 'escuro';
+  const bgCard = isEscuro ? '#1e1e1e' : '#ffffff';
   const textColor = isEscuro ? '#fdfdfd' : '#000000';
   const textSecundario = isEscuro ? '#cccccc' : '#333333';
   const borderColor = isEscuro ? '#444444' : '#e3e3e3';
@@ -121,7 +122,7 @@ function HistoricoConteudo() {
           }
         `}</style>
 
-        <div className="nao-imprimir" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+        <div className="nao-imprimir" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
           <button style={{ padding: '10px 15px', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: 'inherit', backgroundColor: '#6c757d', fontWeight: 'bold' }} onClick={() => router.push('/tutor/animais')}>
             Voltar aos Meus Pets
           </button>
@@ -130,13 +131,13 @@ function HistoricoConteudo() {
           </button>
         </div>
         
-        <div id="area-carteira" style={{ padding: '20px', borderRadius: '8px', border: `1px solid ${borderColor}`, backgroundColor: isEscuro ? '#1e1e1e' : '#fff' }}>
+        <div id="area-carteira" style={{ padding: '30px', borderRadius: '8px', border: `1px solid ${borderColor}`, backgroundColor: bgCard }}>
           <div className="cabecalho-carteira" id="cabecalhoImpresso" style={{ display: 'none', textAlign: 'center', borderBottom: '2px solid #0056b3', paddingBottom: '15px', marginBottom: '20px' }}>
             <h1 style={{ color: '#0056b3', margin: 0 }}>ImunoPet Brasil</h1>
             <h2 id="tituloPetImpresso">Paciente: {nomeAnimal}</h2>
           </div>
 
-          <h2 className="nao-imprimir" style={{ color: headerColor, marginTop: 0 }}>Carteira de Vacinação: {nomeAnimal}</h2>
+          <h2 className="nao-imprimir" style={{ color: headerColor, marginTop: 0, marginBottom: '20px' }}>Carteira de Vacinação: {nomeAnimal}</h2>
           
           <div className="nao-imprimir" style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }} data-html2canvas-ignore="true">
             <input 

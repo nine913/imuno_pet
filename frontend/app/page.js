@@ -18,38 +18,16 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setErro('');
-
     try {
       const res = await fetch('http://localhost:3000/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, senha })
       });
-
       const dados = await res.json();
-
       if (res.ok) {
         localStorage.setItem('usuarioImunoPet', JSON.stringify(dados));
-        
-        switch (dados.perfil) {
-          case 'ADMINISTRADOR':
-            router.push('/dashboard'); 
-            break;
-          case 'GESTOR_CLINICA':
-            router.push('/dashboard');
-            break;
-          case 'VETERINARIO':
-            router.push('/dashboard');
-            break;
-          case 'TUTOR':
-            router.push('/dashboard');
-            break;
-          case 'GOVERNO':
-            router.push('/dashboard');
-            break;
-          default:
-            router.push('/dashboard');
-        }
+        router.push('/dashboard');
       } else {
         setErro(dados.erro || 'Erro ao fazer login');
       }
@@ -61,18 +39,15 @@ export default function Login() {
   const handleRedefinirSenha = async (e) => {
     e.preventDefault();
     setMsgRecuperacao({ texto: '', cor: '' });
-
     try {
       const res = await fetch('http://localhost:3000/redefinir-senha', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: emailRecuperacao, nova_senha: novaSenha })
       });
-
       const dados = await res.json();
-
       if (res.ok) {
-        setMsgRecuperacao({ texto: 'Senha alterada com sucesso! Você já pode fazer login.', cor: 'green' });
+        setMsgRecuperacao({ texto: 'Senha alterada com sucesso! Faça login.', cor: '#059669' });
         setTimeout(() => {
           setModalOpen(false);
           setEmailRecuperacao('');
@@ -80,211 +55,363 @@ export default function Login() {
           setMsgRecuperacao({ texto: '', cor: '' });
         }, 3000);
       } else {
-        setMsgRecuperacao({ texto: dados.erro || 'Erro ao redefinir senha.', cor: 'red' });
+        setMsgRecuperacao({ texto: dados.erro || 'Erro ao redefinir senha.', cor: '#e11d48' });
       }
     } catch (error) {
-      setMsgRecuperacao({ texto: 'Erro de conexão com o servidor.', cor: 'red' });
+      setMsgRecuperacao({ texto: 'Erro de conexão com o servidor.', cor: '#e11d48' });
     }
   };
 
   return (
-    <div style={styles.page}>
-      
-      <div style={styles.avisosContainer}>
-        <AvisosGlobais />
-      </div>
+    <div className="login-wrapper">
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
-      <div style={styles.loginBox}>
-        <h1 style={styles.title}>ImunoPet Brasil</h1>
-        <p style={styles.subtitle}>Faça login para acessar o sistema</p>
+        .login-wrapper {
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          background-color: #0f172a;
+          background-image:
+            radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%),
+            radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%),
+            radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+          background-size: cover;
+          background-position: center;
+          background-attachment: fixed;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          padding: 20px;
+          position: relative;
+          overflow: hidden;
+        }
 
-        <form onSubmit={handleLogin} style={styles.form}>
-          <input
-            type="email"
-            placeholder="E-mail"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            style={styles.input}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Senha"
-            value={senha}
-            onChange={(e) => setSenha(e.target.value)}
-            style={styles.input}
-            required
-          />
-          
-          {erro && (
-            <div style={styles.errorBox}>
-              <strong>Atenção:</strong> {erro}
+        .bg-orb {
+          position: absolute;
+          border-radius: 50%;
+          filter: blur(80px);
+          opacity: 0.5;
+          animation: float 10s infinite ease-in-out alternate;
+          z-index: 0;
+        }
+
+        .orb-1 {
+          width: 400px;
+          height: 400px;
+          background: #3b82f6;
+          top: -10%;
+          left: -10%;
+        }
+
+        .orb-2 {
+          width: 500px;
+          height: 500px;
+          background: #8b5cf6;
+          bottom: -20%;
+          right: -10%;
+          animation-delay: -5s;
+        }
+
+        @keyframes float {
+          0% { transform: translateY(0px) scale(1); }
+          100% { transform: translateY(30px) scale(1.1); }
+        }
+
+        .content-area {
+          z-index: 10;
+          width: 100%;
+          max-width: 440px;
+          display: flex;
+          flex-direction: column;
+          gap: 24px;
+        }
+
+        .glass-card {
+          background: rgba(255, 255, 255, 0.92);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.5);
+          border-radius: 24px;
+          padding: 48px 40px;
+          box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255,255,255,0.5);
+        }
+
+        .brand {
+          text-align: center;
+          margin-bottom: 32px;
+        }
+
+        .brand h1 {
+          font-size: 34px;
+          font-weight: 800;
+          background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          margin: 0;
+          letter-spacing: -1px;
+        }
+
+        .brand p {
+          color: #64748b;
+          font-size: 15px;
+          margin: 8px 0 0 0;
+          font-weight: 600;
+        }
+
+        .form-group {
+          margin-bottom: 20px;
+          position: relative;
+        }
+
+        .input-field {
+          width: 100%;
+          padding: 16px 20px;
+          background: #f1f5f9;
+          border: 2px solid transparent;
+          border-radius: 12px;
+          font-size: 15px;
+          color: #0f172a;
+          font-weight: 600;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          box-sizing: border-box;
+          font-family: inherit;
+        }
+
+        .input-field::placeholder {
+          color: #94a3b8;
+          font-weight: 500;
+        }
+
+        .input-field:focus {
+          outline: none;
+          border-color: #3b82f6;
+          background: #ffffff;
+          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        }
+
+        .forgot-password {
+          position: absolute;
+          right: 4px;
+          top: -24px;
+          font-size: 13px;
+          font-weight: 700;
+          color: #3b82f6;
+          background: none;
+          border: none;
+          cursor: pointer;
+          padding: 0;
+          transition: color 0.2s;
+        }
+
+        .forgot-password:hover {
+          color: #1d4ed8;
+        }
+
+        .btn-primary {
+          width: 100%;
+          padding: 16px;
+          background: linear-gradient(135deg, #2563eb, #3b82f6);
+          color: #ffffff;
+          border: none;
+          border-radius: 12px;
+          font-size: 16px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 8px 16px -4px rgba(37, 99, 235, 0.3);
+          font-family: inherit;
+        }
+
+        .btn-primary:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 12px 20px -4px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-primary:active {
+          transform: translateY(0);
+        }
+
+        .error-message {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          background: #ffe4e6;
+          color: #e11d48;
+          padding: 12px 16px;
+          border-radius: 12px;
+          font-size: 14px;
+          font-weight: 700;
+          margin-bottom: 20px;
+          animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-4px); }
+          75% { transform: translateX(4px); }
+        }
+
+        .modal-overlay {
+          position: fixed;
+          top: 0; left: 0; width: 100%; height: 100%;
+          background: rgba(15, 23, 42, 0.6);
+          backdrop-filter: blur(8px);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 9999;
+          padding: 20px;
+          box-sizing: border-box;
+        }
+
+        .modal-box {
+          background: #ffffff;
+          padding: 40px;
+          border-radius: 24px;
+          width: 100%;
+          max-width: 400px;
+          box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+        }
+
+        .modal-box h3 {
+          margin: 0 0 8px 0;
+          font-size: 24px;
+          color: #0f172a;
+          font-weight: 800;
+        }
+
+        .modal-box p {
+          margin: 0 0 24px 0;
+          color: #64748b;
+          font-size: 14px;
+          line-height: 1.5;
+          font-weight: 500;
+        }
+
+        .btn-secondary {
+          width: 100%;
+          padding: 16px;
+          background: #f1f5f9;
+          color: #475569;
+          border: none;
+          border-radius: 12px;
+          font-size: 16px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 0.2s;
+          font-family: inherit;
+        }
+
+        .btn-secondary:hover {
+          background: #e2e8f0;
+          color: #0f172a;
+        }
+
+        .modal-buttons {
+          display: flex;
+          gap: 12px;
+          margin-top: 24px;
+        }
+      `}</style>
+
+      <div className="bg-orb orb-1"></div>
+      <div className="bg-orb orb-2"></div>
+
+      <div className="content-area">
+        <div>
+          <AvisosGlobais />
+        </div>
+
+        <div className="glass-card">
+          <div className="brand">
+            <h1>ImunoPet</h1>
+            <p>Gestão Inteligente de Saúde Animal</p>
+          </div>
+
+          <form onSubmit={handleLogin}>
+            {erro && (
+              <div className="error-message">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                {erro}
+              </div>
+            )}
+
+            <div className="form-group">
+              <input
+                type="email"
+                placeholder="Seu e-mail de acesso"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="input-field"
+                required
+              />
             </div>
-          )}
 
-          <button type="submit" style={styles.button}>Entrar</button>
-        </form>
+            <div className="form-group">
+              <button type="button" onClick={() => setModalOpen(true)} className="forgot-password">
+                Esqueceu a senha?
+              </button>
+              <input
+                type="password"
+                placeholder="Sua senha"
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+                className="input-field"
+                required
+              />
+            </div>
 
-        <div style={{ marginTop: '20px', textAlign: 'center' }}>
-          <button onClick={() => setModalOpen(true)} style={styles.btnLink}>
-            Esqueci minha senha
-          </button>
+            <button type="submit" className="btn-primary">
+              Acessar Plataforma
+            </button>
+          </form>
         </div>
       </div>
 
       {modalOpen && (
-        <div style={styles.modalOverlay}>
-          <div style={styles.modalContent}>
-            <h3 style={{ marginTop: 0, color: '#333' }}>Redefinir Senha</h3>
-            <p style={{ fontSize: '14px', color: '#333', marginBottom: '20px' }}>
-              Digite seu e-mail cadastrado e a nova senha que deseja utilizar.
-            </p>
+        <div className="modal-overlay">
+          <div className="modal-box">
+            <h3>Redefinir Senha</h3>
+            <p>Digite seu e-mail e escolha uma nova senha segura para sua conta.</p>
             
-            <form onSubmit={handleRedefinirSenha} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-              <input
-                type="email"
-                placeholder="E-mail cadastrado"
-                value={emailRecuperacao}
-                onChange={(e) => setEmailRecuperacao(e.target.value)}
-                style={styles.input}
-                required
-              />
-              <input
-                type="password"
-                placeholder="Nova senha"
-                value={novaSenha}
-                onChange={(e) => setNovaSenha(e.target.value)}
-                style={styles.input}
-                required
-                minLength="6"
-              />
+            <form onSubmit={handleRedefinirSenha}>
+              <div className="form-group">
+                <input
+                  type="email"
+                  placeholder="E-mail cadastrado"
+                  value={emailRecuperacao}
+                  onChange={(e) => setEmailRecuperacao(e.target.value)}
+                  className="input-field"
+                  required
+                />
+              </div>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <input
+                  type="password"
+                  placeholder="Nova senha (mín. 6 caracteres)"
+                  value={novaSenha}
+                  onChange={(e) => setNovaSenha(e.target.value)}
+                  className="input-field"
+                  required
+                  minLength="6"
+                />
+              </div>
               
-              <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-                <button type="submit" style={{ ...styles.button, margin: 0, flex: 1 }}>Atualizar Senha</button>
-                <button type="button" onClick={() => setModalOpen(false)} style={{ ...styles.btnCancelar, margin: 0, flex: 1 }}>Cancelar</button>
+              {msgRecuperacao.texto && (
+                <div style={{ marginTop: '16px', padding: '12px', borderRadius: '8px', backgroundColor: msgRecuperacao.cor === '#059669' ? '#d1fae5' : '#ffe4e6', color: msgRecuperacao.cor, fontSize: '14px', fontWeight: '700', textAlign: 'center' }}>
+                  {msgRecuperacao.texto}
+                </div>
+              )}
+
+              <div className="modal-buttons">
+                <button type="submit" className="btn-primary" style={{ flex: 1, padding: '14px' }}>Atualizar</button>
+                <button type="button" onClick={() => setModalOpen(false)} className="btn-secondary" style={{ flex: 1, padding: '14px' }}>Cancelar</button>
               </div>
             </form>
-            
-            {msgRecuperacao.texto && (
-              <div style={{ marginTop: '15px', textAlign: 'center', fontWeight: 'bold', color: msgRecuperacao.cor }}>
-                {msgRecuperacao.texto}
-              </div>
-            )}
           </div>
         </div>
       )}
     </div>
   );
 }
-
-const styles = {
-  page: { 
-    display: 'flex', 
-    flexDirection: 'column', 
-    alignItems: 'center', 
-    justifyContent: 'center', 
-    minHeight: '100vh', 
-    backgroundColor: '#f4f4f9', 
-    padding: '20px',
-    boxSizing: 'border-box'
-  },
-  avisosContainer: { 
-    width: '100%', 
-    maxWidth: '800px', 
-    marginBottom: '30px' 
-  },
-  loginBox: { 
-    backgroundColor: 'white', 
-    padding: '40px', 
-    borderRadius: '12px', 
-    boxShadow: '0 8px 20px rgba(0,0,0,0.1)', 
-    width: '100%', 
-    maxWidth: '400px', 
-    textAlign: 'center' 
-  },
-  title: { 
-    margin: '0 0 10px 0', 
-    color: '#0056b3', 
-    fontSize: '28px' 
-  },
-  subtitle: { 
-    margin: '0 0 25px 0', 
-    color: '#666', 
-    fontSize: '15px' 
-  },
-  form: { 
-    display: 'flex', 
-    flexDirection: 'column', 
-    gap: '15px' 
-  },
-  input: { 
-    padding: '14px', 
-    border: '1px solid #ccc', 
-    borderRadius: '6px', 
-    fontSize: '16px', 
-    outline: 'none',
-    color: '#333',
-    width: '100%',
-    boxSizing: 'border-box'
-  },
-  button: { 
-    padding: '14px', 
-    backgroundColor: '#28a745', 
-    color: 'white', 
-    border: 'none', 
-    borderRadius: '6px', 
-    fontSize: '16px', 
-    fontWeight: 'bold', 
-    cursor: 'pointer', 
-    marginTop: '10px',
-    width: '100%'
-  },
-  btnCancelar: {
-    padding: '14px', 
-    backgroundColor: '#6c757d', 
-    color: 'white', 
-    border: 'none', 
-    borderRadius: '6px', 
-    fontSize: '16px', 
-    fontWeight: 'bold', 
-    cursor: 'pointer', 
-    width: '100%'
-  },
-  errorBox: { 
-    backgroundColor: '#f8d7da', 
-    color: '#721c24', 
-    padding: '12px', 
-    borderRadius: '6px', 
-    border: '1px solid #f5c6cb',
-    fontSize: '14px',
-    textAlign: 'left'
-  },
-  btnLink: { 
-    background: 'none', 
-    border: 'none', 
-    color: '#0056b3', 
-    cursor: 'pointer', 
-    textDecoration: 'underline', 
-    fontSize: '14px' 
-  },
-  modalOverlay: { 
-    position: 'fixed', 
-    top: 0, 
-    left: 0, 
-    width: '100%', 
-    height: '100%', 
-    background: 'rgba(0,0,0,0.6)', 
-    display: 'flex', 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    zIndex: 1000 
-  },
-  modalContent: { 
-    backgroundColor: 'white', 
-    padding: '30px', 
-    borderRadius: '8px', 
-    width: '90%',
-    maxWidth: '400px', 
-    boxShadow: '0 4px 20px rgba(0,0,0,0.2)' 
-  }
-};

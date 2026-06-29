@@ -2,18 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import LayoutPainel from '../../components/LayoutPainel';
 
 export default function AdminAvisos() {
   const router = useRouter();
 
-  const [usuario, setUsuario] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('usuarioImunoPet');
-      if (saved) return JSON.parse(saved);
-    }
-    return null;
-  });
-
+  const [usuario, setUsuario] = useState(null);
   const [avisos, setAvisos] = useState([]);
   
   const [modalFormOpen, setModalFormOpen] = useState(false);
@@ -29,15 +23,33 @@ export default function AdminAvisos() {
   const [modalExclusaoOpen, setModalExclusaoOpen] = useState(false);
   const [avisoParaExcluir, setAvisoParaExcluir] = useState(null);
 
+  const [tema, setTema] = useState('claro');
+  const [altoContraste, setAltoContraste] = useState(false);
+
   useEffect(() => {
-    if (!usuario) {
-      router.push('/');
-    } else if (usuario.perfil.toUpperCase() !== 'ADMINISTRADOR') {
-      router.push('/dashboard');
-    } else {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('usuarioImunoPet');
+      if (!saved) {
+        router.push('/');
+        return;
+      }
+      const user = JSON.parse(saved);
+      if (user.perfil.toUpperCase() !== 'ADMINISTRADOR') {
+        router.push('/dashboard');
+        return;
+      }
+      setUsuario(user);
+
+      const configSalvas = localStorage.getItem(`imunoPetConfig_${user.id_usuario}`);
+      if (configSalvas) {
+        const config = JSON.parse(configSalvas);
+        setTema(config.tema || 'claro');
+        setAltoContraste(config.altoContraste || false);
+      }
+
       buscarAvisos();
     }
-  }, [usuario, router]);
+  }, [router]);
 
   const buscarAvisos = async () => {
     try {
@@ -122,32 +134,40 @@ export default function AdminAvisos() {
 
   if (!usuario) return null;
 
+  const isEscuro = tema === 'escuro';
+  const bgCard = isEscuro ? '#1e1e1e' : '#ffffff';
+  const textColor = isEscuro ? '#fdfdfd' : '#000000';
+  const textSecundario = isEscuro ? '#cccccc' : '#333333';
+  const borderColor = isEscuro ? '#444444' : '#e3e3e3';
+  const inputBg = isEscuro ? '#2d2d2d' : '#ffffff';
+  const headerColor = altoContraste ? '#ffcc00' : (isEscuro ? '#66b2ff' : '#000000');
+  const tagBg = isEscuro ? '#444444' : '#e9ecef';
+
   return (
-    <div style={styles.body}>
-      <div style={styles.container}>
-        <button style={styles.btnVoltar} onClick={() => router.push('/dashboard')}>Voltar ao Dashboard</button>
+    <LayoutPainel>
+      <div style={{ padding: '40px', maxWidth: '800px', margin: '0 auto', color: textColor }}>
         
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h2 style={{ margin: 0, color: '#000000' }}>Central de Avisos Globais</h2>
-          <button style={{ backgroundColor: '#28a745', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }} onClick={abrirModalCadastro}>
+          <h2 style={{ margin: 0, color: headerColor }}>Central de Avisos Globais</h2>
+          <button style={{ backgroundColor: '#28a745', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: 'inherit' }} onClick={abrirModalCadastro}>
             + Criar Aviso
           </button>
         </div>
 
         <div>
-          {avisos.length === 0 ? <p style={{ color: '#333' }}>Nenhum aviso criado.</p> : avisos.map(aviso => (
-            <div key={aviso.id_aviso} style={{ ...styles.card, borderLeft: `5px solid ${aviso.tipo === 'URGENTE' ? '#dc3545' : aviso.tipo === 'ALERTA' ? '#ffc107' : '#17a2b8'}` }}>
+          {avisos.length === 0 ? <p style={{ color: textSecundario }}>Nenhum aviso criado.</p> : avisos.map(aviso => (
+            <div key={aviso.id_aviso} style={{ border: `1px solid ${borderColor}`, padding: '20px', borderRadius: '8px', marginTop: '15px', backgroundColor: bgCard, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '15px', borderLeft: `5px solid ${aviso.tipo === 'URGENTE' ? '#dc3545' : aviso.tipo === 'ALERTA' ? '#ffc107' : '#17a2b8'}` }}>
               <div>
-                <h3 style={{ marginTop: 0, color: '#333' }}>{aviso.titulo}</h3>
-                <p style={{ margin: '5px 0', color: '#333' }}>{aviso.mensagem}</p>
-                <div style={{ display: 'flex', gap: '10px', marginTop: '10px', fontSize: '12px' }}>
-                  <span style={{ backgroundColor: '#e9ecef', padding: '4px 8px', borderRadius: '4px', color: '#333' }}>Tipo: <strong>{aviso.tipo}</strong></span>
-                  <span style={{ backgroundColor: aviso.status === 'ATIVO' ? '#d4edda' : '#f8d7da', color: aviso.status === 'ATIVO' ? '#155724' : '#721c24', padding: '4px 8px', borderRadius: '4px' }}>Status: <strong>{aviso.status}</strong></span>
+                <h3 style={{ marginTop: 0, color: textColor }}>{aviso.titulo}</h3>
+                <p style={{ margin: '5px 0', color: textSecundario }}>{aviso.mensagem}</p>
+                <div style={{ display: 'flex', gap: '10px', marginTop: '10px', fontSize: '0.85em' }}>
+                  <span style={{ backgroundColor: tagBg, padding: '4px 8px', borderRadius: '4px', color: textColor }}>Tipo: <strong>{aviso.tipo}</strong></span>
+                  <span style={{ backgroundColor: aviso.status === 'ATIVO' ? (isEscuro ? '#155724' : '#d4edda') : (isEscuro ? '#721c24' : '#f8d7da'), color: aviso.status === 'ATIVO' ? (isEscuro ? '#d4edda' : '#155724') : (isEscuro ? '#f8d7da' : '#721c24'), padding: '4px 8px', borderRadius: '4px' }}>Status: <strong>{aviso.status}</strong></span>
                 </div>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', minWidth: '120px' }}>
-                <button style={{ ...styles.btnAcao, backgroundColor: '#ffc107', color: 'black' }} onClick={() => abrirModalEdicao(aviso)}>✏️ Editar</button>
-                <button style={{ ...styles.btnAcao, backgroundColor: '#dc3545' }} onClick={() => { setAvisoParaExcluir(aviso.id_aviso); setModalExclusaoOpen(true); }}>🗑️ Excluir</button>
+                <button style={{ color: 'black', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', backgroundColor: '#ffc107', fontSize: 'inherit' }} onClick={() => abrirModalEdicao(aviso)}>✏️ Editar</button>
+                <button style={{ color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', backgroundColor: '#dc3545', fontSize: 'inherit' }} onClick={() => { setAvisoParaExcluir(aviso.id_aviso); setModalExclusaoOpen(true); }}>🗑️ Excluir</button>
               </div>
             </div>
           ))}
@@ -155,18 +175,18 @@ export default function AdminAvisos() {
       </div>
 
       {modalFormOpen && (
-        <div style={styles.modalOverlay}>
-          <div style={styles.modalContent}>
-            <h3 style={{ marginTop: 0, color: '#333' }}>{isEdicao ? '✏️ Editar Aviso' : 'Criar Novo Aviso'}</h3>
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.7)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+          <div style={{ backgroundColor: bgCard, padding: '30px', borderRadius: '8px', width: '450px', boxShadow: '0 4px 20px rgba(0,0,0,0.5)', color: textColor, border: altoContraste ? '2px solid #ffcc00' : `1px solid ${borderColor}` }}>
+            <h3 style={{ marginTop: 0, color: headerColor }}>{isEdicao ? '✏️ Editar Aviso' : 'Criar Novo Aviso'}</h3>
             <form onSubmit={submitForm}>
-              <label style={styles.label}>Título:</label>
-              <input type="text" value={formDados.titulo} onChange={e => setFormDados({...formDados, titulo: e.target.value})} required style={styles.input} />
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Título:</label>
+              <input type="text" value={formDados.titulo} onChange={e => setFormDados({...formDados, titulo: e.target.value})} required style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} />
 
-              <label style={styles.label}>Mensagem:</label>
-              <textarea value={formDados.mensagem} onChange={e => setFormDados({...formDados, mensagem: e.target.value})} required rows="4" style={styles.input} />
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Mensagem:</label>
+              <textarea value={formDados.mensagem} onChange={e => setFormDados({...formDados, mensagem: e.target.value})} required rows="4" style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit', resize: 'vertical' }} />
 
-              <label style={styles.label}>Tipo:</label>
-              <select value={formDados.tipo} onChange={e => setFormDados({...formDados, tipo: e.target.value})} style={styles.input}>
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Tipo:</label>
+              <select value={formDados.tipo} onChange={e => setFormDados({...formDados, tipo: e.target.value})} style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }}>
                 <option value="INFO">Informativo (Azul)</option>
                 <option value="ALERTA">Alerta (Amarelo)</option>
                 <option value="URGENTE">Urgente (Vermelho)</option>
@@ -174,8 +194,8 @@ export default function AdminAvisos() {
 
               {isEdicao && (
                 <>
-                  <label style={styles.label}>Status:</label>
-                  <select value={formDados.status} onChange={e => setFormDados({...formDados, status: e.target.value})} style={styles.input}>
+                  <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Status:</label>
+                  <select value={formDados.status} onChange={e => setFormDados({...formDados, status: e.target.value})} style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }}>
                     <option value="ATIVO">Ativo (Aparece para todos)</option>
                     <option value="INATIVO">Inativo (Oculto)</option>
                   </select>
@@ -183,8 +203,8 @@ export default function AdminAvisos() {
               )}
 
               <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
-                <button type="submit" style={{ ...styles.btnAcao, backgroundColor: '#28a745', flex: 1, margin: 0 }}>Salvar Aviso</button>
-                <button type="button" onClick={() => setModalFormOpen(false)} style={{ ...styles.btnVoltar, flex: 1, margin: 0 }}>Cancelar</button>
+                <button type="submit" style={{ color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', backgroundColor: '#28a745', flex: 1, margin: 0, fontSize: 'inherit' }}>Salvar Aviso</button>
+                <button type="button" onClick={() => setModalFormOpen(false)} style={{ color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', backgroundColor: '#6c757d', flex: 1, margin: 0, fontSize: 'inherit' }}>Cancelar</button>
               </div>
             </form>
             {mensagemForm.texto && <div style={{ textAlign: 'center', marginTop: '10px', fontWeight: 'bold', color: mensagemForm.cor }}>{mensagemForm.texto}</div>}
@@ -193,30 +213,17 @@ export default function AdminAvisos() {
       )}
 
       {modalExclusaoOpen && (
-        <div style={styles.modalOverlay}>
-          <div style={styles.modalContentSmall}>
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.7)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+          <div style={{ background: bgCard, padding: '20px', borderRadius: '8px', width: '320px', textAlign: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.2)', color: textColor, border: altoContraste ? '2px solid #dc3545' : `1px solid ${borderColor}` }}>
             <h3 style={{ color: '#dc3545', marginTop: 0 }}>Atenção!</h3>
-            <p style={{ color: '#333' }}>Deseja excluir este aviso permanentemente?</p>
+            <p style={{ color: textSecundario }}>Deseja excluir este aviso permanentemente?</p>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '20px' }}>
-              <button style={{ backgroundColor: '#dc3545', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }} onClick={confirmarExclusao}>Sim, Excluir</button>
-              <button style={{ backgroundColor: '#6c757d', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }} onClick={() => setModalExclusaoOpen(false)}>Cancelar</button>
+              <button style={{ backgroundColor: '#dc3545', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: 'inherit' }} onClick={confirmarExclusao}>Sim, Excluir</button>
+              <button style={{ backgroundColor: '#6c757d', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: 'inherit' }} onClick={() => setModalExclusaoOpen(false)}>Cancelar</button>
             </div>
           </div>
         </div>
       )}
-    </div>
+    </LayoutPainel>
   );
 }
-
-const styles = {
-  body: { fontFamily: 'Arial, sans-serif', backgroundColor: '#f4f4f9', margin: 0, padding: '20px', minHeight: '100vh' },
-  container: { maxWidth: '800px', margin: 'auto', background: 'white', padding: '30px', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' },
-  input: { width: '100%', padding: '10px', margin: '0 0 15px 0', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box', color: '#333' },
-  label: { display: 'block', fontWeight: 'bold', marginBottom: '5px', color: '#333', fontSize: '14px' },
-  btnVoltar: { backgroundColor: '#6c757d', color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', marginBottom: '20px', fontWeight: 'bold' },
-  btnAcao: { color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' },
-  card: { border: '1px solid #e3e3e3', padding: '20px', borderRadius: '8px', marginTop: '15px', backgroundColor: '#fdfdfd', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '15px' },
-  modalOverlay: { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 },
-  modalContent: { backgroundColor: '#fff', padding: '30px', borderRadius: '8px', width: '450px', boxShadow: '0 4px 20px rgba(0,0,0,0.2)' },
-  modalContentSmall: { background: 'white', padding: '20px', borderRadius: '8px', width: '320px', textAlign: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.2)' }
-};
