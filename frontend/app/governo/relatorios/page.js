@@ -240,6 +240,6 @@ export default function GovernoRelatorios() {
           </table>
         </div>
       </div>
-    </div>
+    </LayoutPainel>
   );
 }

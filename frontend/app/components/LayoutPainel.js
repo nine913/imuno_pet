@@ -55,7 +55,7 @@ export default function LayoutPainel({ children }) {
       { nome: 'Pacientes', rota: '/veterinario/buscar', icone: '🐾' },
       { nome: 'Tutores', rota: '/veterinario/tutores', icone: '👤' },
       { nome: 'Vacinas', rota: '/veterinario/vacinas', icone: '💉' },
-      { nome: 'Relatórios', rota: '/veterinario/relatorio', icone: '📊' },
+      { nome: 'Relatórios', rota: '/veterinario/relatorio', icone: '📑' },
       { nome: 'Atrasados', rota: '/veterinario/atrasados', icone: '⚠️' },
       { nome: 'Espécies', rota: '/veterinario/especies', icone: '🐈' }
     ];
@@ -69,7 +69,8 @@ export default function LayoutPainel({ children }) {
   } else if (perfil === 'GOVERNO') {
     linksMenu = [
       { nome: 'Menu Inicial', rota: '/dashboard', icone: '🏠' },
-      { nome: 'Epidemiologia', rota: '/governo/relatorios', icone: '🦠' }
+      { nome: 'Epidomiologia', rota: '/governo/dashboard', icone: '🦠' },
+      { nome: 'Relatorios', rota: '/governo/relatorios', icone: '📑' }
     ];
   } else if (perfil === 'ADMINISTRADOR') {
     linksMenu = [
