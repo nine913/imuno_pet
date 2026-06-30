@@ -117,17 +117,17 @@ function FormularioVacina() {
     e.preventDefault();
 
     if (formDados.status === 'PENDENTE' && formDados.data_proxima_dose < dataHoje) {
-      setMsg({ texto: 'A data do agendamento (pendente) não pode estar no passado.', cor: 'red' });
+      setMsg({ texto: 'A data do agendamento (pendente) não pode estar no passado.', cor: '#ef4444' });
       return;
     }
 
     if (formDados.status === 'APLICADA' && formDados.data_aplicacao > dataHoje) {
-      setMsg({ texto: 'A data de aplicação não pode estar no futuro.', cor: 'red' });
+      setMsg({ texto: 'A data de aplicação não pode estar no futuro.', cor: '#ef4444' });
       return;
     }
 
     if (formDados.status === 'APLICADA' && formDados.data_proxima_dose && formDados.data_proxima_dose < formDados.data_aplicacao) {
-      setMsg({ texto: 'A data de vencimento não pode ser menor que a data de aplicação.', cor: 'red' });
+      setMsg({ texto: 'A data de vencimento não pode ser menor que a data de aplicação.', cor: '#ef4444' });
       return;
     }
 
@@ -152,106 +152,147 @@ function FormularioVacina() {
       const dados = await res.json();
       
       if (res.ok) {
-        setMsg({ texto: 'Registro salvo com sucesso!', cor: 'green' });
+        setMsg({ texto: 'Registro salvo com sucesso!', cor: '#10b981' });
         setTimeout(() => router.push(`/veterinario/historico?id=${idAnimal}`), 2000);
       } else {
-        setMsg({ texto: dados.erro || 'Erro ao registrar.', cor: 'red' });
+        setMsg({ texto: dados.erro || 'Erro ao registrar.', cor: '#ef4444' });
       }
     } catch (err) {
-      setMsg({ texto: 'Erro de conexão.', cor: 'red' });
+      setMsg({ texto: 'Erro de conexão.', cor: '#ef4444' });
     }
   };
 
   if (!isMounted || !usuario) return null;
 
   const isEscuro = tema === 'escuro';
-  const bgCard = isEscuro ? '#1e1e1e' : '#ffffff';
-  const textColor = isEscuro ? '#fdfdfd' : '#000000';
-  const textSecundario = isEscuro ? '#cccccc' : '#333333';
-  const borderColor = isEscuro ? '#444444' : '#e3e3e3';
-  const inputBg = isEscuro ? '#2d2d2d' : '#ffffff';
-  const headerColor = altoContraste ? '#ffcc00' : (isEscuro ? '#66b2ff' : '#0056b3');
+  const bgCard = isEscuro ? '#1e293b' : '#ffffff';
+  const textColor = isEscuro ? '#f8fafc' : '#0f172a';
+  const textSecundario = isEscuro ? '#94a3b8' : '#64748b';
+  const borderColor = isEscuro ? '#334155' : '#e2e8f0';
+  const inputBg = isEscuro ? '#0f172a' : '#f8fafc';
+  const headerColor = altoContraste ? '#ffcc00' : (isEscuro ? '#60a5fa' : '#2563eb');
   
-  const infoCardBg = isEscuro ? '#2d2d2d' : '#e9ecef';
-  const infoCardBorder = isEscuro ? '#66b2ff' : '#0056b3';
-  const aplicanteBoxBg = isEscuro ? '#003366' : '#cce5ff';
-  const aplicanteBoxBorder = isEscuro ? '#004085' : '#b8daff';
-  const aplicanteBoxText = isEscuro ? '#99ccff' : '#004085';
+  const infoCardBg = isEscuro ? '#1e1e1e' : '#f8fafc';
+  const aplicanteBoxBg = isEscuro ? '#1e3a8a' : '#eff6ff';
+  const aplicanteBoxBorder = isEscuro ? '#1e40af' : '#bfdbfe';
+  const aplicanteBoxText = isEscuro ? '#bfdbfe' : '#1e40af';
+
+  const sombraEmoji = isEscuro ? 'drop-shadow(0px 0px 3px rgba(255, 255, 255, 0.4))' : 'none';
 
   return (
     <LayoutPainel>
-      <div style={{ padding: '40px', maxWidth: '600px', margin: '0 auto', color: textColor }}>
-        <button style={{ backgroundColor: '#6c757d', color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', marginBottom: '20px', fontWeight: 'bold', fontSize: 'inherit' }} onClick={() => router.back()}>Voltar</button>
+      <style>{`
+        .premium-input:focus {
+          border-color: #2563eb !important;
+          box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1) !important;
+        }
+        .premium-btn {
+          transition: all 0.2s ease;
+        }
+        .premium-btn:hover {
+          transform: translateY(-1px);
+          filter: brightness(1.05);
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+      `}</style>
+
+      <div style={{ padding: '40px', maxWidth: '700px', margin: '0 auto', color: textColor, fontFamily: '"Inter", sans-serif' }}>
         
-        <div style={{ background: bgCard, padding: '30px', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)', border: altoContraste ? '3px solid #ffcc00' : `1px solid ${borderColor}` }}>
-          <h2 style={{ color: headerColor, marginTop: 0, marginBottom: '20px' }}>Registrar Vacinação ou Agendamento</h2>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '32px' }}>
+          <button className="premium-btn" style={{ padding: '10px 16px', color: '#475569', border: `1px solid ${borderColor}`, borderRadius: '10px', cursor: 'pointer', fontSize: '14px', backgroundColor: bgCard, fontWeight: '600' }} onClick={() => router.back()}>
+            ← Voltar
+          </button>
+          <h2 style={{ color: headerColor, margin: 0, fontSize: '28px', fontWeight: '800', letterSpacing: '-0.5px' }}>Registrar Imunização</h2>
+        </div>
+        
+        <div style={{ background: bgCard, padding: '32px', borderRadius: '16px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.05)', border: altoContraste ? '2px solid #ffcc00' : `1px solid ${borderColor}` }}>
 
           {animal && (
-            <div style={{ backgroundColor: infoCardBg, padding: '15px', borderRadius: '4px', marginBottom: '20px', borderLeft: `4px solid ${infoCardBorder}` }}>
-              <p style={{ margin: '5px 0', color: textSecundario }}><strong>Paciente:</strong> {animal.nome_animal}</p>
-              <p style={{ margin: '5px 0', color: textSecundario }}><strong>Espécie:</strong> {animal.especie} | <strong>Raça:</strong> {animal.raca || 'Não informada'}</p>
-              <p style={{ margin: '5px 0', color: textSecundario }}><strong>Tutor Responsável:</strong> {animal.nome_tutor}</p>
+            <div style={{ backgroundColor: infoCardBg, padding: '20px', borderRadius: '12px', marginBottom: '24px', border: `1px solid ${borderColor}`, display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: isEscuro ? '#334155' : '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px', filter: sombraEmoji }}>
+                🐾
+              </div>
+              <div>
+                <p style={{ margin: '0 0 4px 0', color: textColor, fontSize: '18px', fontWeight: '700' }}>{animal.nome_animal}</p>
+                <p style={{ margin: '0 0 4px 0', color: textSecundario, fontSize: '14px' }}><strong>Espécie/Raça:</strong> {animal.especie} - {animal.raca || 'N/I'}</p>
+                <p style={{ margin: 0, color: textSecundario, fontSize: '14px' }}><strong>Tutor:</strong> {animal.nome_tutor}</p>
+              </div>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column' }}>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             
-            <label style={{ fontWeight: 'bold', color: textSecundario, marginBottom: '5px' }}>Situação do Registro:</label>
-            <select value={formDados.status} onChange={handleStatusChange} required style={{ width: '100%', padding: '10px', margin: '8px 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }}>
-              <option value="APLICADA">✅ Vacina Aplicada (Registrar agora)</option>
-              <option value="PENDENTE">📅 Pendente (Agendar próxima dose)</option>
-            </select>
+            <div>
+              <label style={{ display: 'block', fontWeight: '600', marginBottom: '6px', color: textSecundario, fontSize: '13px' }}>Situação do Registro:</label>
+              <select className="premium-input" value={formDados.status} onChange={handleStatusChange} required style={{ width: '100%', padding: '12px 16px', border: `1px solid ${borderColor}`, borderRadius: '10px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: '14px', outline: 'none', transition: 'all 0.2s' }}>
+                <option value="APLICADA">✅ Vacina Aplicada (Registrar agora)</option>
+                <option value="PENDENTE">📅 Pendente (Agendar próxima dose)</option>
+              </select>
+            </div>
 
             {formDados.status === 'APLICADA' && (
-              <div style={{ backgroundColor: aplicanteBoxBg, padding: '10px', borderRadius: '4px', marginBottom: '15px', border: `1px solid ${aplicanteBoxBorder}` }}>
-                <span style={{ color: aplicanteBoxText }}>
+              <div style={{ backgroundColor: aplicanteBoxBg, padding: '16px', borderRadius: '10px', border: `1px solid ${aplicanteBoxBorder}`, display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                <span style={{ fontSize: '20px' }}>👨‍⚕️</span>
+                <span style={{ color: aplicanteBoxText, fontSize: '14px', lineHeight: '1.5' }}>
                   <strong>Aplicante logado:</strong> {usuario.email} 
                   <br/>
-                  <small style={{ fontSize: '0.85em' }}>O sistema vinculará o seu perfil como o profissional responsável</small>
+                  O sistema vinculará o seu perfil profissional a esta aplicação.
                 </span>
               </div>
             )}
 
-            <label style={{ fontWeight: 'bold', color: textSecundario, marginBottom: '5px' }}>Selecione a Vacina:</label>
-            <select value={formDados.id_vacina} onChange={handleVacinaChange} required style={{ width: '100%', padding: '10px', margin: '8px 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }}>
-              <option value="">Escolha no catálogo...</option>
-              {vacinas.map(v => (
-                <option key={v.id_vacina} value={v.id_vacina}>
-                  {v.nome_vacina} {v.fabricante ? `(${v.fabricante})` : ''}
-                </option>
-              ))}
-            </select>
+            <div>
+              <label style={{ display: 'block', fontWeight: '600', marginBottom: '6px', color: textSecundario, fontSize: '13px' }}>Selecione a Vacina:</label>
+              <select className="premium-input" value={formDados.id_vacina} onChange={handleVacinaChange} required style={{ width: '100%', padding: '12px 16px', border: `1px solid ${borderColor}`, borderRadius: '10px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: '14px', outline: 'none', transition: 'all 0.2s' }}>
+                <option value="">Escolha no catálogo...</option>
+                {vacinas.map(v => (
+                  <option key={v.id_vacina} value={v.id_vacina}>
+                    {v.nome_vacina} {v.fabricante ? `(${v.fabricante})` : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
 
             {formDados.status === 'APLICADA' && (
-              <>
-                <label style={{ fontWeight: 'bold', color: textSecundario, marginBottom: '5px' }}>Data da Aplicação:</label>
+              <div>
+                <label style={{ display: 'block', fontWeight: '600', marginBottom: '6px', color: textSecundario, fontSize: '13px' }}>Data da Aplicação:</label>
                 <input 
                   type="date" 
+                  className="premium-input"
                   value={formDados.data_aplicacao} 
                   onChange={handleDataAplicacaoChange} 
                   required 
                   max={dataHoje}
-                  style={{ width: '100%', padding: '10px', margin: '8px 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} 
+                  style={{ width: '100%', padding: '12px 16px', border: `1px solid ${borderColor}`, borderRadius: '10px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: '14px', outline: 'none', transition: 'all 0.2s' }} 
                 />
-              </>
+              </div>
             )}
 
-            <label style={{ fontWeight: 'bold', color: textSecundario, marginBottom: '5px' }}>
-              {formDados.status === 'APLICADA' ? 'Data da Próxima Dose (Revacinação):' : 'Data Agendada (Próxima Dose):'}
-            </label>
-            <input 
-              type="date" 
-              value={formDados.data_proxima_dose} 
-              onChange={e => setFormDados({...formDados, data_proxima_dose: e.target.value})} 
-              required 
-              min={formDados.status === 'PENDENTE' ? dataHoje : (formDados.data_aplicacao || '')}
-              style={{ width: '100%', padding: '10px', margin: '8px 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} 
-            />
+            <div>
+              <label style={{ display: 'block', fontWeight: '600', marginBottom: '6px', color: textSecundario, fontSize: '13px' }}>
+                {formDados.status === 'APLICADA' ? 'Data da Próxima Dose (Revacinação):' : 'Data Agendada (Próxima Dose):'}
+              </label>
+              <input 
+                type="date" 
+                className="premium-input"
+                value={formDados.data_proxima_dose} 
+                onChange={e => setFormDados({...formDados, data_proxima_dose: e.target.value})} 
+                required 
+                min={formDados.status === 'PENDENTE' ? dataHoje : (formDados.data_aplicacao || '')}
+                style={{ width: '100%', padding: '12px 16px', border: `1px solid ${borderColor}`, borderRadius: '10px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: '14px', outline: 'none', transition: 'all 0.2s' }} 
+              />
+            </div>
 
-            <button type="submit" style={{ backgroundColor: '#28a745', color: 'white', border: 'none', padding: '15px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', marginTop: '10px', fontSize: 'inherit' }}>Salvar Registro</button>
+            <button type="submit" className="premium-btn" style={{ backgroundColor: '#10b981', color: 'white', border: 'none', padding: '16px', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', marginTop: '16px', fontSize: '16px', width: '100%' }}>
+              Salvar Registro Médico
+            </button>
           </form>
 
-          {msg.texto && <div style={{ textAlign: 'center', marginTop: '15px', fontWeight: 'bold', color: msg.cor }}>{msg.texto}</div>}
+          {msg.texto && (
+            <div style={{ marginTop: '20px', padding: '12px', borderRadius: '8px', backgroundColor: msg.cor === '#10b981' ? (isEscuro ? '#064e3b' : '#d1fae5') : (isEscuro ? '#7f1d1d' : '#fee2e2'), color: msg.cor === '#10b981' ? (isEscuro ? '#34d399' : '#047857') : (isEscuro ? '#fca5a5' : '#b91c1c'), textAlign: 'center', fontSize: '14px', fontWeight: '600' }}>
+              {msg.texto}
+            </div>
+          )}
         </div>
       </div>
     </LayoutPainel>
@@ -260,7 +301,7 @@ function FormularioVacina() {
 
 export default function VacinarAnimal() {
   return (
-    <Suspense fallback={<div style={{ textAlign: 'center', padding: '50px' }}>Carregando formulário...</div>}>
+    <Suspense fallback={<div style={{ textAlign: 'center', padding: '50px', fontFamily: '"Inter", sans-serif', color: '#64748b' }}>Carregando formulário médico...</div>}>
       <FormularioVacina />
     </Suspense>
   );

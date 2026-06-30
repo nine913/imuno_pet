@@ -55,7 +55,7 @@ function HistoricoConteudo() {
       const res = await fetch('http://localhost:3000/vacinas');
       if (res.ok) setVacinasBase(await res.json());
     } catch (e) {
-      setMsgEditar({ texto: 'Erro de conexão.', cor: 'red' });
+      setMsgEditar({ texto: 'Erro de conexão.', cor: '#ef4444' });
     }
   };
 
@@ -67,7 +67,7 @@ function HistoricoConteudo() {
       if (res.ok) setHistorico(await res.json());
       else setHistorico([]);
     } catch (e) {
-      setMsgEditar({ texto: 'Erro de conexão.', cor: 'red' });
+      setMsgEditar({ texto: 'Erro de conexão.', cor: '#ef4444' });
     }
   };
 
@@ -132,17 +132,17 @@ function HistoricoConteudo() {
     e.preventDefault();
 
     if (editDados.status === 'PENDENTE' && editDados.data_proxima_dose < dataHoje) {
-      setMsgEditar({ texto: 'A data do agendamento não pode estar no passado.', cor: 'red' });
+      setMsgEditar({ texto: 'A data do agendamento não pode estar no passado.', cor: '#ef4444' });
       return;
     }
 
     if (editDados.status === 'APLICADA' && editDados.data_aplicacao > dataHoje) {
-      setMsgEditar({ texto: 'A data de aplicação não pode estar no futuro.', cor: 'red' });
+      setMsgEditar({ texto: 'A data de aplicação não pode estar no futuro.', cor: '#ef4444' });
       return;
     }
 
     if (editDados.status === 'APLICADA' && editDados.data_aplicacao && editDados.data_proxima_dose && editDados.data_proxima_dose < editDados.data_aplicacao) {
-      setMsgEditar({ texto: 'A data de vencimento não pode ser menor que a data de aplicação.', cor: 'red' });
+      setMsgEditar({ texto: 'A data de vencimento não pode ser menor que a data de aplicação.', cor: '#ef4444' });
       return;
     }
 
@@ -161,13 +161,13 @@ function HistoricoConteudo() {
         body: JSON.stringify(payload)
       });
       if (res.ok) {
-        setMsgEditar({ texto: 'Atualizado com sucesso!', cor: 'green' });
+        setMsgEditar({ texto: 'Atualizado com sucesso!', cor: '#10b981' });
         setTimeout(() => { setModalEditar(false); buscarHistorico(); }, 1500);
       } else {
-        setMsgEditar({ texto: 'Erro ao atualizar.', cor: 'red' });
+        setMsgEditar({ texto: 'Erro ao atualizar.', cor: '#ef4444' });
       }
     } catch (e) {
-      setMsgEditar({ texto: 'Erro de conexão.', cor: 'red' });
+      setMsgEditar({ texto: 'Erro de conexão.', cor: '#ef4444' });
     }
   };
 
@@ -180,113 +180,218 @@ function HistoricoConteudo() {
       });
       if (res.ok) { setModalExcluir(false); buscarHistorico(); }
     } catch (e) {
-      setMsgEditar({ texto: 'Erro de conexão.', cor: 'red' });
+      setMsgEditar({ texto: 'Erro de conexão.', cor: '#ef4444' });
     }
   };
 
   if (!usuario) return null;
 
   const isEscuro = tema === 'escuro';
-  const bgCard = isEscuro ? '#1e1e1e' : '#ffffff';
-  const textColor = isEscuro ? '#fdfdfd' : '#000000';
-  const textSecundario = isEscuro ? '#cccccc' : '#333333';
-  const borderColor = isEscuro ? '#444444' : '#e3e3e3';
-  const inputBg = isEscuro ? '#2d2d2d' : '#ffffff';
-  const headerColor = altoContraste ? '#ffcc00' : (isEscuro ? '#66b2ff' : '#0056b3');
+  const bgCard = isEscuro ? '#1e293b' : '#ffffff';
+  const textColor = isEscuro ? '#f8fafc' : '#0f172a';
+  const textSecundario = isEscuro ? '#94a3b8' : '#64748b';
+  const borderColor = isEscuro ? '#334155' : '#e2e8f0';
+  const inputBg = isEscuro ? '#0f172a' : '#f8fafc';
+  const headerColor = altoContraste ? '#ffcc00' : (isEscuro ? '#60a5fa' : '#2563eb');
+  
+  const sombraEmoji = isEscuro ? 'drop-shadow(0px 0px 3px rgba(255, 255, 255, 0.4))' : 'none';
 
   return (
     <LayoutPainel>
-      <div style={{ padding: '40px', maxWidth: '1000px', margin: '0 auto', color: textColor }}>
-        <button style={{ backgroundColor: '#6c757d', color: 'white', border: 'none', padding: '10px 15px', borderRadius: '4px', cursor: 'pointer', marginBottom: '20px', fontWeight: 'bold', fontSize: 'inherit' }} onClick={() => router.push('/veterinario/buscar')}>Voltar para Busca</button>
-        <h2 style={{ color: headerColor, marginTop: 0, marginBottom: '20px' }}>Histórico de Vacinação do Paciente</h2>
+      <style>{`
+        .premium-input:focus {
+          border-color: #2563eb !important;
+          box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1) !important;
+        }
+        .premium-btn {
+          transition: all 0.2s ease;
+        }
+        .premium-btn:hover {
+          transform: translateY(-1px);
+          filter: brightness(1.05);
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .premium-card {
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .premium-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+      `}</style>
 
-        <div style={{ backgroundColor: isEscuro ? '#2d2d2d' : '#e9ecef', padding: '15px', borderRadius: '8px', marginBottom: '20px', border: `1px solid ${borderColor}` }}>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            <input type="text" value={termoBusca} onChange={e => setTermoBusca(e.target.value)} placeholder="Buscar por nome da vacina..." style={{ flex: 2, minWidth: '200px', padding: '10px', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, margin: 0, fontSize: 'inherit' }} />
-            <select value={statusFiltro} onChange={e => setStatusFiltro(e.target.value)} style={{ flex: 1, minWidth: '150px', padding: '10px', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, margin: 0, fontSize: 'inherit' }}>
+      <div style={{ padding: '40px', maxWidth: '1000px', margin: '0 auto', color: textColor, fontFamily: '"Inter", sans-serif' }}>
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '32px' }}>
+          <button className="premium-btn" style={{ padding: '10px 16px', color: '#475569', border: `1px solid ${borderColor}`, borderRadius: '10px', cursor: 'pointer', fontSize: '14px', backgroundColor: bgCard, fontWeight: '600' }} onClick={() => router.push('/veterinario/buscar')}>
+            ← Voltar
+          </button>
+          <h2 style={{ color: headerColor, margin: 0, fontSize: '28px', fontWeight: '800', letterSpacing: '-0.5px' }}>Histórico do Paciente</h2>
+        </div>
+
+        <div style={{ backgroundColor: bgCard, padding: '24px', borderRadius: '16px', marginBottom: '32px', border: `1px solid ${borderColor}`, boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <input 
+              type="text" 
+              className="premium-input"
+              value={termoBusca} 
+              onChange={e => setTermoBusca(e.target.value)} 
+              placeholder="Buscar por nome da vacina..." 
+              style={{ flex: 2, minWidth: '200px', padding: '14px 16px', border: `1px solid ${borderColor}`, borderRadius: '10px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, margin: 0, fontSize: '14px', outline: 'none', transition: 'all 0.2s' }} 
+            />
+            <select 
+              className="premium-input"
+              value={statusFiltro} 
+              onChange={e => setStatusFiltro(e.target.value)} 
+              style={{ flex: 1, minWidth: '150px', padding: '14px 16px', border: `1px solid ${borderColor}`, borderRadius: '10px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, margin: 0, fontSize: '14px', outline: 'none', transition: 'all 0.2s' }}
+            >
               <option value="">Status da Vacina: Todos</option>
               <option value="APLICADA">Aplicada</option>
               <option value="PENDENTE">Pendente (Agendada)</option>
               <option value="ATRASADA">Atrasada</option>
             </select>
-            <button style={{ flex: 1, minWidth: '120px', padding: '10px 15px', backgroundColor: '#0056b3', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', margin: 0, fontWeight: 'bold', fontSize: 'inherit' }} onClick={() => buscarHistorico()}>Pesquisar</button>
+            <button className="premium-btn" style={{ flex: 1, minWidth: '120px', padding: '0 24px', backgroundColor: '#2563eb', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', margin: 0, fontWeight: '600', fontSize: '15px' }} onClick={() => buscarHistorico()}>
+              Pesquisar
+            </button>
           </div>
         </div>
 
         <div>
-          {historico.length === 0 ? <p style={{ color: textSecundario }}>Nenhum registro encontrado.</p> : historico.map(reg => (
-            <div key={reg.id_registro} style={{ border: `1px solid ${borderColor}`, padding: '20px', borderRadius: '8px', marginBottom: '15px', backgroundColor: bgCard, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
-              <div>
-                <h3 style={{ color: headerColor, margin: '0 0 10px 0' }}>💉 {reg.nome_vacina}</h3>
-                <p style={{ margin: '5px 0', color: textSecundario }}><strong>Status:</strong> <span style={{ color: reg.status === 'APLICADA' ? '#28a745' : reg.status === 'ATRASADA' ? '#dc3545' : '#fd7e14', fontWeight: 'bold' }}>{reg.status}</span></p>
-                <p style={{ margin: '5px 0', color: textSecundario }}><strong>Aplicação:</strong> {reg.data_aplicacao ? new Date(reg.data_aplicacao).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-'} | <strong>Próxima:</strong> {reg.data_proxima_dose ? new Date(reg.data_proxima_dose).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-'}</p>
-              </div>
-              <div style={{ display: 'flex', gap: '10px', flexDirection: 'column', minWidth: '150px' }}>
-                <button style={{ backgroundColor: '#ffc107', color: 'black', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', width: '100%', fontWeight: 'bold', fontSize: 'inherit' }} onClick={() => abrirEditar(reg)}>✏️ Editar</button>
-                <button style={{ backgroundColor: '#dc3545', color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', width: '100%', fontWeight: 'bold', fontSize: 'inherit' }} onClick={() => { setIdExcluir(reg.id_registro); setModalExcluir(true); }}>🗑️ Excluir</button>
-              </div>
+          {historico.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '40px', backgroundColor: bgCard, borderRadius: '16px', border: `1px dashed ${borderColor}`, color: textSecundario }}>Nenhum registro encontrado.</div>
+          ) : (
+            <div style={{ display: 'grid', gap: '16px' }}>
+              {historico.map(reg => {
+                let corStatus, bgBadge, textBadge;
+                if (reg.status === 'APLICADA') {
+                  corStatus = '#10b981';
+                  bgBadge = isEscuro ? '#064e3b' : '#d1fae5';
+                  textBadge = isEscuro ? '#34d399' : '#047857';
+                } else if (reg.status === 'ATRASADA') {
+                  corStatus = '#ef4444';
+                  bgBadge = isEscuro ? '#7f1d1d' : '#fee2e2';
+                  textBadge = isEscuro ? '#f87171' : '#b91c1c';
+                } else {
+                  corStatus = '#f59e0b';
+                  bgBadge = isEscuro ? '#78350f' : '#fef3c7';
+                  textBadge = isEscuro ? '#fbbf24' : '#b45309';
+                }
+
+                return (
+                  <div key={reg.id_registro} className="premium-card" style={{ border: `1px solid ${borderColor}`, borderLeft: `4px solid ${corStatus}`, padding: '24px', borderRadius: '16px', backgroundColor: bgCard, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                        <h3 style={{ color: headerColor, margin: 0, fontSize: '18px', fontWeight: '700' }}>
+                          <span style={{ filter: sombraEmoji }}>💉</span> {reg.nome_vacina}
+                        </h3>
+                        <span style={{ backgroundColor: bgBadge, color: textBadge, padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '700', letterSpacing: '0.5px' }}>
+                          {reg.status}
+                        </span>
+                      </div>
+                      
+                      <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', backgroundColor: inputBg, padding: '12px 16px', borderRadius: '8px', border: `1px solid ${borderColor}` }}>
+                        <div>
+                          <span style={{ display: 'block', fontSize: '12px', color: textSecundario, textTransform: 'uppercase', fontWeight: '700', marginBottom: '4px' }}>Aplicação</span>
+                          <span style={{ fontSize: '14px', color: textColor, fontWeight: '500' }}>{reg.data_aplicacao ? new Date(reg.data_aplicacao).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-'}</span>
+                        </div>
+                        <div>
+                          <span style={{ display: 'block', fontSize: '12px', color: textSecundario, textTransform: 'uppercase', fontWeight: '700', marginBottom: '4px' }}>Próxima Dose</span>
+                          <span style={{ fontSize: '14px', color: textColor, fontWeight: '500' }}>{reg.data_proxima_dose ? new Date(reg.data_proxima_dose).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-'}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '10px', flexDirection: 'column', minWidth: '140px' }}>
+                      <button className="premium-btn" style={{ backgroundColor: '#f59e0b', color: '#0f172a', padding: '10px 16px', border: 'none', borderRadius: '8px', cursor: 'pointer', width: '100%', fontWeight: '600', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }} onClick={() => abrirEditar(reg)}>
+                        <span style={{ filter: sombraEmoji }}>✏️</span> Editar
+                      </button>
+                      <button className="premium-btn" style={{ backgroundColor: '#ef4444', color: 'white', padding: '10px 16px', border: 'none', borderRadius: '8px', cursor: 'pointer', width: '100%', fontWeight: '600', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }} onClick={() => { setIdExcluir(reg.id_registro); setModalExcluir(true); }}>
+                        <span style={{ filter: sombraEmoji }}>🗑️</span> Excluir
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          ))}
+          )}
         </div>
       </div>
 
       {modalEditar && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.7)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-          <div style={{ background: bgCard, padding: '30px', borderRadius: '8px', width: '450px', boxShadow: '0 4px 20px rgba(0,0,0,0.5)', color: textColor, border: altoContraste ? '2px solid #ffcc00' : `1px solid ${borderColor}`, maxHeight: '90vh', overflowY: 'auto' }}>
-            <h3 style={{ color: headerColor, marginTop: 0, marginBottom: '20px' }}>✏️ Editar Registro</h3>
-            <form onSubmit={submitEditar}>
-              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Vacina:</label>
-              <select value={editDados.id_vacina} onChange={handleChangeVacina} style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} required>
-                <option value="">Selecione a vacina...</option>
-                {vacinasBase.map(v => <option key={v.id_vacina} value={v.id_vacina}>{v.nome_vacina}</option>)}
-              </select>
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(15, 23, 42, 0.7)', backdropFilter: 'blur(4px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+          <div style={{ background: bgCard, padding: '32px', borderRadius: '16px', width: '90%', maxWidth: '450px', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)', color: textColor, border: altoContraste ? '2px solid #ffcc00' : `1px solid ${borderColor}`, maxHeight: '90vh', overflowY: 'auto', boxSizing: 'border-box' }}>
+            <h3 style={{ color: headerColor, marginTop: 0, marginBottom: '24px', fontSize: '20px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ filter: sombraEmoji }}>✏️</span> Editar Registro
+            </h3>
+            <form onSubmit={submitEditar} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontWeight: '600', marginBottom: '6px', color: textSecundario, fontSize: '13px' }}>Vacina:</label>
+                <select className="premium-input" value={editDados.id_vacina} onChange={handleChangeVacina} style={{ width: '100%', padding: '12px 16px', border: `1px solid ${borderColor}`, borderRadius: '10px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: '14px', outline: 'none', transition: 'all 0.2s' }} required>
+                  <option value="">Selecione a vacina...</option>
+                  {vacinasBase.map(v => <option key={v.id_vacina} value={v.id_vacina}>{v.nome_vacina}</option>)}
+                </select>
+              </div>
 
-              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Status:</label>
-              <select value={editDados.status} onChange={handleChangeStatus} style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} required>
-                <option value="APLICADA">Aplicada</option>
-                <option value="PENDENTE">Agendada (Pendente)</option>
-                {editDados.status === 'ATRASADA' && <option value="ATRASADA">Atrasada (Automático)</option>}
-              </select>
+              <div>
+                <label style={{ display: 'block', fontWeight: '600', marginBottom: '6px', color: textSecundario, fontSize: '13px' }}>Status:</label>
+                <select className="premium-input" value={editDados.status} onChange={handleChangeStatus} style={{ width: '100%', padding: '12px 16px', border: `1px solid ${borderColor}`, borderRadius: '10px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: '14px', outline: 'none', transition: 'all 0.2s' }} required>
+                  <option value="APLICADA">Aplicada</option>
+                  <option value="PENDENTE">Agendada (Pendente)</option>
+                  {editDados.status === 'ATRASADA' && <option value="ATRASADA">Atrasada (Automático)</option>}
+                </select>
+              </div>
 
-              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Data de Aplicação:</label>
-              <input
-                type="date"
-                value={editDados.data_aplicacao}
-                onChange={handleChangeDataAplicacao}
-                style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }}
-                disabled={editDados.status === 'PENDENTE' || editDados.status === 'ATRASADA'}
-                required={editDados.status === 'APLICADA'}
-                max={dataHoje}
-              />
+              <div>
+                <label style={{ display: 'block', fontWeight: '600', marginBottom: '6px', color: textSecundario, fontSize: '13px' }}>Data de Aplicação:</label>
+                <input
+                  type="date"
+                  className="premium-input"
+                  value={editDados.data_aplicacao}
+                  onChange={handleChangeDataAplicacao}
+                  style={{ width: '100%', padding: '12px 16px', border: `1px solid ${borderColor}`, borderRadius: '10px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: '14px', outline: 'none', transition: 'all 0.2s' }}
+                  disabled={editDados.status === 'PENDENTE' || editDados.status === 'ATRASADA'}
+                  required={editDados.status === 'APLICADA'}
+                  max={dataHoje}
+                />
+              </div>
 
-              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Data da Próxima Dose / Vencimento:</label>
-              <input
-                type="date"
-                value={editDados.data_proxima_dose}
-                onChange={e => setEditDados({...editDados, data_proxima_dose: e.target.value})}
-                style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }}
-                min={editDados.status === 'PENDENTE' ? dataHoje : (editDados.data_aplicacao || '')}
-                required
-              />
+              <div>
+                <label style={{ display: 'block', fontWeight: '600', marginBottom: '6px', color: textSecundario, fontSize: '13px' }}>Data da Próxima Dose / Vencimento:</label>
+                <input
+                  type="date"
+                  className="premium-input"
+                  value={editDados.data_proxima_dose}
+                  onChange={e => setEditDados({...editDados, data_proxima_dose: e.target.value})}
+                  style={{ width: '100%', padding: '12px 16px', border: `1px solid ${borderColor}`, borderRadius: '10px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: '14px', outline: 'none', transition: 'all 0.2s' }}
+                  min={editDados.status === 'PENDENTE' ? dataHoje : (editDados.data_aplicacao || '')}
+                  required
+                />
+              </div>
 
-              <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
-                <button type="submit" style={{ backgroundColor: '#28a745', color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', flex: 1, margin: 0, fontWeight: 'bold', fontSize: 'inherit' }}>Salvar Alterações</button>
-                <button type="button" onClick={() => setModalEditar(false)} style={{ backgroundColor: '#6c757d', color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', flex: 1, margin: 0, fontWeight: 'bold', fontSize: 'inherit' }}>Cancelar</button>
+              <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+                <button type="submit" className="premium-btn" style={{ backgroundColor: '#10b981', color: 'white', padding: '14px', border: 'none', borderRadius: '10px', cursor: 'pointer', flex: 1, margin: 0, fontWeight: '600', fontSize: '15px' }}>Salvar Alterações</button>
+                <button type="button" className="premium-btn" onClick={() => setModalEditar(false)} style={{ backgroundColor: '#64748b', color: 'white', padding: '14px', border: 'none', borderRadius: '10px', cursor: 'pointer', flex: 1, margin: 0, fontWeight: '600', fontSize: '15px' }}>Cancelar</button>
               </div>
             </form>
-            {msgEditar.texto && <div style={{ textAlign: 'center', marginTop: '15px', fontWeight: 'bold', color: msgEditar.cor }}>{msgEditar.texto}</div>}
+            {msgEditar.texto && (
+              <div style={{ marginTop: '20px', padding: '12px', borderRadius: '8px', backgroundColor: msgEditar.cor === '#10b981' ? (isEscuro ? '#064e3b' : '#d1fae5') : (isEscuro ? '#7f1d1d' : '#fee2e2'), color: msgEditar.cor === '#10b981' ? (isEscuro ? '#34d399' : '#047857') : (isEscuro ? '#fca5a5' : '#b91c1c'), textAlign: 'center', fontSize: '14px', fontWeight: '600' }}>
+                {msgEditar.texto}
+              </div>
+            )}
           </div>
         </div>
       )}
 
       {modalExcluir && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.7)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-          <div style={{ background: bgCard, padding: '20px', borderRadius: '8px', width: '320px', textAlign: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.5)', border: altoContraste ? '2px solid #dc3545' : `1px solid ${borderColor}`, color: textColor }}>
-            <h3 style={{ color: '#dc3545', marginTop: 0 }}>Atenção!</h3>
-            <p style={{ color: textSecundario }}>Tem certeza que deseja excluir este registro de vacina do histórico?</p>
-            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '20px' }}>
-              <button style={{ backgroundColor: '#dc3545', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', flex: 1, fontSize: 'inherit' }} onClick={confirmarExcluir}>Sim, Excluir</button>
-              <button style={{ backgroundColor: '#6c757d', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', flex: 1, fontSize: 'inherit' }} onClick={() => setModalExcluir(false)}>Cancelar</button>
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(15, 23, 42, 0.7)', backdropFilter: 'blur(4px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+          <div style={{ background: bgCard, padding: '32px', borderRadius: '16px', width: '90%', maxWidth: '400px', textAlign: 'center', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)', border: altoContraste ? '2px solid #dc2626' : `1px solid ${borderColor}`, color: textColor, boxSizing: 'border-box' }}>
+            <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: isEscuro ? '#7f1d1d' : '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px auto', fontSize: '28px' }}>
+              ⚠️
+            </div>
+            <h3 style={{ color: isEscuro ? '#f87171' : '#dc2626', marginTop: 0, fontSize: '20px', fontWeight: '700', marginBottom: '8px' }}>Atenção!</h3>
+            <p style={{ color: textSecundario, margin: '0 0 24px 0', fontSize: '15px' }}>Tem certeza que deseja excluir este registro de vacina do histórico?</p>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button className="premium-btn" style={{ backgroundColor: '#ef4444', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', flex: 1, fontSize: '14px' }} onClick={confirmarExcluir}>Sim, Excluir</button>
+              <button className="premium-btn" style={{ backgroundColor: '#64748b', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', flex: 1, fontSize: '14px' }} onClick={() => setModalExcluir(false)}>Cancelar</button>
             </div>
           </div>
         </div>
@@ -297,7 +402,7 @@ function HistoricoConteudo() {
 
 export default function Historico() {
   return (
-    <Suspense fallback={<div style={{ padding: '20px', fontFamily: 'Arial' }}>Carregando...</div>}>
+    <Suspense fallback={<div style={{ padding: '40px', fontFamily: '"Inter", sans-serif', textAlign: 'center', color: '#64748b' }}>Carregando dados...</div>}>
       <HistoricoConteudo />
     </Suspense>
   );

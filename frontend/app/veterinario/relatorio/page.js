@@ -106,55 +106,76 @@ export default function VetRelatorio() {
   if (!usuario) return null;
 
   const isEscuro = tema === 'escuro';
-  const bgCard = isEscuro ? '#1e1e1e' : '#ffffff';
-  const textColor = isEscuro ? '#fdfdfd' : '#000000';
-  const textSecundario = isEscuro ? '#cccccc' : '#333333';
-  const borderColor = isEscuro ? '#444444' : '#e3e3e3';
-  const inputBg = isEscuro ? '#2d2d2d' : '#ffffff';
-  const headerColor = altoContraste ? '#ffcc00' : (isEscuro ? '#66b2ff' : '#0056b3');
+  const bgCard = isEscuro ? '#1e293b' : '#ffffff';
+  const textColor = isEscuro ? '#f8fafc' : '#0f172a';
+  const textSecundario = isEscuro ? '#94a3b8' : '#64748b';
+  const borderColor = isEscuro ? '#334155' : '#e2e8f0';
+  const inputBg = isEscuro ? '#0f172a' : '#f8fafc';
+  const headerColor = altoContraste ? '#ffcc00' : (isEscuro ? '#60a5fa' : '#2563eb');
+
+  const sombraEmoji = isEscuro ? 'drop-shadow(0px 0px 3px rgba(255, 255, 255, 0.4))' : 'none';
 
   return (
     <LayoutPainel>
-      <div style={{ padding: '40px', maxWidth: '1200px', margin: '0 auto', color: textColor }}>
-        <style>{`
-          @media print {
-            body { background-color: white !important; padding: 0; color: black !important; }
-            .container { box-shadow: none; padding: 0; max-width: 100%; border: none; }
-            .nao-imprimir { display: none !important; }
-            table { font-size: 11px; border-collapse: collapse; width: 100%; color: black !important; }
-            th, td { border: 1px solid black !important; padding: 4px; text-align: left; }
-            th { background-color: #f2f2f2 !important; color: black !important; }
-            td { background-color: white !important; color: black !important; }
-            .total-box { border: 2px solid #28a745; color: black !important; background-color: white !important; }
-            .total-box h2 { color: black !important; }
-            * { color: black !important; }
-          }
-        `}</style>
+      <style>{`
+        .premium-input:focus {
+          border-color: #2563eb !important;
+          box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1) !important;
+        }
+        .premium-btn {
+          transition: all 0.2s ease;
+        }
+        .premium-btn:hover {
+          transform: translateY(-1px);
+          filter: brightness(1.05);
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        @media print {
+          body { background-color: white !important; padding: 0; color: black !important; }
+          .container { box-shadow: none; padding: 0; max-width: 100%; border: none; }
+          .nao-imprimir { display: none !important; }
+          table { font-size: 11px; border-collapse: collapse; width: 100%; color: black !important; }
+          th, td { border: 1px solid #cbd5e1 !important; padding: 8px; text-align: left; }
+          th { background-color: #f1f5f9 !important; color: black !important; font-weight: bold; }
+          td { background-color: white !important; color: black !important; }
+          .total-box { border: 2px solid #10b981; color: black !important; background-color: white !important; }
+          .total-box h2 { color: black !important; }
+          * { color: black !important; }
+        }
+      `}</style>
+      
+      <div style={{ padding: '40px', maxWidth: '1200px', margin: '0 auto', color: textColor, fontFamily: '"Inter", sans-serif' }}>
         
-        <div className="nao-imprimir" style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px', gap: '10px' }}>
-          <button style={{ padding: '10px 15px', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', backgroundColor: '#6c757d', fontWeight: 'bold', fontSize: 'inherit' }} onClick={() => window.print()}>
-            🖨️ Imprimir
-          </button>
-          <button style={{ padding: '10px 15px', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', backgroundColor: '#17a2b8', fontWeight: 'bold', fontSize: 'inherit' }} onClick={baixarPDF}>
-            📄 Exportar PDF
-          </button>
+        <div className="nao-imprimir" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '15px' }}>
+          <div>
+            <h2 style={{ margin: '0 0 8px 0', color: headerColor, fontSize: '28px', fontWeight: '800', letterSpacing: '-0.5px' }}>Relatório Clínico de Vacinação</h2>
+            <p style={{ margin: 0, color: textSecundario, fontSize: '15px' }}>Filtre e exporte os dados de imunização da clínica.</p>
+          </div>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button className="premium-btn" style={{ padding: '12px 20px', color: '#0f172a', border: `1px solid ${borderColor}`, borderRadius: '10px', cursor: 'pointer', backgroundColor: bgCard, fontWeight: '600', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px' }} onClick={() => window.print()}>
+              <span style={{ filter: sombraEmoji }}>🖨️</span> Imprimir
+            </button>
+            <button className="premium-btn" style={{ padding: '12px 20px', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', backgroundColor: '#0f766e', fontWeight: '600', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 6px -1px rgba(15, 118, 110, 0.2)' }} onClick={baixarPDF}>
+              <span style={{ fontSize: '16px', filter: sombraEmoji }}>📄</span> Exportar PDF
+            </button>
+          </div>
         </div>
         
-        <div id="area-relatorio" style={{ backgroundColor: bgCard, padding: '30px', borderRadius: '8px', border: `1px solid ${borderColor}` }}>
-          <h2 style={{ color: headerColor, marginTop: 0, marginBottom: '20px' }}>Relatório Clínico de Vacinação</h2>
+        <div id="area-relatorio" style={{ backgroundColor: bgCard, padding: '32px', borderRadius: '16px', border: `1px solid ${borderColor}`, boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.05)' }}>
+          <h2 className="nao-imprimir" style={{ color: headerColor, marginTop: 0, marginBottom: '24px', fontSize: '20px', display: 'none' }}>Relatório Clínico de Vacinação</h2>
           
-          <div className="nao-imprimir" style={{ display: 'flex', gap: '15px', backgroundColor: isEscuro ? '#2d2d2d' : '#e9ecef', padding: '20px', borderRadius: '8px', marginBottom: '20px', alignItems: 'flex-end', flexWrap: 'wrap', border: `1px solid ${borderColor}` }} data-html2canvas-ignore="true">
+          <div className="nao-imprimir" style={{ display: 'flex', gap: '16px', backgroundColor: inputBg, padding: '24px', borderRadius: '12px', marginBottom: '24px', alignItems: 'flex-end', flexWrap: 'wrap', border: `1px solid ${borderColor}` }} data-html2canvas-ignore="true">
             <div style={{ flex: 1, minWidth: '150px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: textSecundario }}>Data Inicial:</label>
-              <input type="date" value={filtros.data_inicio} onChange={e => handleChangeFiltro('data_inicio', e.target.value)} style={{ padding: '10px', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', width: '100%', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} />
+              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', color: textSecundario, fontSize: '13px' }}>Data Inicial:</label>
+              <input type="date" className="premium-input" value={filtros.data_inicio} onChange={e => handleChangeFiltro('data_inicio', e.target.value)} style={{ padding: '12px 16px', border: `1px solid ${borderColor}`, borderRadius: '10px', boxSizing: 'border-box', width: '100%', backgroundColor: bgCard, color: textColor, fontSize: '14px', outline: 'none', transition: 'all 0.2s' }} />
             </div>
             <div style={{ flex: 1, minWidth: '150px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: textSecundario }}>Data Final:</label>
-              <input type="date" value={filtros.data_fim} onChange={e => handleChangeFiltro('data_fim', e.target.value)} style={{ padding: '10px', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', width: '100%', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} />
+              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', color: textSecundario, fontSize: '13px' }}>Data Final:</label>
+              <input type="date" className="premium-input" value={filtros.data_fim} onChange={e => handleChangeFiltro('data_fim', e.target.value)} style={{ padding: '12px 16px', border: `1px solid ${borderColor}`, borderRadius: '10px', boxSizing: 'border-box', width: '100%', backgroundColor: bgCard, color: textColor, fontSize: '14px', outline: 'none', transition: 'all 0.2s' }} />
             </div>
             <div style={{ flex: 1, minWidth: '150px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: textSecundario }}>Status:</label>
-              <select value={filtros.status} onChange={e => handleChangeFiltro('status', e.target.value)} style={{ padding: '10px', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', width: '100%', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }}>
+              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', color: textSecundario, fontSize: '13px' }}>Status:</label>
+              <select className="premium-input" value={filtros.status} onChange={e => handleChangeFiltro('status', e.target.value)} style={{ padding: '12px 16px', border: `1px solid ${borderColor}`, borderRadius: '10px', boxSizing: 'border-box', width: '100%', backgroundColor: bgCard, color: textColor, fontSize: '14px', outline: 'none', transition: 'all 0.2s' }}>
                 <option value="">Todos</option>
                 <option value="APLICADA">Aplicada</option>
                 <option value="PENDENTE">Pendente</option>
@@ -162,65 +183,87 @@ export default function VetRelatorio() {
               </select>
             </div>
             <div style={{ flex: 1, minWidth: '150px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: textSecundario }}>Espécie:</label>
-              <select value={filtros.especie} onChange={e => handleChangeFiltro('especie', e.target.value)} style={{ padding: '10px', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', width: '100%', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }}>
+              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', color: textSecundario, fontSize: '13px' }}>Espécie:</label>
+              <select className="premium-input" value={filtros.especie} onChange={e => handleChangeFiltro('especie', e.target.value)} style={{ padding: '12px 16px', border: `1px solid ${borderColor}`, borderRadius: '10px', boxSizing: 'border-box', width: '100%', backgroundColor: bgCard, color: textColor, fontSize: '14px', outline: 'none', transition: 'all 0.2s' }}>
                 <option value="">Todas</option>
                 {especiesLista.map(e => (
                   <option key={e.id_especie} value={e.nome_especie}>{e.nome_especie}</option>
                 ))}
               </select>
             </div>
-            <button style={{ padding: '10px 15px', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', backgroundColor: '#0056b3', fontWeight: 'bold', height: '42px', fontSize: 'inherit' }} onClick={() => gerarRelatorio()}>
+            <button className="premium-btn" style={{ padding: '0 24px', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', backgroundColor: '#2563eb', fontWeight: '600', height: '45px', fontSize: '14px' }} onClick={() => gerarRelatorio()}>
               Gerar Relatório
             </button>
           </div>
 
-          <div className="total-box" style={{ backgroundColor: '#28a745', color: 'white', padding: '15px', borderRadius: '8px', textAlign: 'center', marginBottom: '20px' }}>
-            <h2 style={{ margin: 0, color: 'white' }}>{dadosRelatorio.length} Registros Encontrados</h2>
+          <div className="total-box" style={{ backgroundColor: isEscuro ? '#064e3b' : '#d1fae5', padding: '16px', borderRadius: '12px', textAlign: 'center', marginBottom: '24px', border: `1px solid ${isEscuro ? '#047857' : '#10b981'}` }}>
+            <h2 style={{ margin: 0, color: isEscuro ? '#34d399' : '#047857', fontSize: '18px', fontWeight: '700' }}>{dadosRelatorio.length} Registros Encontrados</h2>
           </div>
 
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <div style={{ overflowX: 'auto', borderRadius: '12px', border: `1px solid ${borderColor}` }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
               <thead>
                 <tr>
-                  <th style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left', backgroundColor: isEscuro ? '#003366' : '#0056b3', color: 'white' }}>Data (App/Venc)</th>
-                  <th style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left', backgroundColor: isEscuro ? '#003366' : '#0056b3', color: 'white' }}>Status</th>
-                  <th style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left', backgroundColor: isEscuro ? '#003366' : '#0056b3', color: 'white' }}>Vacina</th>
-                  <th style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left', backgroundColor: isEscuro ? '#003366' : '#0056b3', color: 'white' }}>Paciente</th>
-                  <th style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left', backgroundColor: isEscuro ? '#003366' : '#0056b3', color: 'white' }}>Espécie</th>
-                  <th style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left', backgroundColor: isEscuro ? '#003366' : '#0056b3', color: 'white' }}>Porte / Fase</th>
-                  <th style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left', backgroundColor: isEscuro ? '#003366' : '#0056b3', color: 'white' }}>Tutor</th>
-                  <th style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left', backgroundColor: isEscuro ? '#003366' : '#0056b3', color: 'white' }}>Telefone</th>
-                  <th style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left', backgroundColor: isEscuro ? '#003366' : '#0056b3', color: 'white' }}>Aplicante (CRMV)</th>
+                  <th style={{ borderBottom: `2px solid ${borderColor}`, padding: '16px', textAlign: 'left', backgroundColor: isEscuro ? '#0f172a' : '#f8fafc', color: textSecundario, fontWeight: '700' }}>Data (App/Venc)</th>
+                  <th style={{ borderBottom: `2px solid ${borderColor}`, padding: '16px', textAlign: 'left', backgroundColor: isEscuro ? '#0f172a' : '#f8fafc', color: textSecundario, fontWeight: '700' }}>Status</th>
+                  <th style={{ borderBottom: `2px solid ${borderColor}`, padding: '16px', textAlign: 'left', backgroundColor: isEscuro ? '#0f172a' : '#f8fafc', color: textSecundario, fontWeight: '700' }}>Vacina</th>
+                  <th style={{ borderBottom: `2px solid ${borderColor}`, padding: '16px', textAlign: 'left', backgroundColor: isEscuro ? '#0f172a' : '#f8fafc', color: textSecundario, fontWeight: '700' }}>Paciente</th>
+                  <th style={{ borderBottom: `2px solid ${borderColor}`, padding: '16px', textAlign: 'left', backgroundColor: isEscuro ? '#0f172a' : '#f8fafc', color: textSecundario, fontWeight: '700' }}>Espécie</th>
+                  <th style={{ borderBottom: `2px solid ${borderColor}`, padding: '16px', textAlign: 'left', backgroundColor: isEscuro ? '#0f172a' : '#f8fafc', color: textSecundario, fontWeight: '700' }}>Porte / Fase</th>
+                  <th style={{ borderBottom: `2px solid ${borderColor}`, padding: '16px', textAlign: 'left', backgroundColor: isEscuro ? '#0f172a' : '#f8fafc', color: textSecundario, fontWeight: '700' }}>Tutor</th>
+                  <th style={{ borderBottom: `2px solid ${borderColor}`, padding: '16px', textAlign: 'left', backgroundColor: isEscuro ? '#0f172a' : '#f8fafc', color: textSecundario, fontWeight: '700' }}>Telefone</th>
+                  <th style={{ borderBottom: `2px solid ${borderColor}`, padding: '16px', textAlign: 'left', backgroundColor: isEscuro ? '#0f172a' : '#f8fafc', color: textSecundario, fontWeight: '700' }}>Aplicante (CRMV)</th>
                 </tr>
               </thead>
               <tbody>
                 {carregando ? (
-                  <tr><td colSpan="9" style={{ textAlign: 'center', padding: '15px', color: textSecundario, border: `1px solid ${borderColor}` }}>Carregando dados...</td></tr>
+                  <tr><td colSpan="9" style={{ textAlign: 'center', padding: '30px', color: textSecundario, fontWeight: '500' }}>Carregando dados do relatório...</td></tr>
                 ) : dadosRelatorio.length === 0 ? (
-                  <tr><td colSpan="9" style={{ textAlign: 'center', padding: '15px', color: textSecundario, border: `1px solid ${borderColor}` }}>Nenhum registro encontrado.</td></tr>
+                  <tr><td colSpan="9" style={{ textAlign: 'center', padding: '30px', color: textSecundario, fontWeight: '500' }}>Nenhum registro encontrado para os filtros selecionados.</td></tr>
                 ) : (
                   dadosRelatorio.map((item, idx) => {
                     const dataBase = item.status === 'APLICADA' ? item.data_aplicacao : item.data_proxima_dose;
                     const dataExibicao = dataBase ? new Date(dataBase).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '-';
-                    const corStatus = item.status === 'APLICADA' ? '#28a745' : (item.status === 'ATRASADA' ? '#dc3545' : '#fd7e14');
-                    const bgColor = idx % 2 === 0 ? (isEscuro ? '#1e1e1e' : '#ffffff') : (isEscuro ? '#2d2d2d' : '#f2f2f2');
+                    
+                    let corStatus, bgBadge;
+                    if (item.status === 'APLICADA') {
+                      corStatus = isEscuro ? '#34d399' : '#047857';
+                      bgBadge = isEscuro ? '#064e3b' : '#d1fae5';
+                    } else if (item.status === 'ATRASADA') {
+                      corStatus = isEscuro ? '#fca5a5' : '#b91c1c';
+                      bgBadge = isEscuro ? '#7f1d1d' : '#fee2e2';
+                    } else {
+                      corStatus = isEscuro ? '#fbbf24' : '#b45309';
+                      bgBadge = isEscuro ? '#78350f' : '#fef3c7';
+                    }
+
+                    const bgColor = idx % 2 === 0 ? 'transparent' : inputBg;
 
                     return (
-                      <tr key={idx} style={{ backgroundColor: bgColor, color: textColor }}>
-                        <td style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left' }}>{dataExibicao}</td>
-                        <td style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left', color: corStatus, fontWeight: 'bold' }}>{item.status}</td>
-                        <td style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left' }}><strong>{item.nome_vacina}</strong></td>
-                        <td style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left' }}>{item.nome_animal} <br/><span style={{ fontSize: '0.85em', color: textSecundario }}>{item.raca}</span></td>
-                        <td style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left' }}>{item.especie}</td>
-                        <td style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left' }}>{item.porte} <br/><span style={{ fontSize: '0.85em', color: textSecundario }}>{item.fase_vida}</span></td>
-                        <td style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left' }}>{item.nome_tutor}</td>
-                        <td style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left' }}>{item.telefone}</td>
-                        <td style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left' }}>
+                      <tr key={idx} style={{ backgroundColor: bgColor, color: textColor, borderBottom: `1px solid ${borderColor}` }}>
+                        <td style={{ padding: '16px', textAlign: 'left', fontWeight: '500' }}>{dataExibicao}</td>
+                        <td style={{ padding: '16px', textAlign: 'left' }}>
+                          <span style={{ backgroundColor: bgBadge, color: corStatus, padding: '4px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: '700', letterSpacing: '0.5px' }}>
+                            {item.status}
+                          </span>
+                        </td>
+                        <td style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: headerColor }}>{item.nome_vacina}</td>
+                        <td style={{ padding: '16px', textAlign: 'left' }}>
+                          <strong style={{ display: 'block' }}>{item.nome_animal}</strong>
+                          <span style={{ fontSize: '12px', color: textSecundario }}>{item.raca}</span>
+                        </td>
+                        <td style={{ padding: '16px', textAlign: 'left' }}>{item.especie}</td>
+                        <td style={{ padding: '16px', textAlign: 'left' }}>
+                          <span style={{ display: 'block' }}>{item.porte}</span>
+                          <span style={{ fontSize: '12px', color: textSecundario }}>{item.fase_vida}</span>
+                        </td>
+                        <td style={{ padding: '16px', textAlign: 'left' }}>{item.nome_tutor}</td>
+                        <td style={{ padding: '16px', textAlign: 'left' }}>{item.telefone}</td>
+                        <td style={{ padding: '16px', textAlign: 'left' }}>
                           {item.nome_vet ? (
                             <>
-                              {item.nome_vet}<br/>
-                              <span style={{ fontSize: '0.85em', color: textSecundario }}>{item.crmv_vet}</span>
+                              <span style={{ display: 'block' }}>{item.nome_vet}</span>
+                              <span style={{ fontSize: '12px', color: textSecundario }}>{item.crmv_vet}</span>
                             </>
                           ) : '-'}
                         </td>

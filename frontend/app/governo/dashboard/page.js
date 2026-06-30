@@ -103,7 +103,8 @@ export default function GovernoDashboard() {
 
   useEffect(() => {
     const renderCharts = () => {
-      const chartTextColor = tema === 'escuro' ? '#cccccc' : '#666666';
+      const chartTextColor = tema === 'escuro' ? '#94a3b8' : '#64748b';
+      const gridColor = tema === 'escuro' ? '#334155' : '#e2e8f0';
 
       if (chartEspecieInstance.current) chartEspecieInstance.current.destroy();
       if (canvasEspecieRef.current) {
@@ -120,11 +121,16 @@ export default function GovernoDashboard() {
             labels,
             datasets: [{
               data: valores,
-              backgroundColor: ['#fd7e14', '#007bff', '#28a745', '#6f42c1', '#e83e8c'],
-              borderWidth: 1
+              backgroundColor: ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ec4899'],
+              borderWidth: 0,
+              hoverOffset: 4
             }]
           },
-          options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { color: chartTextColor } } } }
+          options: { 
+            responsive: true, 
+            cutout: '70%',
+            plugins: { legend: { position: 'bottom', labels: { color: chartTextColor, font: { family: "'Inter', sans-serif", size: 13 } } } } 
+          }
         });
       }
 
@@ -141,6 +147,12 @@ export default function GovernoDashboard() {
           });
           valores = chartDataEvolucao.map(item => item.quantidade);
         }
+        
+        // Gradiente para a linha
+        let gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(56, 189, 248, 0.4)');
+        gradient.addColorStop(1, 'rgba(56, 189, 248, 0.0)');
+
         chartEvolucaoInstance.current = new Chart(ctx, {
           type: 'line',
           data: {
@@ -148,20 +160,25 @@ export default function GovernoDashboard() {
             datasets: [{
               label: 'Doses Aplicadas',
               data: valores,
-              borderColor: chartDataEvolucao.length > 0 ? '#17a2b8' : '#ccc',
-              backgroundColor: 'rgba(23, 162, 184, 0.1)',
+              borderColor: chartDataEvolucao.length > 0 ? '#38bdf8' : '#cbd5e1',
+              backgroundColor: gradient,
               fill: true,
-              tension: 0.2,
-              borderWidth: 3
+              tension: 0.4,
+              borderWidth: 3,
+              pointBackgroundColor: '#38bdf8',
+              pointBorderColor: '#fff',
+              pointBorderWidth: 2,
+              pointRadius: 4,
+              pointHoverRadius: 6
             }]
           },
           options: { 
             responsive: true, 
             scales: { 
-              x: { ticks: { color: chartTextColor } },
-              y: { beginAtZero: true, ticks: { stepSize: 1, color: chartTextColor } } 
+              x: { grid: { display: false }, ticks: { color: chartTextColor, font: { family: "'Inter', sans-serif" } } },
+              y: { grid: { color: gridColor }, beginAtZero: true, ticks: { stepSize: 1, color: chartTextColor, font: { family: "'Inter', sans-serif" } } } 
             },
-            plugins: { legend: { labels: { color: chartTextColor } } }
+            plugins: { legend: { display: false } }
           }
         });
       }
@@ -182,19 +199,20 @@ export default function GovernoDashboard() {
             datasets: [{
               label: 'Aplicações',
               data: valores,
-              backgroundColor: chartDataTop.length > 0 ? '#fd7e14' : '#ccc',
+              backgroundColor: chartDataTop.length > 0 ? '#f97316' : '#cbd5e1',
               borderWidth: 0,
-              borderRadius: 4
+              borderRadius: 6,
+              barPercentage: 0.6
             }]
           },
           options: { 
             responsive: true, 
             indexAxis: 'y', 
             scales: { 
-              x: { beginAtZero: true, ticks: { stepSize: 1, color: chartTextColor } },
-              y: { ticks: { color: chartTextColor } } 
+              x: { grid: { color: gridColor }, beginAtZero: true, ticks: { stepSize: 1, color: chartTextColor, font: { family: "'Inter', sans-serif" } } },
+              y: { grid: { display: false }, ticks: { color: chartTextColor, font: { family: "'Inter', sans-serif" } } } 
             },
-            plugins: { legend: { labels: { color: chartTextColor } } }
+            plugins: { legend: { display: false } }
           }
         });
       }
@@ -210,30 +228,51 @@ export default function GovernoDashboard() {
   const linhasVisiveis = mostrarTodosTabela ? dadosTabela : dadosTabela.slice(0, limiteLinhas);
 
   const isEscuro = tema === 'escuro';
-  const bgCard = isEscuro ? '#1e1e1e' : '#ffffff';
-  const textColor = isEscuro ? '#fdfdfd' : '#000000';
-  const textSecundario = isEscuro ? '#cccccc' : '#333333';
-  const borderColor = isEscuro ? '#444444' : '#e3e3e3';
-  const inputBg = isEscuro ? '#2d2d2d' : '#ffffff';
-  const headerColor = altoContraste ? '#ffcc00' : (isEscuro ? '#ffb3b8' : '#fd7e14');
+  const bgCard = isEscuro ? '#1e293b' : '#ffffff';
+  const textColor = isEscuro ? '#f8fafc' : '#0f172a';
+  const textSecundario = isEscuro ? '#94a3b8' : '#64748b';
+  const borderColor = isEscuro ? '#334155' : '#e2e8f0';
+  const inputBg = isEscuro ? '#0f172a' : '#f8fafc';
+  const headerColor = altoContraste ? '#ffcc00' : (isEscuro ? '#fca5a5' : '#ea580c');
+  
+  const sombraEmoji = isEscuro ? 'drop-shadow(0px 0px 3px rgba(255, 255, 255, 0.4))' : 'none';
 
   return (
     <LayoutPainel>
-      <div style={{ padding: '40px', maxWidth: '1200px', margin: '0 auto', color: textColor }}>
-        <h2 style={{ color: headerColor, marginTop: 0, marginBottom: '20px' }}>Monitoramento Epidemiológico e Controle de Endemias</h2>
+      <style>{`
+        .premium-input:focus {
+          border-color: #f97316 !important;
+          box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1) !important;
+        }
+        .premium-btn {
+          transition: all 0.2s ease;
+        }
+        .premium-btn:hover {
+          transform: translateY(-1px);
+          filter: brightness(1.05);
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+      `}</style>
+
+      <div style={{ padding: '40px', maxWidth: '1200px', margin: '0 auto', color: textColor, fontFamily: '"Inter", sans-serif' }}>
         
-        <div style={{ display: 'flex', gap: '15px', backgroundColor: isEscuro ? '#2d2d2d' : '#e9ecef', padding: '15px', borderRadius: '8px', marginBottom: '25px', alignItems: 'flex-end', flexWrap: 'wrap', border: `1px solid ${borderColor}` }}>
+        <div style={{ marginBottom: '32px' }}>
+          <h2 style={{ color: headerColor, margin: '0 0 8px 0', fontSize: '28px', fontWeight: '800', letterSpacing: '-0.5px' }}>Monitoramento Epidemiológico</h2>
+          <p style={{ margin: 0, color: textSecundario, fontSize: '15px' }}>Painel de controle de endemias e vacinação regional.</p>
+        </div>
+        
+        <div style={{ display: 'flex', gap: '16px', backgroundColor: bgCard, padding: '24px', borderRadius: '16px', marginBottom: '32px', alignItems: 'flex-end', flexWrap: 'wrap', border: `1px solid ${borderColor}`, boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
           <div style={{ flex: 1, minWidth: '150px' }}>
-            <label style={{ display: 'block', fontWeight: 'bold', color: textSecundario, marginBottom: '5px' }}>Data Início:</label>
-            <input type="date" value={filtros.inicio} onChange={e => setFiltros({...filtros, inicio: e.target.value})} style={{ width: '100%', padding: '8px', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} />
+            <label style={{ display: 'block', fontWeight: '600', color: textSecundario, marginBottom: '6px', fontSize: '13px' }}>Data Início:</label>
+            <input type="date" className="premium-input" value={filtros.inicio} onChange={e => setFiltros({...filtros, inicio: e.target.value})} style={{ width: '100%', padding: '12px 16px', border: `1px solid ${borderColor}`, borderRadius: '10px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: '14px', outline: 'none', transition: 'all 0.2s' }} />
           </div>
           <div style={{ flex: 1, minWidth: '150px' }}>
-            <label style={{ display: 'block', fontWeight: 'bold', color: textSecundario, marginBottom: '5px' }}>Data Fim:</label>
-            <input type="date" value={filtros.fim} onChange={e => setFiltros({...filtros, fim: e.target.value})} style={{ width: '100%', padding: '8px', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} />
+            <label style={{ display: 'block', fontWeight: '600', color: textSecundario, marginBottom: '6px', fontSize: '13px' }}>Data Fim:</label>
+            <input type="date" className="premium-input" value={filtros.fim} onChange={e => setFiltros({...filtros, fim: e.target.value})} style={{ width: '100%', padding: '12px 16px', border: `1px solid ${borderColor}`, borderRadius: '10px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: '14px', outline: 'none', transition: 'all 0.2s' }} />
           </div>
           <div style={{ flex: 1, minWidth: '150px' }}>
-            <label style={{ display: 'block', fontWeight: 'bold', color: textSecundario, marginBottom: '5px' }}>Espécie:</label>
-            <select value={filtros.especie} onChange={e => setFiltros({...filtros, especie: e.target.value})} style={{ width: '100%', padding: '8px', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }}>
+            <label style={{ display: 'block', fontWeight: '600', color: textSecundario, marginBottom: '6px', fontSize: '13px' }}>Espécie:</label>
+            <select className="premium-input" value={filtros.especie} onChange={e => setFiltros({...filtros, especie: e.target.value})} style={{ width: '100%', padding: '12px 16px', border: `1px solid ${borderColor}`, borderRadius: '10px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: '14px', outline: 'none', transition: 'all 0.2s' }}>
               <option value="">Todas as Espécies</option>
               <option value="Cachorro">Cachorro</option>
               <option value="Gato">Gato</option>
@@ -241,63 +280,69 @@ export default function GovernoDashboard() {
             </select>
           </div>
           <div style={{ flex: 1, minWidth: '150px' }}>
-            <label style={{ display: 'block', fontWeight: 'bold', color: textSecundario, marginBottom: '5px' }}>Localidade (Bairro/Cidade):</label>
-            <input type="text" value={filtros.localidade} onChange={e => setFiltros({...filtros, localidade: e.target.value})} placeholder="Ex: Centro" style={{ width: '100%', padding: '8px', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} />
+            <label style={{ display: 'block', fontWeight: '600', color: textSecundario, marginBottom: '6px', fontSize: '13px' }}>Localidade (Bairro/Cidade):</label>
+            <input type="text" className="premium-input" value={filtros.localidade} onChange={e => setFiltros({...filtros, localidade: e.target.value})} placeholder="Ex: Centro" style={{ width: '100%', padding: '12px 16px', border: `1px solid ${borderColor}`, borderRadius: '10px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: '14px', outline: 'none', transition: 'all 0.2s' }} />
           </div>
-          <button style={{ padding: '9px 20px', backgroundColor: '#fd7e14', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', height: 'auto', fontSize: 'inherit' }} onClick={handleFiltrar}>Filtrar</button>
+          <button className="premium-btn" style={{ padding: '0 24px', backgroundColor: '#ea580c', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '600', height: '45px', fontSize: '14px' }} onClick={handleFiltrar}>Filtrar Dados</button>
         </div>
 
-        <div style={{ display: 'flex', gap: '20px', marginBottom: '25px', flexWrap: 'wrap' }}>
-          <div style={{ flex: 1, minWidth: '200px', padding: '20px', borderRadius: '8px', color: 'white', textAlign: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', backgroundColor: '#007bff' }}>
-            <h3 style={{ margin: 0, textTransform: 'uppercase', color: 'white' }}>Total de Doses Aplicadas</h3>
-            <h1 style={{ margin: '10px 0 0 0', fontSize: '2em' }}>{kpis.aplicadas}</h1>
+        {/* KPIs */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px', marginBottom: '32px' }}>
+          <div style={{ padding: '24px', borderRadius: '16px', color: 'white', display: 'flex', flexDirection: 'column', justifyContent: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', backgroundColor: isEscuro ? '#1d4ed8' : '#3b82f6', border: `1px solid ${isEscuro ? '#1e3a8a' : '#60a5fa'}` }}>
+            <h3 style={{ margin: '0 0 8px 0', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', opacity: 0.9 }}>Total de Doses Aplicadas</h3>
+            <h1 style={{ margin: 0, fontSize: '36px', fontWeight: '800' }}>{kpis.aplicadas}</h1>
           </div>
-          <div style={{ flex: 1, minWidth: '200px', padding: '20px', borderRadius: '8px', textAlign: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', backgroundColor: '#ffc107', color: '#333' }}>
-            <h3 style={{ margin: 0, textTransform: 'uppercase', color: '#333' }}>Doses Pendentes</h3>
-            <h1 style={{ margin: '10px 0 0 0', fontSize: '2em' }}>{kpis.pendentes}</h1>
+          <div style={{ padding: '24px', borderRadius: '16px', color: '#0f172a', display: 'flex', flexDirection: 'column', justifyContent: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', backgroundColor: isEscuro ? '#b45309' : '#f59e0b', border: `1px solid ${isEscuro ? '#78350f' : '#fcd34d'}` }}>
+            <h3 style={{ margin: '0 0 8px 0', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', opacity: 0.9, color: isEscuro ? '#fffbeb' : '#451a03' }}>Doses Pendentes</h3>
+            <h1 style={{ margin: 0, fontSize: '36px', fontWeight: '800', color: isEscuro ? '#fff' : '#0f172a' }}>{kpis.pendentes}</h1>
           </div>
-          <div style={{ flex: 1, minWidth: '200px', padding: '20px', borderRadius: '8px', color: 'white', textAlign: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', backgroundColor: '#dc3545' }}>
-            <h3 style={{ margin: 0, textTransform: 'uppercase', color: 'white' }}>Doses em Atraso (Risco)</h3>
-            <h1 style={{ margin: '10px 0 0 0', fontSize: '2em' }}>{kpis.atrasadas}</h1>
+          <div style={{ padding: '24px', borderRadius: '16px', color: 'white', display: 'flex', flexDirection: 'column', justifyContent: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', backgroundColor: isEscuro ? '#b91c1c' : '#ef4444', border: `1px solid ${isEscuro ? '#7f1d1d' : '#fca5a5'}` }}>
+            <h3 style={{ margin: '0 0 8px 0', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', opacity: 0.9 }}>Doses em Atraso (Risco)</h3>
+            <h1 style={{ margin: 0, fontSize: '36px', fontWeight: '800' }}>{kpis.atrasadas}</h1>
           </div>
-          <div style={{ flex: 1, minWidth: '200px', padding: '20px', borderRadius: '8px', color: 'white', textAlign: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', backgroundColor: '#28a745' }}>
-            <h3 style={{ margin: 0, textTransform: 'uppercase', color: 'white' }}>Localidades Monitoradas</h3>
-            <h1 style={{ margin: '10px 0 0 0', fontSize: '2em' }}>{kpis.localidades}</h1>
+          <div style={{ padding: '24px', borderRadius: '16px', color: 'white', display: 'flex', flexDirection: 'column', justifyContent: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', backgroundColor: isEscuro ? '#047857' : '#10b981', border: `1px solid ${isEscuro ? '#064e3b' : '#34d399'}` }}>
+            <h3 style={{ margin: '0 0 8px 0', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', opacity: 0.9 }}>Localidades Monitoradas</h3>
+            <h1 style={{ margin: 0, fontSize: '36px', fontWeight: '800' }}>{kpis.localidades}</h1>
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginBottom: '20px' }}>
-          <div style={{ flex: 2, minWidth: '350px', backgroundColor: bgCard, border: `1px solid ${borderColor}`, padding: '20px', borderRadius: '8px', boxSizing: 'border-box' }}>
-            <h3 style={{ margin: '0 0 15px 0', color: textSecundario }}>Evolução Temporal de Imunização</h3>
+        {/* Gráficos Linha 1 */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '20px', marginBottom: '20px' }}>
+          <div style={{ backgroundColor: bgCard, border: `1px solid ${borderColor}`, padding: '24px', borderRadius: '16px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
+            <h3 style={{ margin: '0 0 20px 0', color: textColor, fontSize: '18px', fontWeight: '700' }}>Evolução Temporal de Imunização</h3>
             <canvas ref={canvasEvolucaoRef}></canvas>
           </div>
-          <div style={{ flex: 1, minWidth: '350px', backgroundColor: bgCard, border: `1px solid ${borderColor}`, padding: '20px', borderRadius: '8px', boxSizing: 'border-box' }}>
-            <h3 style={{ margin: '0 0 15px 0', color: textSecundario }}>Cobertura por Espécie</h3>
-            <canvas ref={canvasEspecieRef}></canvas>
+          <div style={{ backgroundColor: bgCard, border: `1px solid ${borderColor}`, padding: '24px', borderRadius: '16px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column' }}>
+            <h3 style={{ margin: '0 0 20px 0', color: textColor, fontSize: '18px', fontWeight: '700' }}>Cobertura por Espécie</h3>
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', maxHeight: '300px' }}>
+              <canvas ref={canvasEspecieRef}></canvas>
+            </div>
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginBottom: '20px' }}>
-          <div style={{ flex: 1, minWidth: '350px', backgroundColor: bgCard, border: `1px solid ${borderColor}`, padding: '20px', borderRadius: '8px', boxSizing: 'border-box' }}>
-            <h3 style={{ margin: '0 0 15px 0', color: textSecundario }}>Top 5 Vacinas Mais Aplicadas</h3>
+        {/* Gráficos Linha 2 e Tabela */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '20px', marginBottom: '40px' }}>
+          <div style={{ backgroundColor: bgCard, border: `1px solid ${borderColor}`, padding: '24px', borderRadius: '16px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
+            <h3 style={{ margin: '0 0 20px 0', color: textColor, fontSize: '18px', fontWeight: '700' }}>Top 5 Vacinas Mais Aplicadas</h3>
             <canvas ref={canvasTopRef}></canvas>
           </div>
-          <div style={{ flex: 2, minWidth: '350px', backgroundColor: bgCard, border: `1px solid ${borderColor}`, padding: '20px', borderRadius: '8px', boxSizing: 'border-box' }}>
-            <h3 style={{ margin: '0 0 15px 0', color: textSecundario }}>Mapeamento de Risco por Localidade</h3>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '15px' }}>
+          
+          <div style={{ backgroundColor: bgCard, border: `1px solid ${borderColor}`, padding: '24px', borderRadius: '16px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', gridColumn: 'span 2' }}>
+            <h3 style={{ margin: '0 0 20px 0', color: textColor, fontSize: '18px', fontWeight: '700' }}>Mapeamento de Risco por Localidade</h3>
+            <div style={{ overflowX: 'auto', borderRadius: '10px', border: `1px solid ${borderColor}` }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
                 <thead>
                   <tr>
-                    <th style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left', backgroundColor: isEscuro ? '#b34700' : '#fd7e14', color: 'white' }}>Bairro</th>
-                    <th style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left', backgroundColor: isEscuro ? '#b34700' : '#fd7e14', color: 'white' }}>Cidade</th>
-                    <th style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left', backgroundColor: isEscuro ? '#b34700' : '#fd7e14', color: 'white' }}>Doses Aplicadas</th>
-                    <th style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left', backgroundColor: isEscuro ? '#b34700' : '#fd7e14', color: 'white' }}>Doses Atrasadas</th>
-                    <th style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left', backgroundColor: isEscuro ? '#b34700' : '#fd7e14', color: 'white' }}>Nível de Risco</th>
+                    <th style={{ borderBottom: `2px solid ${borderColor}`, padding: '16px', textAlign: 'left', backgroundColor: isEscuro ? '#0f172a' : '#f8fafc', color: textSecundario, fontWeight: '700' }}>Bairro</th>
+                    <th style={{ borderBottom: `2px solid ${borderColor}`, padding: '16px', textAlign: 'left', backgroundColor: isEscuro ? '#0f172a' : '#f8fafc', color: textSecundario, fontWeight: '700' }}>Cidade</th>
+                    <th style={{ borderBottom: `2px solid ${borderColor}`, padding: '16px', textAlign: 'left', backgroundColor: isEscuro ? '#0f172a' : '#f8fafc', color: textSecundario, fontWeight: '700' }}>Aplicadas</th>
+                    <th style={{ borderBottom: `2px solid ${borderColor}`, padding: '16px', textAlign: 'left', backgroundColor: isEscuro ? '#0f172a' : '#f8fafc', color: textSecundario, fontWeight: '700' }}>Atrasadas</th>
+                    <th style={{ borderBottom: `2px solid ${borderColor}`, padding: '16px', textAlign: 'left', backgroundColor: isEscuro ? '#0f172a' : '#f8fafc', color: textSecundario, fontWeight: '700' }}>Risco</th>
                   </tr>
                 </thead>
                 <tbody>
                   {dadosTabela.length === 0 ? (
-                    <tr><td colSpan="5" style={{ textAlign: 'center', padding: '10px', color: textSecundario, border: `1px solid ${borderColor}` }}>Nenhum dado registrado para estes filtros.</td></tr>
+                    <tr><td colSpan="5" style={{ textAlign: 'center', padding: '24px', color: textSecundario, fontWeight: '500' }}>Nenhum dado registrado para estes filtros.</td></tr>
                   ) : (
                     linhasVisiveis.map((item, idx) => {
                       const aplicadas = parseInt(item.total_aplicadas) || 0;
@@ -305,28 +350,35 @@ export default function GovernoDashboard() {
                       const total = aplicadas + atrasadas;
                       
                       let nivelRisco = 'Baixo';
-                      let corRisco = '#28a745';
+                      let corRiscoText = isEscuro ? '#34d399' : '#047857';
+                      let corRiscoBg = isEscuro ? '#064e3b' : '#d1fae5';
                       
                       if (total > 0) {
                         const percentualAtraso = (atrasadas / total) * 100;
                         if (percentualAtraso >= 30) {
                           nivelRisco = 'Alto';
-                          corRisco = '#dc3545';
+                          corRiscoText = isEscuro ? '#f87171' : '#b91c1c';
+                          corRiscoBg = isEscuro ? '#7f1d1d' : '#fee2e2';
                         } else if (percentualAtraso >= 10) {
                           nivelRisco = 'Médio';
-                          corRisco = '#fd7e14';
+                          corRiscoText = isEscuro ? '#fbbf24' : '#b45309';
+                          corRiscoBg = isEscuro ? '#78350f' : '#fef3c7';
                         }
                       }
 
-                      const bgColor = idx % 2 === 0 ? (isEscuro ? '#1e1e1e' : '#ffffff') : (isEscuro ? '#2d2d2d' : '#f2f2f2');
+                      const bgColor = idx % 2 === 0 ? 'transparent' : inputBg;
 
                       return (
-                        <tr key={idx} style={{ backgroundColor: bgColor, color: textColor }}>
-                          <td style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left' }}>{item.bairro}</td>
-                          <td style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left' }}>{item.cidade}</td>
-                          <td style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left' }}>{aplicadas}</td>
-                          <td style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left' }}>{atrasadas}</td>
-                          <td style={{ border: `1px solid ${borderColor}`, padding: '10px', textAlign: 'left', color: corRisco, fontWeight: 'bold' }}>{nivelRisco}</td>
+                        <tr key={idx} style={{ backgroundColor: bgColor, color: textColor, borderBottom: `1px solid ${borderColor}` }}>
+                          <td style={{ padding: '16px', textAlign: 'left', fontWeight: '600' }}>{item.bairro}</td>
+                          <td style={{ padding: '16px', textAlign: 'left', color: textSecundario }}>{item.cidade}</td>
+                          <td style={{ padding: '16px', textAlign: 'left', fontWeight: '500' }}>{aplicadas}</td>
+                          <td style={{ padding: '16px', textAlign: 'left', fontWeight: '500' }}>{atrasadas}</td>
+                          <td style={{ padding: '16px', textAlign: 'left' }}>
+                            <span style={{ backgroundColor: corRiscoBg, color: corRiscoText, padding: '4px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: '700', letterSpacing: '0.5px' }}>
+                              {nivelRisco}
+                            </span>
+                          </td>
                         </tr>
                       );
                     })
@@ -337,8 +389,9 @@ export default function GovernoDashboard() {
             
             {dadosTabela.length > limiteLinhas && (
               <button 
+                className="premium-btn"
                 onClick={() => setMostrarTodosTabela(!mostrarTodosTabela)} 
-                style={{ marginTop: '15px', padding: '10px', width: '100%', backgroundColor: isEscuro ? '#444' : '#f8f9fa', border: `1px solid ${borderColor}`, borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', color: textColor, fontSize: 'inherit', transition: 'background-color 0.2s' }}
+                style={{ marginTop: '20px', padding: '12px', width: '100%', backgroundColor: inputBg, border: `1px solid ${borderColor}`, borderRadius: '10px', cursor: 'pointer', fontWeight: '600', color: textSecundario, fontSize: '14px' }}
               >
                 {mostrarTodosTabela ? 'Ver Menos ▲' : `Ver Mais (${dadosTabela.length - limiteLinhas} ocultos) ▼`}
               </button>

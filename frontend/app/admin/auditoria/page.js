@@ -57,62 +57,76 @@ export default function AdminAuditoria() {
   if (!usuario) return null;
 
   const isEscuro = tema === 'escuro';
-  const bgCard = isEscuro ? '#1e1e1e' : '#ffffff';
-  const textColor = isEscuro ? '#fdfdfd' : '#000000';
-  const textSecundario = isEscuro ? '#cccccc' : '#333333';
-  const borderColor = isEscuro ? '#444444' : '#e3e3e3';
-  const inputBg = isEscuro ? '#2d2d2d' : '#ffffff';
-  const headerColor = altoContraste ? '#ffcc00' : (isEscuro ? '#66b2ff' : '#000000');
-  const thBg = isEscuro ? '#003366' : '#0056b3';
-  const tagBg = isEscuro ? '#444444' : '#e9ecef';
+  const bgCard = isEscuro ? '#1e293b' : '#ffffff';
+  const textColor = isEscuro ? '#f8fafc' : '#0f172a';
+  const textSecundario = isEscuro ? '#94a3b8' : '#64748b';
+  const borderColor = isEscuro ? '#334155' : '#e2e8f0';
+  const inputBg = isEscuro ? '#0f172a' : '#f8fafc';
+  const headerColor = altoContraste ? '#ffcc00' : (isEscuro ? '#60a5fa' : '#2563eb');
+  const thBg = isEscuro ? '#0f172a' : '#f8fafc';
+  const tagBg = isEscuro ? '#334155' : '#f1f5f9';
 
   return (
     <LayoutPainel>
-      <div style={{ padding: '40px', maxWidth: '1100px', margin: '0 auto', color: textColor }}>
-        <div style={{ background: bgCard, padding: '30px', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)', border: altoContraste ? '3px solid #ffcc00' : `1px solid ${borderColor}` }}>
+      <style>{`
+        .premium-input:focus {
+          border-color: #2563eb !important;
+          box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1) !important;
+        }
+      `}</style>
+      <div style={{ padding: '40px', maxWidth: '1100px', margin: '0 auto', color: textColor, fontFamily: '"Inter", sans-serif' }}>
+        
+        <div style={{ marginBottom: '32px' }}>
+          <h2 style={{ color: headerColor, margin: '0 0 8px 0', fontSize: '28px', fontWeight: '800', letterSpacing: '-0.5px' }}>Logs de Auditoria</h2>
+          <p style={{ margin: 0, color: textSecundario, fontSize: '15px' }}>Histórico completo de ações e rastreabilidade no sistema.</p>
+        </div>
+
+        <div style={{ background: bgCard, padding: '32px', borderRadius: '16px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', border: altoContraste ? '2px solid #ffcc00' : `1px solid ${borderColor}` }}>
           
-          <h2 style={{ margin: '0 0 20px 0', color: headerColor }}>Logs de Auditoria (Rastreabilidade)</h2>
-          
-          <div style={{ marginBottom: '20px' }}>
+          <div style={{ marginBottom: '24px' }}>
             <input 
               type="text" 
+              className="premium-input"
               value={termoBusca} 
               onChange={(e) => setTermoBusca(e.target.value)} 
               placeholder="Pesquisar por usuário, e-mail ou ação..." 
-              style={{ width: '100%', padding: '12px', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} 
+              style={{ width: '100%', padding: '14px 16px', border: `1px solid ${borderColor}`, borderRadius: '10px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: '15px', outline: 'none', transition: 'all 0.2s' }} 
             />
           </div>
 
-          <div style={{ overflowX: 'auto', backgroundColor: bgCard, borderRadius: '8px', border: `1px solid ${borderColor}` }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'inherit' }}>
+          <div style={{ overflowX: 'auto', borderRadius: '12px', border: `1px solid ${borderColor}` }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
               <thead>
-                <tr style={{ backgroundColor: thBg, color: 'white', textAlign: 'left' }}>
-                  <th style={{ padding: '12px 15px', borderBottom: `2px solid ${borderColor}` }}>Data/Hora</th>
-                  <th style={{ padding: '12px 15px', borderBottom: `2px solid ${borderColor}` }}>Usuário (E-mail)</th>
-                  <th style={{ padding: '12px 15px', borderBottom: `2px solid ${borderColor}` }}>Perfil</th>
-                  <th style={{ padding: '12px 15px', borderBottom: `2px solid ${borderColor}` }}>Ação Realizada</th>
-                  <th style={{ padding: '12px 15px', borderBottom: `2px solid ${borderColor}` }}>Detalhes</th>
+                <tr>
+                  <th style={{ backgroundColor: thBg, padding: '16px', borderBottom: `2px solid ${borderColor}`, color: textSecundario, fontWeight: '700', textAlign: 'left' }}>Data/Hora</th>
+                  <th style={{ backgroundColor: thBg, padding: '16px', borderBottom: `2px solid ${borderColor}`, color: textSecundario, fontWeight: '700', textAlign: 'left' }}>Usuário (E-mail)</th>
+                  <th style={{ backgroundColor: thBg, padding: '16px', borderBottom: `2px solid ${borderColor}`, color: textSecundario, fontWeight: '700', textAlign: 'left' }}>Perfil</th>
+                  <th style={{ backgroundColor: thBg, padding: '16px', borderBottom: `2px solid ${borderColor}`, color: textSecundario, fontWeight: '700', textAlign: 'left' }}>Ação Realizada</th>
+                  <th style={{ backgroundColor: thBg, padding: '16px', borderBottom: `2px solid ${borderColor}`, color: textSecundario, fontWeight: '700', textAlign: 'left' }}>Detalhes</th>
                 </tr>
               </thead>
               <tbody>
                 {logsFiltrados.length === 0 ? (
                   <tr>
-                    <td colSpan="5" style={{ padding: '15px', textAlign: 'center', color: textSecundario }}>Nenhum registro encontrado.</td>
+                    <td colSpan="5" style={{ padding: '30px', textAlign: 'center', color: textSecundario, fontWeight: '500' }}>Nenhum registro encontrado.</td>
                   </tr>
                 ) : (
-                  logsFiltrados.map((log, idx) => (
-                    <tr key={log.id_log} style={{ borderBottom: `1px solid ${borderColor}`, backgroundColor: idx % 2 === 0 ? 'transparent' : (isEscuro ? '#2d2d2d' : '#f9f9f9') }}>
-                      <td style={{ padding: '12px 15px', color: textColor }}>{new Date(log.data_hora).toLocaleString('pt-BR')}</td>
-                      <td style={{ padding: '12px 15px', color: textColor }}><strong>{log.email}</strong></td>
-                      <td style={{ padding: '12px 15px', color: textColor }}>
-                        <span style={{ backgroundColor: tagBg, padding: '3px 6px', borderRadius: '4px', fontSize: '0.85em' }}>
-                          {log.perfil}
-                        </span>
-                      </td>
-                      <td style={{ padding: '12px 15px', color: textColor }}>{log.acao}</td>
-                      <td style={{ padding: '12px 15px', color: textSecundario }}><span style={{ fontStyle: 'italic' }}>{log.detalhes || '-'}</span></td>
-                    </tr>
-                  ))
+                  logsFiltrados.map((log, idx) => {
+                    const bgColor = idx % 2 === 0 ? 'transparent' : inputBg;
+                    return (
+                      <tr key={log.id_log} style={{ backgroundColor: bgColor, borderBottom: `1px solid ${borderColor}` }}>
+                        <td style={{ padding: '16px', color: textColor, fontWeight: '500' }}>{new Date(log.data_hora).toLocaleString('pt-BR')}</td>
+                        <td style={{ padding: '16px', color: textColor, fontWeight: '600' }}>{log.email}</td>
+                        <td style={{ padding: '16px', color: textColor }}>
+                          <span style={{ backgroundColor: tagBg, padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '600', letterSpacing: '0.5px' }}>
+                            {log.perfil}
+                          </span>
+                        </td>
+                        <td style={{ padding: '16px', color: textColor }}>{log.acao}</td>
+                        <td style={{ padding: '16px', color: textSecundario, fontStyle: 'italic' }}>{log.detalhes || '-'}</td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </table>
