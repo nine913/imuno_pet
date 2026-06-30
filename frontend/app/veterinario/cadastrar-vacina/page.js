@@ -77,96 +77,130 @@ export default function VetCadastrarVacina() {
       const dados = await resposta.json();
 
       if (resposta.ok) {
-        setMensagem({ texto: dados.mensagem || 'Vacina salva com sucesso!', cor: 'green' });
+        setMensagem({ texto: dados.mensagem || 'Vacina salva com sucesso!', cor: '#10b981' });
         setTimeout(() => {
           router.push('/veterinario/vacinas');
         }, 1500);
       } else {
-        setMensagem({ texto: dados.erro, cor: 'red' });
+        setMensagem({ texto: dados.erro, cor: '#ef4444' });
       }
     } catch (erro) {
-      setMensagem({ texto: 'Erro ao conectar com o servidor.', cor: 'red' });
+      setMensagem({ texto: 'Erro ao conectar com o servidor.', cor: '#ef4444' });
     }
   };
 
   if (!usuario) return null;
 
   const isEscuro = tema === 'escuro';
-  const bgCard = isEscuro ? '#1e1e1e' : '#ffffff';
-  const textColor = isEscuro ? '#fdfdfd' : '#000000';
-  const textSecundario = isEscuro ? '#cccccc' : '#333333';
-  const borderColor = isEscuro ? '#444444' : '#e3e3e3';
-  const inputBg = isEscuro ? '#2d2d2d' : '#ffffff';
-  const headerColor = altoContraste ? '#ffcc00' : (isEscuro ? '#66b2ff' : '#0056b3');
+  const bgCard = isEscuro ? '#1e293b' : '#ffffff';
+  const textColor = isEscuro ? '#f8fafc' : '#0f172a';
+  const textSecundario = isEscuro ? '#94a3b8' : '#64748b';
+  const borderColor = isEscuro ? '#334155' : '#e2e8f0';
+  const inputBg = isEscuro ? '#0f172a' : '#f8fafc';
+  const headerColor = altoContraste ? '#ffcc00' : (isEscuro ? '#60a5fa' : '#2563eb');
+  
+  const sombraEmoji = isEscuro ? 'drop-shadow(0px 0px 3px rgba(255, 255, 255, 0.4))' : 'none';
 
   return (
     <LayoutPainel>
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', minHeight: '100vh', padding: '40px 20px', boxSizing: 'border-box' }}>
-        <div style={{ background: bgCard, padding: '30px', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)', width: '100%', maxWidth: '450px', border: altoContraste ? '3px solid #ffcc00' : 'none' }}>
-          
-          <h2 style={{ color: headerColor, marginTop: 0, marginBottom: '20px' }}>Cadastrar Nova Vacina</h2>
-          
-          <form onSubmit={handleSubmit}>
-            <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Nome da Vacina:</label>
-            <input 
-              type="text" 
-              value={form.nome_vacina} 
-              onChange={(e) => setForm({ ...form, nome_vacina: e.target.value })} 
-              required 
-              style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} 
-            />
-            
-            <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Fabricante:</label>
-            <input 
-              type="text" 
-              value={form.fabricante} 
-              onChange={(e) => setForm({ ...form, fabricante: e.target.value })} 
-              required 
-              style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} 
-            />
+      <style>{`
+        .premium-input:focus {
+          border-color: #2563eb !important;
+          box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1) !important;
+        }
+        .premium-btn {
+          transition: all 0.2s ease;
+        }
+        .premium-btn:hover {
+          transform: translateY(-1px);
+          filter: brightness(1.05);
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+      `}</style>
 
-            <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Doenças Prevenidas:</label>
-            <textarea 
-              value={form.doencas_prevenidas} 
-              onChange={(e) => setForm({ ...form, doencas_prevenidas: e.target.value })} 
-              rows="3" 
-              required 
-              style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit', resize: 'vertical' }} 
-            />
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', minHeight: '100vh', padding: '40px 20px', boxSizing: 'border-box', fontFamily: '"Inter", sans-serif' }}>
+        <div style={{ background: bgCard, padding: '40px', borderRadius: '16px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.05)', width: '100%', maxWidth: '500px', border: altoContraste ? '2px solid #ffcc00' : `1px solid ${borderColor}` }}>
+          
+          <h2 style={{ color: headerColor, margin: '0 0 24px 0', fontSize: '24px', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ filter: sombraEmoji }}>💉</span> Cadastrar Vacina
+          </h2>
+          
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             
-            <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Tipo de Dose:</label>
-            <select 
-              value={form.tipo_dose} 
-              onChange={handleTipoDoseChange} 
-              required 
-              style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }}
-            >
-              <option value="">Selecione...</option>
-              <option value="unica">Dose Única</option>
-              <option value="intervalo">Múltiplas Doses (Com Intervalo)</option>
-            </select>
+            <div>
+              <label style={{ display: 'block', fontWeight: '600', marginBottom: '6px', color: textSecundario, fontSize: '13px' }}>Nome da Vacina:</label>
+              <input 
+                type="text" 
+                className="premium-input"
+                value={form.nome_vacina} 
+                onChange={(e) => setForm({ ...form, nome_vacina: e.target.value })} 
+                required 
+                style={{ width: '100%', padding: '12px 16px', border: `1px solid ${borderColor}`, borderRadius: '10px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: '14px', outline: 'none', transition: 'all 0.2s' }} 
+              />
+            </div>
+            
+            <div>
+              <label style={{ display: 'block', fontWeight: '600', marginBottom: '6px', color: textSecundario, fontSize: '13px' }}>Fabricante:</label>
+              <input 
+                type="text" 
+                className="premium-input"
+                value={form.fabricante} 
+                onChange={(e) => setForm({ ...form, fabricante: e.target.value })} 
+                required 
+                style={{ width: '100%', padding: '12px 16px', border: `1px solid ${borderColor}`, borderRadius: '10px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: '14px', outline: 'none', transition: 'all 0.2s' }} 
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontWeight: '600', marginBottom: '6px', color: textSecundario, fontSize: '13px' }}>Doenças Prevenidas:</label>
+              <textarea 
+                className="premium-input"
+                value={form.doencas_prevenidas} 
+                onChange={(e) => setForm({ ...form, doencas_prevenidas: e.target.value })} 
+                rows="3" 
+                required 
+                style={{ width: '100%', padding: '12px 16px', border: `1px solid ${borderColor}`, borderRadius: '10px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: '14px', outline: 'none', transition: 'all 0.2s', resize: 'vertical' }} 
+              />
+            </div>
+            
+            <div>
+              <label style={{ display: 'block', fontWeight: '600', marginBottom: '6px', color: textSecundario, fontSize: '13px' }}>Tipo de Dose:</label>
+              <select 
+                className="premium-input"
+                value={form.tipo_dose} 
+                onChange={handleTipoDoseChange} 
+                required 
+                style={{ width: '100%', padding: '12px 16px', border: `1px solid ${borderColor}`, borderRadius: '10px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: '14px', outline: 'none', transition: 'all 0.2s' }}
+              >
+                <option value="">Selecione...</option>
+                <option value="unica">Dose Única</option>
+                <option value="intervalo">Múltiplas Doses (Com Intervalo)</option>
+              </select>
+            </div>
 
             {form.tipo_dose === 'intervalo' && (
-              <>
-                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: textSecundario }}>Intervalo entre doses (em dias):</label>
+              <div>
+                <label style={{ display: 'block', fontWeight: '600', marginBottom: '6px', color: textSecundario, fontSize: '13px' }}>Intervalo entre doses (em dias):</label>
                 <input 
                   type="number" 
+                  className="premium-input"
                   value={form.intervalo_doses_dias} 
                   onChange={handleIntervaloChange} 
                   min="0" 
                   required 
-                  style={{ width: '100%', padding: '10px', margin: '0 0 15px 0', border: `1px solid ${borderColor}`, borderRadius: '4px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: 'inherit' }} 
+                  style={{ width: '100%', padding: '12px 16px', border: `1px solid ${borderColor}`, borderRadius: '10px', boxSizing: 'border-box', backgroundColor: inputBg, color: textColor, fontSize: '14px', outline: 'none', transition: 'all 0.2s' }} 
                 />
-              </>
+              </div>
             )}
             
-            <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-              <button type="submit" style={{ flex: 1, padding: '12px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: 'inherit' }}>
-                Salvar Dados
+            <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+              <button type="submit" className="premium-btn" style={{ flex: 1, padding: '14px', backgroundColor: '#10b981', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '600', fontSize: '15px' }}>
+                Salvar Vacina
               </button>
               <button 
                 type="button" 
-                style={{ flex: 1, padding: '12px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: 'inherit' }} 
+                className="premium-btn"
+                style={{ flex: 1, padding: '14px', backgroundColor: '#64748b', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '600', fontSize: '15px' }} 
                 onClick={() => router.push('/veterinario/vacinas')}
               >
                 Cancelar
@@ -175,7 +209,7 @@ export default function VetCadastrarVacina() {
           </form>
           
           {mensagem.texto && (
-            <div style={{ textAlign: 'center', marginTop: '15px', fontWeight: 'bold', color: mensagem.cor }}>
+            <div style={{ marginTop: '24px', padding: '12px', borderRadius: '8px', backgroundColor: mensagem.cor === '#10b981' ? (isEscuro ? '#064e3b' : '#d1fae5') : (isEscuro ? '#7f1d1d' : '#fee2e2'), color: mensagem.cor === '#10b981' ? (isEscuro ? '#34d399' : '#047857') : (isEscuro ? '#fca5a5' : '#b91c1c'), textAlign: 'center', fontSize: '14px', fontWeight: '600' }}>
               {mensagem.texto}
             </div>
           )}

@@ -63,63 +63,113 @@ export default function VetAtrasados() {
   if (!usuario) return null;
 
   const isEscuro = tema === 'escuro';
-  const bgCard = isEscuro ? '#1e1e1e' : '#ffffff';
-  const textColor = isEscuro ? '#fdfdfd' : '#000000';
-  const textSecundario = isEscuro ? '#cccccc' : '#333333';
-  const borderColor = isEscuro ? '#444444' : '#e3e3e3';
+  const bgCard = isEscuro ? '#1e293b' : '#ffffff';
+  const textColor = isEscuro ? '#f8fafc' : '#0f172a';
+  const textSecundario = isEscuro ? '#94a3b8' : '#64748b';
+  const borderColor = isEscuro ? '#334155' : '#e2e8f0';
+  const headerColor = altoContraste ? '#ffcc00' : (isEscuro ? '#f87171' : '#dc2626');
   
-  const headerColor = altoContraste ? '#ffcc00' : (isEscuro ? '#ff6b6b' : '#dc3545');
-  const accentRed = altoContraste ? '#ffcc00' : '#dc3545';
+  const sombraEmoji = isEscuro ? 'drop-shadow(0px 0px 3px rgba(255, 255, 255, 0.4))' : 'none';
 
   return (
     <LayoutPainel>
-      <div style={{ padding: '40px', maxWidth: '1000px', margin: '0 auto', color: textColor }}>
-        <h2 style={{ color: headerColor, marginTop: 0 }}>⚠️ Controle de Vacinação Atrasada</h2>
-        <p style={{ color: textSecundario }}>Lista de pacientes com doses pendentes após a data de vencimento:</p>
-        
-        <div style={{ marginTop: '20px' }}>
-          {carregando ? (
-            <p style={{ color: textSecundario }}>Carregando...</p>
-          ) : erro ? (
-            <p style={{ color: '#dc3545', fontWeight: 'bold' }}>{erro}</p>
-          ) : atrasados.length === 0 ? (
-            <p style={{ color: '#28a745', fontWeight: 'bold', fontSize: '1.2em' }}>
-              Nenhuma vacina atrasada no sistema!
-            </p>
-          ) : (
-            atrasados.map((item, index) => {
-              const dataVenc = new Date(item.data_proxima_dose).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
-              const telLimpo = item.telefone ? item.telefone.replace(/\D/g, '') : '';
-              const mensagemWhats = `Olá, ${item.nome_tutor}. Notamos no sistema ImunoPet que a vacina ${item.nome_vacina} do(a) ${item.nome_animal} venceu em ${dataVenc}. Gostaria de agendar a nova dose?`;
-              const linkWhats = `https://wa.me/55${telLimpo}?text=${encodeURIComponent(mensagemWhats)}`;
+      <style>{`
+        .premium-btn {
+          transition: all 0.2s ease;
+        }
+        .premium-btn:hover {
+          transform: translateY(-1px);
+          filter: brightness(1.05);
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .premium-card {
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .premium-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+      `}</style>
 
-              return (
-                <div key={index} style={{ 
-                  border: `1px solid ${borderColor}`, 
-                  borderLeft: `5px solid ${accentRed}`, 
-                  padding: '20px', 
-                  borderRadius: '8px', 
-                  marginBottom: '15px', 
-                  backgroundColor: bgCard, 
-                  color: textColor, 
-                  display: 'flex', 
-                  justifyContent: 'space-between', 
-                  alignItems: 'center', 
-                  flexWrap: 'wrap', 
-                  gap: '15px',
-                  boxShadow: isEscuro ? 'none' : '0 2px 5px rgba(0,0,0,0.05)'
-                }}>
-                  <div>
-                    <strong style={{ fontSize: '1.2em' }}>🐾 {item.nome_animal} ({item.especie})</strong><br />
-                    <span style={{ display: 'inline-block', margin: '5px 0' }}>Vacina: <strong>{item.nome_vacina}</strong> (Venceu em: {dataVenc})</span><br />
-                    <span style={{ fontSize: '0.9em', color: textSecundario }}>Tutor: {item.nome_tutor} | Contato: {item.telefone}</span>
+      <div style={{ padding: '40px', maxWidth: '1000px', margin: '0 auto', color: textColor, fontFamily: '"Inter", sans-serif' }}>
+        <div style={{ marginBottom: '32px' }}>
+          <h2 style={{ color: headerColor, marginTop: 0, marginBottom: '8px', fontSize: '28px', fontWeight: '800', letterSpacing: '-0.5px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ filter: sombraEmoji }}>⚠️</span> Controle de Atrasados
+          </h2>
+          <p style={{ color: textSecundario, fontSize: '15px', margin: 0 }}>Lista de pacientes com doses pendentes após a data de vencimento.</p>
+        </div>
+        
+        <div>
+          {carregando ? (
+            <div style={{ textAlign: 'center', padding: '40px', color: textSecundario, fontWeight: '500' }}>Carregando registros...</div>
+          ) : erro ? (
+            <div style={{ backgroundColor: '#fef2f2', color: '#dc2626', padding: '16px', borderRadius: '12px', border: '1px solid #fecaca', fontWeight: '500' }}>{erro}</div>
+          ) : atrasados.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '40px', backgroundColor: bgCard, borderRadius: '16px', border: `1px dashed ${borderColor}`, color: '#10b981', fontWeight: '600', fontSize: '18px' }}>
+              <span style={{ fontSize: '40px', display: 'block', marginBottom: '10px' }}>✅</span>
+              Nenhuma vacina atrasada no sistema! Ótimo trabalho.
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gap: '20px' }}>
+              {atrasados.map((item, index) => {
+                const dataVenc = new Date(item.data_proxima_dose).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+                const telLimpo = item.telefone ? item.telefone.replace(/\D/g, '') : '';
+                const mensagemWhats = `Olá, ${item.nome_tutor}. Notamos no sistema ImunoPet que a vacina ${item.nome_vacina} do(a) ${item.nome_animal} venceu em ${dataVenc}. Gostaria de agendar a nova dose?`;
+                const linkWhats = `https://wa.me/55${telLimpo}?text=${encodeURIComponent(mensagemWhats)}`;
+
+                return (
+                  <div key={index} className="premium-card" style={{ 
+                    border: `1px solid ${borderColor}`, 
+                    borderLeft: `6px solid ${isEscuro ? '#991b1b' : '#ef4444'}`, 
+                    padding: '24px', 
+                    borderRadius: '16px', 
+                    backgroundColor: bgCard, 
+                    color: textColor, 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center', 
+                    flexWrap: 'wrap', 
+                    gap: '20px',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+                      <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: isEscuro ? '#7f1d1d' : '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', filter: sombraEmoji, flexShrink: 0 }}>
+                        🐾
+                      </div>
+                      <div>
+                        <h3 style={{ fontSize: '18px', color: textColor, margin: '0 0 6px 0', fontWeight: '700' }}>
+                          {item.nome_animal} <span style={{ fontSize: '14px', color: textSecundario, fontWeight: '500' }}>({item.especie})</span>
+                        </h3>
+                        <div style={{ marginBottom: '8px' }}>
+                          <span style={{ fontSize: '14px', backgroundColor: isEscuro ? '#1e1e1e' : '#f8fafc', padding: '6px 12px', borderRadius: '8px', border: `1px solid ${borderColor}`, display: 'inline-block' }}>
+                            Vacina: <strong style={{ color: headerColor }}>{item.nome_vacina}</strong> | Venceu em: <strong>{dataVenc}</strong>
+                          </span>
+                        </div>
+                        <span style={{ fontSize: '13px', color: textSecundario }}>
+                          <strong>Tutor:</strong> {item.nome_tutor} | <strong>Contato:</strong> {item.telefone}
+                        </span>
+                      </div>
+                    </div>
+                    <a href={linkWhats} target="_blank" rel="noopener noreferrer" className="premium-btn" style={{ 
+                      backgroundColor: '#10b981', 
+                      color: 'white', 
+                      padding: '12px 20px', 
+                      border: 'none', 
+                      borderRadius: '10px', 
+                      cursor: 'pointer', 
+                      fontWeight: '600', 
+                      textDecoration: 'none', 
+                      fontSize: '14px', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '8px' 
+                    }}>
+                      <span style={{ fontSize: '18px', filter: sombraEmoji }}>📱</span> Chamar no WhatsApp
+                    </a>
                   </div>
-                  <a href={linkWhats} target="_blank" rel="noopener noreferrer" style={{ backgroundColor: '#28a745', color: 'white', padding: '10px 15px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', textDecoration: 'none', textAlign: 'center', fontSize: 'inherit' }}>
-                    📱 Entrar em Contato
-                  </a>
-                </div>
-              );
-            })
+                );
+              })}
+            </div>
           )}
         </div>
       </div>
