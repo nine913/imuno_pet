@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from '../../lib/api';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import LayoutPainel from '../../components/LayoutPainel';
@@ -48,8 +49,8 @@ export default function VetVacinas() {
 
   const realizarBusca = async (termo = termoBusca) => {
     try {
-      const url = `http://localhost:3000/vacinas?termo=${encodeURIComponent(termo)}`;
-      const resposta = await fetch(url);
+      const url = `/vacinas?termo=${encodeURIComponent(termo)}`;
+      const resposta = await apiFetch(url);
       if (resposta.ok) {
         setVacinas(await resposta.json());
       } else {
@@ -97,7 +98,7 @@ export default function VetVacinas() {
     };
 
     try {
-      const resposta = await fetch(`http://localhost:3000/editar-vacina/${editDados.id_vacina}`, {
+      const resposta = await apiFetch(`/editar-vacina/${editDados.id_vacina}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -120,7 +121,7 @@ export default function VetVacinas() {
   const confirmarExclusao = async () => {
     if (!vacinaParaExcluir) return;
     try {
-      const resposta = await fetch(`http://localhost:3000/deletar-vacina/${vacinaParaExcluir}`, {
+      const resposta = await apiFetch(`/deletar-vacina/${vacinaParaExcluir}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id_usuario_log: usuario.id_usuario })

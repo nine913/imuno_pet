@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from '../../lib/api';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import LayoutPainel from '../../components/LayoutPainel';
@@ -53,7 +54,7 @@ export default function AdminAvisos() {
 
   const buscarAvisos = async () => {
     try {
-      const resposta = await fetch('http://localhost:3000/admin/avisos');
+      const resposta = await apiFetch('/admin/avisos');
       if (resposta.ok) {
         setAvisos(await resposta.json());
       }
@@ -82,18 +83,18 @@ export default function AdminAvisos() {
 
   const submitForm = async (e) => {
     e.preventDefault();
-    let url = 'http://localhost:3000/admin/cadastrar-aviso';
+    let url = '/admin/cadastrar-aviso';
     let metodo = 'POST';
 
     const payload = { ...formDados, id_usuario_log: usuario.id_usuario };
 
     if (isEdicao) {
-      url = `http://localhost:3000/admin/editar-aviso/${formDados.id_aviso}`;
+      url = `/admin/editar-aviso/${formDados.id_aviso}`;
       metodo = 'PUT';
     }
 
     try {
-      const resposta = await fetch(url, {
+      const resposta = await apiFetch(url, {
         method: metodo,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -117,7 +118,7 @@ export default function AdminAvisos() {
   const confirmarExclusao = async () => {
     if (!avisoParaExcluir) return;
     try {
-      const res = await fetch(`http://localhost:3000/admin/deletar-aviso/${avisoParaExcluir}`, { 
+      const res = await apiFetch(`/admin/deletar-aviso/${avisoParaExcluir}`, { 
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id_usuario_log: usuario.id_usuario })

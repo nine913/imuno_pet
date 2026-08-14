@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from '../../lib/api';
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import LayoutPainel from '../../components/LayoutPainel';
@@ -54,10 +55,10 @@ function FormularioVacina() {
 
   const carregarDados = async () => {
     try {
-      const resAnimal = await fetch(`http://localhost:3000/detalhes-animal/${idAnimal}`);
+      const resAnimal = await apiFetch(`/detalhes-animal/${idAnimal}`);
       if (resAnimal.ok) setAnimal(await resAnimal.json());
 
-      const resVacinas = await fetch('http://localhost:3000/vacinas');
+      const resVacinas = await apiFetch('/vacinas');
       if (resVacinas.ok) setVacinas(await resVacinas.json());
     } catch (e) {}
   };
@@ -143,7 +144,7 @@ function FormularioVacina() {
         id_usuario_log: usuario.id_usuario 
       };
 
-      const res = await fetch('http://localhost:3000/registrar-vacina', {
+      const res = await apiFetch('/registrar-vacina', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

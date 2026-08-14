@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from '../../lib/api';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import LayoutPainel from '../../components/LayoutPainel';
@@ -54,7 +55,7 @@ export default function VetTutores() {
     if (!clinica) return;
 
     try {
-      const resposta = await fetch(`http://localhost:3000/listar-tutores?termo=${termo}&id_clinica=${clinica}`);
+      const resposta = await apiFetch(`/listar-tutores?termo=${termo}&id_clinica=${clinica}`);
       if (resposta.ok) {
         setTutores(await resposta.json());
       } else {
@@ -91,7 +92,7 @@ export default function VetTutores() {
   const submitEditar = async (e) => {
     e.preventDefault();
     try {
-      const resposta = await fetch(`http://localhost:3000/editar-tutor-dados/${editDados.id_tutor}`, {
+      const resposta = await apiFetch(`/editar-tutor-dados/${editDados.id_tutor}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...editDados, id_usuario_log: usuario.id_usuario })
@@ -114,7 +115,7 @@ export default function VetTutores() {
   const confirmarExclusao = async () => {
     if (!tutorParaExcluir) return;
     try {
-      const resposta = await fetch(`http://localhost:3000/deletar-tutor/${tutorParaExcluir}`, {
+      const resposta = await apiFetch(`/deletar-tutor/${tutorParaExcluir}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id_usuario_log: usuario.id_usuario })

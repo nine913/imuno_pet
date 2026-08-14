@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from '../../lib/api';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import LayoutPainel from '../../components/LayoutPainel';
@@ -68,32 +69,32 @@ export default function BuscarAnimal() {
 
   const carregarEspecies = async () => {
     try {
-      const res = await fetch('http://localhost:3000/admin/especies');
+      const res = await apiFetch('/admin/especies');
       if (res.ok) setEspecies(await res.json());
     } catch (e) {}
   };
 
   const carregarTutores = async (id_clinica) => {
     try {
-      let url = 'http://localhost:3000/listar-tutores';
+      let url = '/listar-tutores';
       if (id_clinica) {
         url += `?id_clinica=${id_clinica}`;
       }
-      const res = await fetch(url);
+      const res = await apiFetch(url);
       if (res.ok) setTutores(await res.json());
     } catch (e) {}
   };
 
   const buscarAnimais = async (clinicaId = null) => {
     const id = clinicaId || (usuario ? usuario.id_clinica : null);
-    let url = `http://localhost:3000/animais?termo=${termoBusca}`;
+    let url = `/animais?termo=${termoBusca}`;
     
     if (id) {
       url += `&id_clinica=${id}`;
     }
 
     try {
-      const res = await fetch(url);
+      const res = await apiFetch(url);
       if (res.ok) {
         setAnimais(await res.json());
       }
@@ -162,7 +163,7 @@ export default function BuscarAnimal() {
       setIdEspecieSel(String(especieEncontrada.id_especie));
       
       try {
-        const res = await fetch(`http://localhost:3000/admin/racas?id_especie=${especieEncontrada.id_especie}`);
+        const res = await apiFetch(`/admin/racas?id_especie=${especieEncontrada.id_especie}`);
         if (res.ok) setRacas(await res.json());
       } catch (err) {}
     } else {
@@ -189,7 +190,7 @@ export default function BuscarAnimal() {
     setFormDados({ ...formDados, especie: nomeEspecie, raca: '' });
 
     try {
-      const res = await fetch(`http://localhost:3000/admin/racas?id_especie=${value}`);
+      const res = await apiFetch(`/admin/racas?id_especie=${value}`);
       if (res.ok) setRacas(await res.json());
     } catch (err) {}
   };
@@ -204,16 +205,16 @@ export default function BuscarAnimal() {
 
     setMensagemForm({ texto: 'Processando...', cor: 'blue' });
 
-    let url = 'http://localhost:3000/cadastrar-animal';
+    let url = '/cadastrar-animal';
     let metodo = 'POST';
 
     if (isEdicao) {
-      url = `http://localhost:3000/editar-animal/${formDados.id_animal}`;
+      url = `/editar-animal/${formDados.id_animal}`;
       metodo = 'PUT';
     }
 
     try {
-      const res = await fetch(url, {
+      const res = await apiFetch(url, {
         method: metodo,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...formDados, id_usuario_log: usuario.id_usuario }) 
@@ -242,7 +243,7 @@ export default function BuscarAnimal() {
   const confirmarDelecao = async () => {
     if (!animalToDelete) return;
     try {
-      const res = await fetch(`http://localhost:3000/deletar-animal/${animalToDelete.id}`, {
+      const res = await apiFetch(`/deletar-animal/${animalToDelete.id}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id_usuario_log: usuario.id_usuario })

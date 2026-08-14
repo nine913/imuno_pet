@@ -14,11 +14,13 @@
   "type": "commonjs",
   "dependencies": {
     "bcrypt": "^6.0.0",
-    "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "mysql2": "^3.22.3"
+    "express-rate-limit": "^7.5.0",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.22.3",
+    "nodemailer": "^9.0.5"
   },
   "devDependencies": {
     "jest": "^30.4.2",

@@ -11,6 +11,8 @@ CREATE TABLE IF NOT EXISTS `imunopet`.`usuario` (
   `email` VARCHAR(150) NOT NULL,
   `senha` VARCHAR(255) NOT NULL,
   `perfil` ENUM('TUTOR', 'VETERINARIO', 'GESTOR_CLINICA', 'GOVERNO', 'ADMINISTRADOR') NOT NULL,
+  `reset_token_hash` VARCHAR(64) NULL,
+  `reset_token_expira` DATETIME NULL,
   PRIMARY KEY (`id_usuario`),
   UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE
 ) ENGINE = InnoDB;

@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from '../../lib/api';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import LayoutPainel from '../../components/LayoutPainel';
@@ -49,10 +50,10 @@ export default function AdminEspeciesRacas() {
 
   const carregarDados = async () => {
     try {
-      const resEspecies = await fetch('http://localhost:3000/admin/especies');
+      const resEspecies = await apiFetch('/admin/especies');
       if (resEspecies.ok) setEspecies(await resEspecies.json());
 
-      const resRacas = await fetch('http://localhost:3000/admin/racas');
+      const resRacas = await apiFetch('/admin/racas');
       if (resRacas.ok) setRacas(await resRacas.json());
     } catch (erro) {}
   };
@@ -60,7 +61,7 @@ export default function AdminEspeciesRacas() {
   const cadastrarEspecie = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch('http://localhost:3000/admin/cadastrar-especie', {
+      const res = await apiFetch('/admin/cadastrar-especie', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nome_especie: novaEspecie, id_usuario_log: usuario.id_usuario })
@@ -80,7 +81,7 @@ export default function AdminEspeciesRacas() {
   const cadastrarRaca = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch('http://localhost:3000/admin/cadastrar-raca', {
+      const res = await apiFetch('/admin/cadastrar-raca', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...formRaca, id_usuario_log: usuario.id_usuario })
@@ -111,10 +112,10 @@ export default function AdminEspeciesRacas() {
     if (!itemParaExcluir.id) return;
     try {
       const endpoint = itemParaExcluir.tipo === 'especie' 
-        ? `http://localhost:3000/admin/deletar-especie/${itemParaExcluir.id}`
-        : `http://localhost:3000/admin/deletar-raca/${itemParaExcluir.id}`;
+        ? `/admin/deletar-especie/${itemParaExcluir.id}`
+        : `/admin/deletar-raca/${itemParaExcluir.id}`;
 
-      const res = await fetch(endpoint, { 
+      const res = await apiFetch(endpoint, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id_usuario_log: usuario.id_usuario })

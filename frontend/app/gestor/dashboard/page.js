@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from '../../lib/api';
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Chart from 'chart.js/auto';
@@ -58,7 +59,7 @@ export default function GestorDashboard() {
   const carregarClinica = async (id_clinica) => {
     if (!id_clinica) return;
     try {
-      const resposta = await fetch(`http://localhost:3000/admin/clinicas/${id_clinica}`);
+      const resposta = await apiFetch(`/admin/clinicas/${id_clinica}`);
       if (resposta.ok) {
         const dados = await resposta.json();
         setClinica(dados);
@@ -71,12 +72,12 @@ export default function GestorDashboard() {
     const userId = idUserOverride || (usuario ? usuario.id_usuario : '');
     if (!targetClinica) return;
 
-    let url = `http://localhost:3000/gestor/dados-dashboard?id_clinica=${targetClinica}&id_usuario_log=${userId}&`;
+    let url = `/gestor/dados-dashboard?id_clinica=${targetClinica}&id_usuario_log=${userId}&`;
     if (inicio) url += `inicio=${inicio}&`;
     if (fim) url += `fim=${fim}`;
 
     try {
-      const resposta = await fetch(url);
+      const resposta = await apiFetch(url);
       if (resposta.ok) {
         const dados = await resposta.json();
         setKpis(dados.kpis || { total_aplicadas: 0, total_atrasadas: 0, total_pendentes: 0, total_animais: 0 });

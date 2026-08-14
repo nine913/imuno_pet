@@ -74,11 +74,11 @@
 - [x] Hash de senha com bcrypt
 - [x] SQL parametrizado
 - [x] Uso de .env
-- [ ] Implementar JWT
-- [ ] Middleware de autenticação
-- [ ] Proteção de rotas
-- [ ] Expiração de sessão
-- [ ] Controle avançado de permissões
+- [x] Implementar JWT
+- [x] Middleware de autenticação
+- [x] Proteção de rotas
+- [x] Expiração de sessão
+- [x] Controle avançado de permissões
 
 ---
 

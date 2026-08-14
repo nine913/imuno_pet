@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from '../../lib/api';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import LayoutPainel from '../../components/LayoutPainel';
@@ -53,22 +54,22 @@ export default function GestorRelatorios() {
 
   const carregarListasFiltros = async (idClinica) => {
     try {
-      const resVac = await fetch('http://localhost:3000/vacinas');
+      const resVac = await apiFetch('/vacinas');
       if (resVac.ok) {
         setVacinasLista(await resVac.json());
       } else {
-        const resVacAdmin = await fetch('http://localhost:3000/admin/vacinas?termo=');
+        const resVacAdmin = await apiFetch('/admin/vacinas?termo=');
         if (resVacAdmin.ok) {
             setVacinasLista(await resVacAdmin.json());
         }
       }
       
-      const resVet = await fetch(`http://localhost:3000/gestor/veterinarios-lista?id_clinica=${idClinica}&termo=`);
+      const resVet = await apiFetch(`/gestor/veterinarios-lista?id_clinica=${idClinica}&termo=`);
       if (resVet.ok) {
         setVetsLista(await resVet.json());
       }
 
-      const resEsp = await fetch('http://localhost:3000/admin/especies');
+      const resEsp = await apiFetch('/admin/especies');
       if (resEsp.ok) {
         setEspeciesLista(await resEsp.json());
       }
@@ -86,7 +87,7 @@ export default function GestorRelatorios() {
         return;
     }
 
-    let url = `http://localhost:3000/gestor/relatorios-avancados?id_clinica=${idClinica}&id_usuario_log=${userId}&`;
+    let url = `/gestor/relatorios-avancados?id_clinica=${idClinica}&id_usuario_log=${userId}&`;
     if (filtros.data_inicio) url += `inicio=${filtros.data_inicio}&`;
     if (filtros.data_fim) url += `fim=${filtros.data_fim}&`;
     if (filtros.vacina) url += `vacina=${filtros.vacina}&`;
@@ -96,7 +97,7 @@ export default function GestorRelatorios() {
     if (filtros.aplicante) url += `aplicante=${filtros.aplicante}`;
 
     try {
-      const resposta = await fetch(url);
+      const resposta = await apiFetch(url);
       if (resposta.ok) {
         setDadosRelatorio(await resposta.json());
       } else {

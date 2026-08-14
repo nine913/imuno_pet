@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from '../../lib/api';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import LayoutPainel from '../../components/LayoutPainel';
@@ -41,7 +42,7 @@ export default function AdminAuditoria() {
 
   const buscarLogs = async () => {
     try {
-      const resposta = await fetch('http://localhost:3000/admin/logs');
+      const resposta = await apiFetch('/admin/logs');
       if (resposta.ok) {
         setLogs(await resposta.json());
       }

@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from '../lib/api';
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 
@@ -59,7 +60,7 @@ export default function LayoutPainel({ children }) {
   const handleLogout = async () => {
     if (usuario) {
       try {
-        await fetch('http://localhost:3000/logout', {
+        await apiFetch('/logout', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id_usuario: usuario.id_usuario })

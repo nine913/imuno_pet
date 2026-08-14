@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from '../../lib/api';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import LayoutPainel from '../../components/LayoutPainel';
@@ -63,7 +64,7 @@ export default function CadastrarTutor() {
 
   const carregarEspecies = async () => {
     try {
-      const res = await fetch('http://localhost:3000/admin/especies');
+      const res = await apiFetch('/admin/especies');
       if (res.ok) setEspecies(await res.json());
     } catch (e) {}
   };
@@ -84,7 +85,7 @@ export default function CadastrarTutor() {
     setFormDados({ ...formDados, especie: nomeEspecie, raca: '' });
 
     try {
-      const res = await fetch(`http://localhost:3000/admin/racas?id_especie=${value}`);
+      const res = await apiFetch(`/admin/racas?id_especie=${value}`);
       if (res.ok) setRacas(await res.json());
     } catch (err) {}
   };
@@ -133,7 +134,7 @@ export default function CadastrarTutor() {
     }
 
     try {
-      const res = await fetch('http://localhost:3000/cadastrar-tutor', {
+      const res = await apiFetch('/cadastrar-tutor', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...formDados, id_usuario_log: usuario.id_usuario })

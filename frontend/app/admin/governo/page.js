@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from '../../lib/api';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import LayoutPainel from '../../components/LayoutPainel';
@@ -57,7 +58,7 @@ export default function AdminGoverno() {
 
   const buscarOrgaos = async (termo = termoBusca) => {
     try {
-      const resposta = await fetch(`http://localhost:3000/admin/orgaos?termo=${termo}`);
+      const resposta = await apiFetch(`/admin/orgaos?termo=${termo}`);
       if (resposta.ok) {
         setOrgaos(await resposta.json());
       } else {
@@ -105,16 +106,16 @@ export default function AdminGoverno() {
   const submitForm = async (e) => {
     e.preventDefault();
     
-    let url = 'http://localhost:3000/admin/cadastrar-orgao';
+    let url = '/admin/cadastrar-orgao';
     let metodo = 'POST';
 
     if (isEdicao) {
-      url = `http://localhost:3000/admin/editar-orgao/${formDados.id_orgao}`;
+      url = `/admin/editar-orgao/${formDados.id_orgao}`;
       metodo = 'PUT';
     }
 
     try {
-      const resposta = await fetch(url, {
+      const resposta = await apiFetch(url, {
         method: metodo,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...formDados, id_usuario_log: usuario.id_usuario })
@@ -138,7 +139,7 @@ export default function AdminGoverno() {
   const confirmarExclusao = async () => {
     if (!idParaExcluir) return;
     try {
-      const resposta = await fetch(`http://localhost:3000/admin/deletar-orgao/${idParaExcluir}`, {
+      const resposta = await apiFetch(`/admin/deletar-orgao/${idParaExcluir}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id_usuario_log: usuario.id_usuario })

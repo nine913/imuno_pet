@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from '../../lib/api';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import LayoutPainel from '../../components/LayoutPainel';
@@ -58,7 +59,7 @@ export default function AdminClinicas() {
 
   const buscarClinicas = async (termo = termoBusca) => {
     try {
-      const resposta = await fetch(`http://localhost:3000/admin/clinicas?termo=${termo}`);
+      const resposta = await apiFetch(`/admin/clinicas?termo=${termo}`);
       if (resposta.ok) {
         setClinicas(await resposta.json());
       } else {
@@ -129,18 +130,18 @@ export default function AdminClinicas() {
   const submitForm = async (e) => {
     e.preventDefault();
     
-    let url = 'http://localhost:3000/admin/cadastrar-clinica';
+    let url = '/admin/cadastrar-clinica';
     let metodo = 'POST';
 
     if (isEdicao) {
-      url = `http://localhost:3000/admin/editar-clinica/${formDados.id_clinica}`;
+      url = `/admin/editar-clinica/${formDados.id_clinica}`;
       metodo = 'PUT';
     }
 
     const payload = { ...formDados, id_usuario_log: usuario.id_usuario };
 
     try {
-      const resposta = await fetch(url, {
+      const resposta = await apiFetch(url, {
         method: metodo,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -164,7 +165,7 @@ export default function AdminClinicas() {
   const confirmarExclusao = async () => {
     if (!idParaExcluir) return;
     try {
-      const resposta = await fetch(`http://localhost:3000/admin/deletar-clinica/${idParaExcluir}`, {
+      const resposta = await apiFetch(`/admin/deletar-clinica/${idParaExcluir}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id_usuario_log: usuario.id_usuario })

@@ -1,5 +1,4 @@
 const db = require('../db'); // Pool de conexão com MySQL (promises)
-const bcrypt = require('bcrypt'); // Hash de senha
 
 // Busca tutores (mínimo de campos)
 async function buscarTutores() {
@@ -74,63 +73,6 @@ async function deletarTutor(id_tutor) {
   await db.query('DELETE FROM usuario WHERE id_usuario = ?', [id_usuario]);
 }
 
-// Cadastra tutor e pet (cria usuário, cria tutor e cria animal)
-async function cadastrarTutorPet(data) {
-  const {
-    nome_completo,
-    cpf,
-    email,
-    senha,
-    telefone,
-    estado,
-    cidade,
-    bairro,
-    nome_animal,
-    especie,
-    raca,
-    data_nascimento
-  } = data;
-
-  // Valida email único
-  const [usuarioExistente] = await db.query('SELECT * FROM usuario WHERE email = ?', [email]);
-  if (usuarioExistente.length > 0) {
-    const error = new Error('E-mail já cadastrado!');
-    error.status = 400;
-    throw error;
-  }
-
-  // Valida CPF único
-  const [cpfExistente] = await db.query('SELECT * FROM tutor WHERE cpf = ?', [cpf]);
-  if (cpfExistente.length > 0) {
-    const error = new Error('CPF já cadastrado!');
-    error.status = 400;
-    throw error;
-  }
-
-  // Hash da senha e criação do usuário (perfil TUTOR)
-  const hashSenha = await bcrypt.hash(senha, 10);
-  const [resultUsuario] = await db.query(
-    'INSERT INTO usuario (email, senha, perfil) VALUES (?, ?, "TUTOR")',
-    [email, hashSenha]
-  );
-
-  const id_usuario = resultUsuario.insertId;
-
-  // Cria o tutor vinculado ao usuário
-  const [resultTutor] = await db.query(
-    'INSERT INTO tutor (id_usuario, nome_completo, cpf, telefone, estado, cidade, bairro) VALUES (?, ?, ?, ?, ?, ?, ?)',
-    [id_usuario, nome_completo, cpf, telefone, estado, cidade, bairro]
-  );
-
-  const id_tutor = resultTutor.insertId;
-
-  // Cria o animal vinculado ao tutor
-  await db.query(
-    'INSERT INTO animal (id_tutor, nome, especie, raca, data_nascimento) VALUES (?, ?, ?, ?, ?)',
-    [id_tutor, nome_animal, especie, raca, data_nascimento]
-  );
-}
-
 // Retorna animais de um tutor via id_usuario
 async function getTutorAnimais(id_usuario) {
   // Recupera id_tutor a partir do id_usuario
@@ -192,7 +134,6 @@ module.exports = {
   listarTutores,
   editarTutorDados,
   deletarTutor,
-  cadastrarTutorPet,
   getTutorAnimais,
   getTutorAlertas
 };

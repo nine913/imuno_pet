@@ -5,11 +5,11 @@
 - [x] Login de usuários
 - [x] Validação de senha com bcrypt
 - [x] Controle básico por perfil
-- [x] Persistência de sessão com localStorage
-- [ ] Logout global padronizado
-- [x] Recuperação de senha (redefinir-senha)
-- [ ] Expiração de sessão
-- [ ] Autenticação JWT
+- [x] Persistência de sessão com localStorage (token JWT)
+- [x] Logout global padronizado (`POST /logout` autenticado, limpa sessão no frontend)
+- [x] Recuperação de senha por token de uso único enviado por e-mail (`/solicitar-redefinicao-senha`, `/confirmar-redefinicao-senha`)
+- [x] Expiração de sessão (token JWT expira em `JWT_EXPIRES_IN`)
+- [x] Autenticação JWT
 
 ---
 
@@ -20,7 +20,7 @@
 - [x] Perfil VETERINARIO
 - [x] Perfil GESTOR_CLINICA
 - [x] Perfil GOVERNO
-- [ ] Controle avançado de permissões
+- [x] Controle avançado de permissões (autorização por perfil, escopo de clínica para gestor/veterinário, verificação de posse para tutor)
 - [x] Painéis específicos por perfil
 
 ---

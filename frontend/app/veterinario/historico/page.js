@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from '../../lib/api';
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import LayoutPainel from '../../components/LayoutPainel';
@@ -52,7 +53,7 @@ function HistoricoConteudo() {
 
   const carregarVacinas = async () => {
     try {
-      const res = await fetch('http://localhost:3000/vacinas');
+      const res = await apiFetch('/vacinas');
       if (res.ok) setVacinasBase(await res.json());
     } catch (e) {
       setMsgEditar({ texto: 'Erro de conexão.', cor: '#ef4444' });
@@ -63,7 +64,7 @@ function HistoricoConteudo() {
     if (!idAnimal) return;
     const userId = idUserOverride || (usuario ? usuario.id_usuario : '');
     try {
-      const res = await fetch(`http://localhost:3000/historico-pet/${idAnimal}?termo=${termoBusca}&status=${statusFiltro}&id_usuario_log=${userId}`);
+      const res = await apiFetch(`/historico-pet/${idAnimal}?termo=${termoBusca}&status=${statusFiltro}&id_usuario_log=${userId}`);
       if (res.ok) setHistorico(await res.json());
       else setHistorico([]);
     } catch (e) {
@@ -155,7 +156,7 @@ function HistoricoConteudo() {
         id_usuario_log: usuario.id_usuario
       };
 
-      const res = await fetch(`http://localhost:3000/editar-registro-vacina/${editDados.id_registro}`, {
+      const res = await apiFetch(`/editar-registro-vacina/${editDados.id_registro}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -173,7 +174,7 @@ function HistoricoConteudo() {
 
   const confirmarExcluir = async () => {
     try {
-      const res = await fetch(`http://localhost:3000/deletar-registro-vacina/${idExcluir}`, { 
+      const res = await apiFetch(`/deletar-registro-vacina/${idExcluir}`, { 
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id_usuario_log: usuario.id_usuario })

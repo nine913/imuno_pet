@@ -3,12 +3,13 @@ const logger = require('../services/logger');
 
 const criarPet = async (req, res) => {
   try {
-    const id_usuario_log = req.body.id_usuario_log || req.query.id_usuario_log;
-    await petService.criarPet(req.body);
-
-    if (id_usuario_log) {
-      await logger.registrarLog(id_usuario_log, 'CADASTRAR_ANIMAL', `Animal ${req.body.nome} cadastrado.`);
+    // Um tutor só pode cadastrar pet na própria conta; a equipe da clínica pode informar o tutor.
+    if (req.user.perfil === 'TUTOR') {
+      req.body.id_usuario = req.user.id_usuario;
     }
+
+    await petService.criarPet(req.body);
+    await logger.registrarLog(req.user.id_usuario, 'CADASTRAR_ANIMAL', `Animal ${req.body.nome} cadastrado.`);
     res.status(201).json({ mensagem: 'Pet criado com sucesso!' });
   } catch (error) {
     if (error.status === 404) {
@@ -21,12 +22,8 @@ const criarPet = async (req, res) => {
 
 const cadastrarAnimalVet = async (req, res) => {
   try {
-    const id_usuario_log = req.body.id_usuario_log || req.query.id_usuario_log;
     await petService.cadastrarAnimalVet(req.body);
-
-    if (id_usuario_log) {
-      await logger.registrarLog(id_usuario_log, 'CADASTRAR_ANIMAL_VET', `Paciente ${req.body.nome} cadastrado na clínica.`);
-    }
+    await logger.registrarLog(req.user.id_usuario, 'CADASTRAR_ANIMAL_VET', `Paciente ${req.body.nome} cadastrado na clínica.`);
     res.status(201).json({ mensagem: 'Paciente cadastrado com sucesso!' });
   } catch (error) {
     res.status(500).json({ erro: 'Erro ao cadastrar animal.' });
@@ -35,12 +32,8 @@ const cadastrarAnimalVet = async (req, res) => {
 
 const cadastrarTutor = async (req, res) => {
   try {
-    const id_usuario_log = req.body.id_usuario_log || req.query.id_usuario_log;
     await petService.cadastrarTutorEPet(req.body);
-
-    if (id_usuario_log) {
-      await logger.registrarLog(id_usuario_log, 'CADASTRAR_TUTOR_PET', 'Tutor e Pet criados simultaneamente.');
-    }
+    await logger.registrarLog(req.user.id_usuario, 'CADASTRAR_TUTOR_PET', 'Tutor e Pet criados simultaneamente.');
     res.status(201).json({ mensagem: 'Tutor e Pet cadastrados com sucesso!' });
   } catch (error) {
     res.status(400).json({ erro: error.message || 'Erro interno' });
@@ -70,12 +63,8 @@ const detalhesAnimal = async (req, res) => {
 
 const editarPetTutor = async (req, res) => {
   try {
-    const id_usuario_log = req.body.id_usuario_log || req.query.id_usuario_log;
     await petService.editarPetTutor(req.params.id_animal, req.body);
-
-    if (id_usuario_log) {
-      await logger.registrarLog(id_usuario_log, 'EDITAR_ANIMAL', `Dados do animal ID ${req.params.id_animal} alterados.`);
-    }
+    await logger.registrarLog(req.user.id_usuario, 'EDITAR_ANIMAL', `Dados do animal ID ${req.params.id_animal} alterados.`);
     res.status(200).json({ mensagem: 'Atualizado com sucesso!' });
   } catch (error) {
     res.status(500).json({ erro: 'Erro ao atualizar dados.' });
@@ -85,12 +74,8 @@ const editarPetTutor = async (req, res) => {
 const editarAnimalSimples = async (req, res) => {
   try {
     const { id } = req.params;
-    const id_usuario_log = req.body.id_usuario_log || req.query.id_usuario_log;
     await petService.editarAnimalSimples(id, req.body);
-
-    if (id_usuario_log) {
-      await logger.registrarLog(id_usuario_log, 'EDITAR_ANIMAL', `Dados médicos do animal ID ${id} alterados.`);
-    }
+    await logger.registrarLog(req.user.id_usuario, 'EDITAR_ANIMAL', `Dados médicos do animal ID ${id} alterados.`);
     res.status(200).json({ mensagem: 'Animal atualizado com sucesso!' });
   } catch (error) {
     res.status(500).json({ erro: 'Erro ao atualizar animal.' });
@@ -99,12 +84,8 @@ const editarAnimalSimples = async (req, res) => {
 
 const deletarAnimal = async (req, res) => {
   try {
-    const id_usuario_log = req.body.id_usuario_log || req.query.id_usuario_log;
     await petService.deletarAnimal(req.params.id_animal);
-
-    if (id_usuario_log) {
-      await logger.registrarLog(id_usuario_log, 'EXCLUIR_ANIMAL', `Animal ID ${req.params.id_animal} foi excluído.`);
-    }
+    await logger.registrarLog(req.user.id_usuario, 'EXCLUIR_ANIMAL', `Animal ID ${req.params.id_animal} foi excluído.`);
     res.status(200).json({ mensagem: 'Deletado com sucesso!' });
   } catch (error) {
     res.status(500).json({ erro: 'Erro ao deletar animal.' });
@@ -113,12 +94,8 @@ const deletarAnimal = async (req, res) => {
 
 const relatorioVacinas = async (req, res) => {
   try {
-    const { id_usuario_log } = req.query;
     const dados = await petService.relatorioVacinasVet(req.query);
-
-    if (id_usuario_log) {
-      await logger.registrarLog(id_usuario_log, 'EMITIR_RELATORIO', 'Relatório de vacinas emitido/visualizado.');
-    }
+    await logger.registrarLog(req.user.id_usuario, 'EMITIR_RELATORIO', 'Relatório de vacinas emitido/visualizado.');
     res.status(200).json(dados);
   } catch (error) {
     res.status(500).json({ erro: 'Erro ao gerar relatório' });

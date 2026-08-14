@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from '../../lib/api';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import LayoutPainel from '../../components/LayoutPainel';
@@ -57,7 +58,7 @@ export default function GestorEquipe() {
     if (!idClinica) return;
 
     try {
-      const resposta = await fetch(`http://localhost:3000/gestor/veterinarios-lista?id_clinica=${idClinica}&termo=${termo}`);
+      const resposta = await apiFetch(`/gestor/veterinarios-lista?id_clinica=${idClinica}&termo=${termo}`);
       if (resposta.ok) {
         setEquipe(await resposta.json());
       } else {
@@ -122,19 +123,19 @@ export default function GestorEquipe() {
       id_usuario_log: usuario.id_usuario
     };
 
-    let url = 'http://localhost:3000/gestor/cadastrar-vet';
+    let url = '/gestor/cadastrar-vet';
     let metodo = 'POST';
 
     if (isEdicao) {
       payload.id_usuario = formDados.id_usuario;
-      url = `http://localhost:3000/gestor/editar-vet/${formDados.id_veterinario}`;
+      url = `/gestor/editar-vet/${formDados.id_veterinario}`;
       metodo = 'PUT';
     } else {
       payload.senha = formDados.senha;
     }
 
     try {
-      const resposta = await fetch(url, {
+      const resposta = await apiFetch(url, {
         method: metodo,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -158,7 +159,7 @@ export default function GestorEquipe() {
   const confirmarExclusao = async () => {
     if (!idParaExcluir) return;
     try {
-      const resposta = await fetch(`http://localhost:3000/gestor/deletar-vet/${idParaExcluir}`, {
+      const resposta = await apiFetch(`/gestor/deletar-vet/${idParaExcluir}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id_usuario_log: usuario.id_usuario })

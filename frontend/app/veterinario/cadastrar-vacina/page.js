@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from '../../lib/api';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import LayoutPainel from '../../components/LayoutPainel';
@@ -68,7 +69,7 @@ export default function VetCadastrarVacina() {
     };
 
     try {
-      const resposta = await fetch('http://localhost:3000/admin/cadastrar-vacina', {
+      const resposta = await apiFetch('/admin/cadastrar-vacina', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

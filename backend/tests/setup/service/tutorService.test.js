@@ -1,15 +1,12 @@
 const db = require('../../../db');
 const tutorService = require('../../../services/tutorService');
-const bcrypt = require('bcrypt');
 
 // ============================================================================
 // Configuração do ambiente de testes
 // ============================================================================
 //
-// - bcrypt e db são mockados para isolar a lógica do tutorService.
-// - Com isso, os testes não dependem de banco real nem de hash real.
+// - db é mockado para isolar a lógica do tutorService do banco real.
 //
-jest.mock('bcrypt');
 jest.mock('../../../db');
 
 beforeEach(() => {
@@ -88,137 +85,6 @@ beforeEach(() => {
       await tutorService.deletarTutor(1);
 
       expect(db.query).toHaveBeenCalledTimes(4);
-    });
-  });
-
-  // ============================================================================
-  // Testes: cadastrarTutorPet
-  // ============================================================================
-
-  // TEST-TUT-004
-  describe('TEST-TUT-004 - cadastrarTutorPet()', () => {
-    it('Deve impedir cadastro com email já existente', async () => {
-      // Mock: validação de email retorna um usuário existente
-      db.query.mockResolvedValueOnce([
-        [{ id_usuario: 1 }]
-      ]);
-
-      await expect(
-        tutorService.cadastrarTutorPet({
-          email: 'teste@email.com'
-        })
-      ).rejects.toThrow(
-        'E-mail já cadastrado!'
-      );
-    });
-  });
-
-  // TEST-TUT-005
-  describe('TEST-TUT-005 - cadastrarTutorPet()', () => {
-    it('Deve impedir cadastro com CPF já existente', async () => {
-      // Fluxo de validação:
-      // - Primeiro consulta email (retorna vazio => email não cadastrado)
-      // - Depois consulta CPF (retorna registro => CPF já cadastrado)
-      db.query
-        .mockResolvedValueOnce([
-          []
-        ])
-        .mockResolvedValueOnce([
-          [{ id_tutor: 1 }]
-        ]);
-
-      await expect(
-        tutorService.cadastrarTutorPet({
-          email: 'novo@email.com',
-          cpf: '12345678900'
-        })
-      ).rejects.toThrow(
-        'CPF já cadastrado!'
-      );
-    });
-  });
-
-  // TEST-TUT-006
-  describe('TEST-TUT-006 - cadastrarTutorPet()', () => {
-    it('Deve cadastrar tutor e animal com sucesso', async () => {
-      // Mock: hash da senha deve retornar um valor fixo para previsibilidade do teste
-      bcrypt.hash.mockResolvedValue('senha-hash');
-
-      db.query
-        // verifica email
-        .mockResolvedValueOnce([
-          []
-        ])
-        // verifica cpf
-        .mockResolvedValueOnce([
-          []
-        ])
-        // INSERT usuario
-        .mockResolvedValueOnce([
-          { insertId: 10 }
-        ])
-        // INSERT tutor
-        .mockResolvedValueOnce([
-          { insertId: 20 }
-        ])
-        // INSERT animal
-        .mockResolvedValueOnce([
-          {}
-        ]);
-
-      await tutorService.cadastrarTutorPet({
-        nome_completo: 'João Silva',
-        cpf: '12345678900',
-        email: 'joao@email.com',
-        senha: '123456',
-        telefone: '99999999',
-        estado: 'PA',
-        cidade: 'Belém',
-        bairro: 'Centro',
-        nome_animal: 'Rex',
-        especie: 'Cachorro',
-        raca: 'Vira-lata',
-        data_nascimento: '2024-01-01'
-      });
-
-      expect(bcrypt.hash).toHaveBeenCalledWith(
-        '123456',
-        10
-      );
-
-      // Valida que o INSERT do usuário foi feito com o perfil correto (TUTOR)
-      expect(db.query).toHaveBeenCalledWith(
-        'INSERT INTO usuario (email, senha, perfil) VALUES (?, ?, "TUTOR")',
-        ['joao@email.com', 'senha-hash']
-      );
-
-      // Valida que o INSERT do tutor foi feito com os dados do request
-      expect(db.query).toHaveBeenCalledWith(
-        'INSERT INTO tutor (id_usuario, nome_completo, cpf, telefone, estado, cidade, bairro) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [
-          10,
-          'João Silva',
-          '12345678900',
-          '99999999',
-          'PA',
-          'Belém',
-          'Centro'
-        ]
-      );
-
-      // Valida que o INSERT do animal foi feito com os dados do request
-      expect(db.query).toHaveBeenCalledWith(
-        'INSERT INTO animal (id_tutor, nome, especie, raca, data_nascimento) VALUES (?, ?, ?, ?, ?)',
-        [
-          20,
-          'Rex',
-          'Cachorro',
-          'Vira-lata',
-          '2024-01-01'
-        ]
-      );
-
-      expect(db.query).toHaveBeenCalledTimes(5);
     });
   });
 

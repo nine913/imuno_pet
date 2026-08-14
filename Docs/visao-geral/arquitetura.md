@@ -21,7 +21,7 @@
 - [x] Modularizar rotas
 - [x] Criar controllers
 - [x] Criar services
-- [ ] Criar middlewares
+- [x] Criar middlewares (`backend/middleware/auth.js`: autenticação JWT, autorização por perfil, escopo de clínica)
 - [x] Separar conexão do banco
 - [ ] Criar pasta config
 - [ ] Organizar scripts auxiliares
@@ -70,11 +70,12 @@
 - [x] Hash de senha com bcrypt
 - [x] SQL parametrizado
 - [x] Uso de variáveis de ambiente
-- [ ] Implementar JWT
-- [ ] Middleware de autenticação
-- [ ] Controle de autorização por perfil
-- [ ] Proteção de rotas
-- [ ] Expiração de sessão
+- [x] Implementar JWT (`backend/utils/jwt.js`)
+- [x] Middleware de autenticação (`autenticar` em `backend/middleware/auth.js`)
+- [x] Controle de autorização por perfil (`autorizar`, aplicado em todas as rotas)
+- [x] Proteção de rotas (todas as rotas exigem token, exceto login/cadastro/avisos/redefinição de senha)
+- [x] Expiração de sessão (token JWT expira em `JWT_EXPIRES_IN`, padrão 8h)
+- [x] Redefinição de senha por token de uso único enviado por e-mail (`/solicitar-redefinicao-senha`, `/confirmar-redefinicao-senha`)
 
 ---
 

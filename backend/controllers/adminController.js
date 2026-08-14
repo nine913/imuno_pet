@@ -27,13 +27,12 @@ const adminController = {
 
   cadastrarClinica: async (req, res) => {
     try {
-      const { nome_fantasia, cnpj, endereco, estado, cidade, bairro, telefone, id_usuario_log } = req.body;
+      const { nome_fantasia, cnpj, endereco, estado, cidade, bairro, telefone } = req.body;
       if (!nome_fantasia || !estado || !cidade || !bairro) {
         return res.status(400).json({ erro: 'Campos essenciais são obrigatórios.' });
       }
       await adminService.cadastrarClinica({ nome_fantasia, cnpj, endereco, estado, cidade, bairro, telefone });
-      
-      if (id_usuario_log) await logger.registrarLog(id_usuario_log, 'CADASTRAR_CLINICA', `Clínica ${nome_fantasia} cadastrada.`);
+      await logger.registrarLog(req.user.id_usuario, 'CADASTRAR_CLINICA', `Clínica ${nome_fantasia} cadastrada.`);
 
       res.status(201).json({ mensagem: 'Clínica cadastrada com sucesso!' });
     } catch (erro) {
@@ -44,7 +43,7 @@ const adminController = {
   editarClinica: async (req, res) => {
     try {
       const { id } = req.params;
-      const { nome_fantasia, cnpj, endereco, estado, cidade, bairro, telefone, id_usuario_log } = req.body;
+      const { nome_fantasia, cnpj, endereco, estado, cidade, bairro, telefone } = req.body;
       if (!nome_fantasia || !estado || !cidade || !bairro) {
         return res.status(400).json({ erro: 'Campos essenciais são obrigatórios.' });
       }
@@ -53,7 +52,7 @@ const adminController = {
         return res.status(404).json({ erro: 'Clínica não encontrada.' });
       }
 
-      if (id_usuario_log) await logger.registrarLog(id_usuario_log, 'EDITAR_CLINICA', `Clínica ID ${id} atualizada.`);
+      await logger.registrarLog(req.user.id_usuario, 'EDITAR_CLINICA', `Clínica ID ${id} atualizada.`);
 
       res.status(200).json({ mensagem: 'Clínica atualizada com sucesso!' });
     } catch (erro) {
@@ -64,11 +63,9 @@ const adminController = {
   deletarClinica: async (req, res) => {
     try {
       const { id } = req.params;
-      const { id_usuario_log } = req.body;
 
       await adminService.deletarClinica(id);
-
-      if (id_usuario_log) await logger.registrarLog(id_usuario_log, 'EXCLUIR_CLINICA', `Clínica ID ${id} excluída.`);
+      await logger.registrarLog(req.user.id_usuario, 'EXCLUIR_CLINICA', `Clínica ID ${id} excluída.`);
 
       res.status(200).json({ mensagem: 'Clínica excluída com sucesso!' });
     } catch (erro) {
@@ -91,13 +88,12 @@ const adminController = {
 
   cadastrarGestor: async (req, res) => {
     try {
-      const { id_clinica, nome_completo, email, senha, id_usuario_log } = req.body;
+      const { id_clinica, nome_completo, email, senha } = req.body;
       if (!id_clinica || !nome_completo || !email || !senha) {
         return res.status(400).json({ erro: 'Todos os campos são obrigatórios.' });
       }
       await adminService.cadastrarGestor({ id_clinica, nome_completo, email, senha });
-
-      if (id_usuario_log) await logger.registrarLog(id_usuario_log, 'CADASTRAR_GESTOR', `Gestor ${nome_completo} cadastrado para clínica ID ${id_clinica}.`);
+      await logger.registrarLog(req.user.id_usuario, 'CADASTRAR_GESTOR', `Gestor ${nome_completo} cadastrado para clínica ID ${id_clinica}.`);
 
       res.status(201).json({ mensagem: 'Gestor cadastrado com sucesso!' });
     } catch (erro) {
@@ -111,13 +107,12 @@ const adminController = {
   editarGestor: async (req, res) => {
     try {
       const { id } = req.params;
-      const { id_clinica, nome_completo, id_usuario_log } = req.body;
+      const { id_clinica, nome_completo } = req.body;
       if (!id_clinica || !nome_completo) {
         return res.status(400).json({ erro: 'Nome e Clínica são obrigatórios.' });
       }
       await adminService.editarGestor(id, { id_clinica, nome_completo });
-
-      if (id_usuario_log) await logger.registrarLog(id_usuario_log, 'EDITAR_GESTOR', `Gestor ID ${id} atualizado.`);
+      await logger.registrarLog(req.user.id_usuario, 'EDITAR_GESTOR', `Gestor ID ${id} atualizado.`);
 
       res.status(200).json({ mensagem: 'Gestor atualizado com sucesso!' });
     } catch (erro) {
@@ -128,11 +123,9 @@ const adminController = {
   deletarGestor: async (req, res) => {
     try {
       const { id } = req.params;
-      const { id_usuario_log } = req.body;
 
       await adminService.deletarGestor(id);
-
-      if (id_usuario_log) await logger.registrarLog(id_usuario_log, 'EXCLUIR_GESTOR', `Gestor ID ${id} excluído.`);
+      await logger.registrarLog(req.user.id_usuario, 'EXCLUIR_GESTOR', `Gestor ID ${id} excluído.`);
 
       res.status(200).json({ mensagem: 'Gestor excluído com sucesso!' });
     } catch (erro) {
@@ -152,13 +145,12 @@ const adminController = {
 
   cadastrarOrgao: async (req, res) => {
     try {
-      const { nome_instituicao, esfera, estado_atuacao, cidade_atuacao, email, senha, id_usuario_log } = req.body;
+      const { nome_instituicao, esfera, estado_atuacao, cidade_atuacao, email, senha } = req.body;
       if (!nome_instituicao || !email || !senha) {
         return res.status(400).json({ erro: 'Preencha todos os campos obrigatórios.' });
       }
       await adminService.cadastrarOrgao({ nome_instituicao, esfera, estado_atuacao, cidade_atuacao, email, senha });
-
-      if (id_usuario_log) await logger.registrarLog(id_usuario_log, 'CADASTRAR_ORGAO', `Órgão ${nome_instituicao} cadastrado.`);
+      await logger.registrarLog(req.user.id_usuario, 'CADASTRAR_ORGAO', `Órgão ${nome_instituicao} cadastrado.`);
 
       res.status(201).json({ mensagem: 'Órgão cadastrado com sucesso!' });
     } catch (erro) {
@@ -172,13 +164,12 @@ const adminController = {
   editarOrgao: async (req, res) => {
     try {
       const { id } = req.params;
-      const { nome_instituicao, esfera, estado_atuacao, cidade_atuacao, id_usuario_log } = req.body;
+      const { nome_instituicao, esfera, estado_atuacao, cidade_atuacao } = req.body;
       if (!nome_instituicao) {
         return res.status(400).json({ erro: 'Nome da instituição é obrigatório.' });
       }
       await adminService.editarOrgao(id, { nome_instituicao, esfera, estado_atuacao, cidade_atuacao });
-
-      if (id_usuario_log) await logger.registrarLog(id_usuario_log, 'EDITAR_ORGAO', `Órgão ID ${id} atualizado.`);
+      await logger.registrarLog(req.user.id_usuario, 'EDITAR_ORGAO', `Órgão ID ${id} atualizado.`);
 
       res.status(200).json({ mensagem: 'Órgão atualizado com sucesso!' });
     } catch (erro) {
@@ -189,11 +180,9 @@ const adminController = {
   deletarOrgao: async (req, res) => {
     try {
       const { id } = req.params;
-      const { id_usuario_log } = req.body;
 
       await adminService.deletarOrgao(id);
-
-      if (id_usuario_log) await logger.registrarLog(id_usuario_log, 'EXCLUIR_ORGAO', `Órgão ID ${id} excluído.`);
+      await logger.registrarLog(req.user.id_usuario, 'EXCLUIR_ORGAO', `Órgão ID ${id} excluído.`);
 
       res.status(200).json({ mensagem: 'Órgão excluído com sucesso!' });
     } catch (erro) {
@@ -222,13 +211,12 @@ const adminController = {
 
   cadastrarVacina: async (req, res) => {
     try {
-      const { nome_vacina, fabricante, doencas_prevenidas, intervalo_doses_dias, id_usuario_log } = req.body;
+      const { nome_vacina, fabricante, doencas_prevenidas, intervalo_doses_dias } = req.body;
       if (!nome_vacina || !doencas_prevenidas) {
         return res.status(400).json({ erro: 'Nome da vacina e doenças prevenidas são obrigatórios.' });
       }
       await adminService.cadastrarVacina({ nome_vacina, fabricante, doencas_prevenidas, intervalo_doses_dias });
-
-      if (id_usuario_log) await logger.registrarLog(id_usuario_log, 'CADASTRAR_VACINA', `Vacina ${nome_vacina} cadastrada.`);
+      await logger.registrarLog(req.user.id_usuario, 'CADASTRAR_VACINA', `Vacina ${nome_vacina} cadastrada.`);
 
       res.status(201).json({ mensagem: 'Vacina cadastrada com sucesso!' });
     } catch (erro) {
@@ -239,13 +227,12 @@ const adminController = {
   editarVacina: async (req, res) => {
     try {
       const { id } = req.params;
-      const { nome_vacina, fabricante, doencas_prevenidas, intervalo_doses_dias, id_usuario_log } = req.body;
+      const { nome_vacina, fabricante, doencas_prevenidas, intervalo_doses_dias } = req.body;
       if (!nome_vacina || !doencas_prevenidas) {
         return res.status(400).json({ erro: 'Nome da vacina e doenças prevenidas são obrigatórios.' });
       }
       await adminService.editarVacina(id, { nome_vacina, fabricante, doencas_prevenidas, intervalo_doses_dias });
-
-      if (id_usuario_log) await logger.registrarLog(id_usuario_log, 'EDITAR_VACINA', `Vacina ID ${id} atualizada.`);
+      await logger.registrarLog(req.user.id_usuario, 'EDITAR_VACINA', `Vacina ID ${id} atualizada.`);
 
       res.status(200).json({ mensagem: 'Vacina atualizada com sucesso!' });
     } catch (erro) {
@@ -256,11 +243,9 @@ const adminController = {
   deletarVacina: async (req, res) => {
     try {
       const { id } = req.params;
-      const { id_usuario_log } = req.body;
 
       await adminService.deletarVacina(id);
-
-      if (id_usuario_log) await logger.registrarLog(id_usuario_log, 'EXCLUIR_VACINA', `Vacina ID ${id} excluída.`);
+      await logger.registrarLog(req.user.id_usuario, 'EXCLUIR_VACINA', `Vacina ID ${id} excluída.`);
 
       res.status(200).json({ mensagem: 'Vacina excluída com sucesso!' });
     } catch (erro) {
@@ -279,11 +264,10 @@ const adminController = {
 
   cadastrarEspecie: async (req, res) => {
     try {
-      const { nome_especie, id_usuario_log } = req.body;
+      const { nome_especie } = req.body;
       if (!nome_especie) return res.status(400).json({ erro: 'Nome da espécie é obrigatório.' });
       await adminService.cadastrarEspecie(nome_especie);
-
-      if (id_usuario_log) await logger.registrarLog(id_usuario_log, 'CADASTRAR_ESPECIE', `Espécie ${nome_especie} cadastrada.`);
+      await logger.registrarLog(req.user.id_usuario, 'CADASTRAR_ESPECIE', `Espécie ${nome_especie} cadastrada.`);
 
       res.status(201).json({ mensagem: 'Espécie cadastrada!' });
     } catch (erro) {
@@ -294,11 +278,9 @@ const adminController = {
   deletarEspecie: async (req, res) => {
     try {
       const { id } = req.params;
-      const { id_usuario_log } = req.body;
 
       await adminService.deletarEspecie(id);
-
-      if (id_usuario_log) await logger.registrarLog(id_usuario_log, 'EXCLUIR_ESPECIE', `Espécie ID ${id} excluída.`);
+      await logger.registrarLog(req.user.id_usuario, 'EXCLUIR_ESPECIE', `Espécie ID ${id} excluída.`);
 
       res.status(200).json({ mensagem: 'Espécie excluída!' });
     } catch (erro) {
@@ -318,11 +300,10 @@ const adminController = {
 
   cadastrarRaca: async (req, res) => {
     try {
-      const { id_especie, nome_raca, id_usuario_log } = req.body;
+      const { id_especie, nome_raca } = req.body;
       if (!id_especie || !nome_raca) return res.status(400).json({ erro: 'Campos obrigatórios.' });
       await adminService.cadastrarRaca(id_especie, nome_raca);
-
-      if (id_usuario_log) await logger.registrarLog(id_usuario_log, 'CADASTRAR_RACA', `Raça ${nome_raca} cadastrada.`);
+      await logger.registrarLog(req.user.id_usuario, 'CADASTRAR_RACA', `Raça ${nome_raca} cadastrada.`);
 
       res.status(201).json({ mensagem: 'Raça cadastrada!' });
     } catch (erro) {
@@ -333,11 +314,9 @@ const adminController = {
   deletarRaca: async (req, res) => {
     try {
       const { id } = req.params;
-      const { id_usuario_log } = req.body;
 
       await adminService.deletarRaca(id);
-
-      if (id_usuario_log) await logger.registrarLog(id_usuario_log, 'EXCLUIR_RACA', `Raça ID ${id} excluída.`);
+      await logger.registrarLog(req.user.id_usuario, 'EXCLUIR_RACA', `Raça ID ${id} excluída.`);
 
       res.status(200).json({ mensagem: 'Raça excluída!' });
     } catch (erro) {
@@ -356,11 +335,10 @@ const adminController = {
 
   cadastrarAviso: async (req, res) => {
     try {
-      const { titulo, mensagem, tipo, id_usuario_log } = req.body;
+      const { titulo, mensagem, tipo } = req.body;
       if (!titulo || !mensagem) return res.status(400).json({ erro: 'Título e mensagem são obrigatórios.' });
       await adminService.cadastrarAviso({ titulo, mensagem, tipo });
-
-      if (id_usuario_log) await logger.registrarLog(id_usuario_log, 'CADASTRAR_AVISO', `Aviso '${titulo}' criado.`);
+      await logger.registrarLog(req.user.id_usuario, 'CADASTRAR_AVISO', `Aviso '${titulo}' criado.`);
 
       res.status(201).json({ mensagem: 'Aviso criado!' });
     } catch (erro) {
@@ -371,11 +349,10 @@ const adminController = {
   editarAviso: async (req, res) => {
     try {
       const { id } = req.params;
-      const { titulo, mensagem, tipo, status, id_usuario_log } = req.body;
+      const { titulo, mensagem, tipo, status } = req.body;
       if (!titulo || !mensagem) return res.status(400).json({ erro: 'Título e mensagem são obrigatórios.' });
       await adminService.editarAviso(id, { titulo, mensagem, tipo, status });
-
-      if (id_usuario_log) await logger.registrarLog(id_usuario_log, 'EDITAR_AVISO', `Aviso ID ${id} atualizado.`);
+      await logger.registrarLog(req.user.id_usuario, 'EDITAR_AVISO', `Aviso ID ${id} atualizado.`);
 
       res.status(200).json({ mensagem: 'Aviso atualizado!' });
     } catch (erro) {
@@ -386,11 +363,9 @@ const adminController = {
   deletarAviso: async (req, res) => {
     try {
       const { id } = req.params;
-      const { id_usuario_log } = req.body;
 
       await adminService.deletarAviso(id);
-
-      if (id_usuario_log) await logger.registrarLog(id_usuario_log, 'EXCLUIR_AVISO', `Aviso ID ${id} excluído.`);
+      await logger.registrarLog(req.user.id_usuario, 'EXCLUIR_AVISO', `Aviso ID ${id} excluído.`);
 
       res.status(200).json({ mensagem: 'Aviso excluído!' });
     } catch (erro) {

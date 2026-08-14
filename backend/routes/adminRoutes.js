@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/adminController');
+const { autenticar, autorizar } = require('../middleware/auth');
+
+// Todo o namespace /admin exige perfil ADMINISTRADOR.
+router.use(autenticar, autorizar('ADMINISTRADOR'));
 
 router.get('/clinicas', adminController.listarClinicas);
 router.get('/clinicas/:id', adminController.obterClinicaPorId);

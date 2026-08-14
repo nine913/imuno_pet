@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from '../../lib/api';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import LayoutPainel from '../../components/LayoutPainel';
@@ -48,7 +49,7 @@ export default function VetRelatorio() {
 
   const carregarEspecies = async () => {
     try {
-      const resposta = await fetch('http://localhost:3000/admin/especies');
+      const resposta = await apiFetch('/admin/especies');
       if (resposta.ok) {
         setEspeciesLista(await resposta.json());
       }
@@ -65,14 +66,14 @@ export default function VetRelatorio() {
       return;
     }
 
-    let url = `http://localhost:3000/relatorio-vacinas?id_clinica=${idClinica}&id_usuario_log=${userId}&`;
+    let url = `/relatorio-vacinas?id_clinica=${idClinica}&id_usuario_log=${userId}&`;
     if (filtros.data_inicio) url += `inicio=${filtros.data_inicio}&`;
     if (filtros.data_fim) url += `fim=${filtros.data_fim}&`;
     if (filtros.status) url += `status=${filtros.status}&`;
     if (filtros.especie) url += `especie=${filtros.especie}`;
 
     try {
-      const resposta = await fetch(url);
+      const resposta = await apiFetch(url);
       if (resposta.ok) {
         setDadosRelatorio(await resposta.json());
       } else {

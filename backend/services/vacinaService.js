@@ -1,5 +1,16 @@
 const db = require('../db');
 
+async function animalPertenceATutor(id_animal, id_usuario) {
+  const [linhas] = await db.query(
+    `SELECT a.id_animal
+     FROM animal a
+     JOIN tutor t ON a.id_tutor = t.id_tutor
+     WHERE a.id_animal = ? AND t.id_usuario = ?`,
+    [id_animal, id_usuario]
+  );
+  return linhas.length > 0;
+}
+
 async function registrarVacina(data) {
   const { id_animal, id_vacina, data_aplicacao, data_proxima_dose, status, id_usuario, id_clinica } = data;
   let id_veterinario = null;
@@ -175,6 +186,7 @@ async function animaisAtrasados(query) {
 }
 
 module.exports = {
+  animalPertenceATutor,
   registrarVacina,
   cadastrarVacina,
   buscarVacinas,

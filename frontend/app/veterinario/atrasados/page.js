@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from '../../lib/api';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import LayoutPainel from '../../components/LayoutPainel';
@@ -46,7 +47,7 @@ export default function VetAtrasados() {
     }
 
     try {
-      const resposta = await fetch(`http://localhost:3000/animais-atrasados?id_clinica=${id_clinica}`);
+      const resposta = await apiFetch(`/animais-atrasados?id_clinica=${id_clinica}`);
       if (resposta.ok) {
         const dados = await resposta.json();
         setAtrasados(dados);

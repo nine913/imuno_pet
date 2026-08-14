@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from '../../lib/api';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import LayoutPainel from '../../components/LayoutPainel';
@@ -51,12 +52,12 @@ export default function GovernoRelatorios() {
 
   const carregarFiltrosAPI = async () => {
     try {
-      const respostaVac = await fetch('http://localhost:3000/vacinas');
+      const respostaVac = await apiFetch('/vacinas');
       if (respostaVac.ok) {
         setVacinasLista(await respostaVac.json());
       }
       
-      const respostaEsp = await fetch('http://localhost:3000/admin/especies');
+      const respostaEsp = await apiFetch('/admin/especies');
       if (respostaEsp.ok) {
         setEspeciesLista(await respostaEsp.json());
       }
@@ -66,7 +67,7 @@ export default function GovernoRelatorios() {
   const gerarRelatorio = async (idUserOverride) => {
     const userId = idUserOverride || (usuario ? usuario.id_usuario : '');
     setCarregando(true);
-    let url = `http://localhost:3000/governo/relatorios-avancados?id_usuario_log=${userId}&`;
+    let url = `/governo/relatorios-avancados?id_usuario_log=${userId}&`;
     if (filtros.data_inicio) url += `inicio=${filtros.data_inicio}&`;
     if (filtros.data_fim) url += `fim=${filtros.data_fim}&`;
     if (filtros.vacina) url += `vacina=${filtros.vacina}&`;
@@ -75,7 +76,7 @@ export default function GovernoRelatorios() {
     if (filtros.status) url += `status=${filtros.status}`;
 
     try {
-      const resposta = await fetch(url);
+      const resposta = await apiFetch(url);
       if (resposta.ok) {
         setDadosRelatorio(await resposta.json());
       } else {

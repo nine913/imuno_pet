@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from '../lib/api';
 import { useEffect, useState } from 'react';
 
 export default function AvisosGlobais() {
@@ -9,7 +10,7 @@ export default function AvisosGlobais() {
   useEffect(() => {
     const buscarAvisos = async () => {
       try {
-        const resposta = await fetch('http://localhost:3000/avisos'); 
+        const resposta = await apiFetch('/avisos'); 
         if (resposta.ok) {
           const dados = await resposta.json();
           const avisosAtivos = dados.filter(a => a.status === 'ATIVO');

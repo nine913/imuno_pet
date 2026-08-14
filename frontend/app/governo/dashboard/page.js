@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from '../../lib/api';
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Chart from 'chart.js/auto';
@@ -59,14 +60,14 @@ export default function GovernoDashboard() {
 
   const carregarDadosOrgao = async (inicio, fim, especie, localidade, idUsuarioLog) => {
     const userId = idUsuarioLog || (usuario ? usuario.id_usuario : '');
-    let url = `http://localhost:3000/governo/dados-epidemiologicos?id_usuario_log=${userId}&`;
+    let url = `/governo/dados-epidemiologicos?id_usuario_log=${userId}&`;
     if (inicio) url += `inicio=${inicio}&`;
     if (fim) url += `fim=${fim}&`;
     if (especie) url += `especie=${especie}&`;
     if (localidade) url += `localidade=${localidade}`;
 
     try {
-      const resposta = await fetch(url);
+      const resposta = await apiFetch(url);
       if (resposta.ok) {
         const dados = await resposta.json();
         

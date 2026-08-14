@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from '../../lib/api';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import LayoutPainel from '../../components/LayoutPainel';
@@ -36,13 +37,13 @@ export default function MeusAnimaisTutor() {
 
   const buscarDadosIniciais = async (id_usuario) => {
     try {
-      const resAlertas = await fetch(`http://localhost:3000/tutor/alertas/${id_usuario}?id_usuario_log=${id_usuario}`);
+      const resAlertas = await apiFetch(`/tutor/alertas/${id_usuario}?id_usuario_log=${id_usuario}`);
       if (resAlertas.ok) {
         const dataAlertas = await resAlertas.json();
         setAlertas(dataAlertas);
       }
 
-      const resPets = await fetch(`http://localhost:3000/tutor/animais/${id_usuario}?id_usuario_log=${id_usuario}`);
+      const resPets = await apiFetch(`/tutor/animais/${id_usuario}?id_usuario_log=${id_usuario}`);
       if (resPets.ok) {
         const dataPets = await resPets.json();
         setTodosOsPets(dataPets);

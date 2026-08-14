@@ -6,9 +6,9 @@
 - [x] Toda senha deve ser armazenada com hash bcrypt
 - [x] Usuários devem possuir perfil definido
 - [x] Apenas usuários autenticados podem acessar o dashboard
-- [ ] Sessões devem possuir expiração
-- [ ] Rotas protegidas devem validar autenticação
-- [ ] JWT deve ser obrigatório futuramente
+- [x] Sessões devem possuir expiração (JWT expira em `JWT_EXPIRES_IN`)
+- [x] Rotas protegidas devem validar autenticação
+- [x] JWT é obrigatório em todas as rotas exceto login/cadastro/avisos/redefinição de senha
 
 ---
 
@@ -116,8 +116,8 @@
 - [x] Consultas SQL devem ser parametrizadas
 - [x] Variáveis sensíveis devem permanecer no .env
 - [x] Senhas não devem ser armazenadas em texto puro
-- [ ] Rotas deverão possuir middleware de autenticação
-- [ ] Sistema deverá possuir autorização por perfil
+- [x] Rotas deverão possuir middleware de autenticação
+- [x] Sistema deverá possuir autorização por perfil
 - [x] Sessões deverão ser protegidas
 
 ---

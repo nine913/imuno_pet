@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from '../../lib/api';
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import LayoutPainel from '../../components/LayoutPainel';
@@ -47,7 +48,7 @@ function HistoricoConteudo() {
   const carregarDetalhesPet = async (userId) => {
     const id = userId || usuario?.id_usuario;
     try {
-      const resposta = await fetch(`http://localhost:3000/detalhes-animal/${idAnimalUrl}?id_usuario_log=${id}`);
+      const resposta = await apiFetch(`/detalhes-animal/${idAnimalUrl}?id_usuario_log=${id}`);
       if (resposta.ok) {
         const dados = await resposta.json();
         setNomeAnimal(dados.nome_animal);
@@ -60,7 +61,7 @@ function HistoricoConteudo() {
     setErro('');
     const userId = idUserOverride || (usuario ? usuario.id_usuario : '');
     try {
-      const resposta = await fetch(`http://localhost:3000/historico-pet/${idAnimalUrl}?termo=${termo}&status=${status}&id_usuario_log=${userId}`);
+      const resposta = await apiFetch(`/historico-pet/${idAnimalUrl}?termo=${termo}&status=${status}&id_usuario_log=${userId}`);
       if (resposta.ok) {
         const dados = await resposta.json();
         setHistorico(dados);

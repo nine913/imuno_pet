@@ -10,8 +10,8 @@
 - [x] Corrigir rota aninhada de vacinas
 - [ ] Padronizar respostas da API
 - [ ] Melhorar tratamento de erros
-- [ ] Criar middleware de autenticação
-- [ ] Implementar JWT
+- [x] Criar middleware de autenticação
+- [x] Implementar JWT
 - [ ] Validar dados recebidos da API
 - [ ] Criar logs de erros
 
@@ -46,13 +46,13 @@
 
 ## AUTENTICAÇÃO E SEGURANÇA
 
-- [ ] Implementar JWT
-- [ ] Criar proteção de rotas
-- [ ] Implementar autorização por perfil
-- [ ] Melhorar persistência de sessão
-- [ ] Implementar expiração de sessão
-- [ ] Validar permissões de usuários
-- [ ] Melhorar segurança da API
+- [x] Implementar JWT
+- [x] Criar proteção de rotas
+- [x] Implementar autorização por perfil
+- [ ] Melhorar persistência de sessão (hoje token JWT em localStorage; migrar para cookie httpOnly seria mais resistente a XSS)
+- [x] Implementar expiração de sessão
+- [x] Validar permissões de usuários (autorização por perfil + escopo de clínica + posse)
+- [x] Melhorar segurança da API (CORS com allowlist, rate limiting, redefinição de senha por token)
 
 ---
 

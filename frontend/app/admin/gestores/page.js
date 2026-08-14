@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from '../../lib/api';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import LayoutPainel from '../../components/LayoutPainel';
@@ -55,7 +56,7 @@ export default function AdminGestores() {
 
   const buscarGestores = async (termo = termoBusca) => {
     try {
-      const resposta = await fetch(`http://localhost:3000/admin/gestores?termo=${termo}`);
+      const resposta = await apiFetch(`/admin/gestores?termo=${termo}`);
       if (resposta.ok) {
         setGestores(await resposta.json());
       } else {
@@ -66,7 +67,7 @@ export default function AdminGestores() {
 
   const buscarClinicas = async () => {
     try {
-      const resposta = await fetch(`http://localhost:3000/admin/clinicas`);
+      const resposta = await apiFetch(`/admin/clinicas`);
       if (resposta.ok) {
         setClinicas(await resposta.json());
       }
@@ -108,16 +109,16 @@ export default function AdminGestores() {
   const submitForm = async (e) => {
     e.preventDefault();
     
-    let url = 'http://localhost:3000/admin/cadastrar-gestor';
+    let url = '/admin/cadastrar-gestor';
     let metodo = 'POST';
 
     if (isEdicao) {
-      url = `http://localhost:3000/admin/editar-gestor/${formDados.id_gestor}`;
+      url = `/admin/editar-gestor/${formDados.id_gestor}`;
       metodo = 'PUT';
     }
 
     try {
-      const resposta = await fetch(url, {
+      const resposta = await apiFetch(url, {
         method: metodo,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...formDados, id_usuario_log: usuario.id_usuario })
@@ -141,7 +142,7 @@ export default function AdminGestores() {
   const confirmarExclusao = async () => {
     if (!idParaExcluir) return;
     try {
-      const resposta = await fetch(`http://localhost:3000/admin/deletar-gestor/${idParaExcluir}`, {
+      const resposta = await apiFetch(`/admin/deletar-gestor/${idParaExcluir}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id_usuario_log: usuario.id_usuario })

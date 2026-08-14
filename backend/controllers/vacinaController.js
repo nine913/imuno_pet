@@ -3,12 +3,11 @@ const logger = require('../services/logger');
 
 async function registrarVacina(req, res) {
   try {
-    const id_usuario_log = req.body.id_usuario_log || req.query.id_usuario_log;
-    await vacinaService.registrarVacina(req.body);
+    // O aplicante é sempre o profissional autenticado, nunca um valor vindo do cliente.
+    req.body.id_usuario = req.user.id_usuario;
 
-    if (id_usuario_log) {
-      await logger.registrarLog(id_usuario_log, 'APLICAR_VACINA', `Vacina registrada para o paciente ID ${req.body.id_animal}.`);
-    }
+    await vacinaService.registrarVacina(req.body);
+    await logger.registrarLog(req.user.id_usuario, 'APLICAR_VACINA', `Vacina registrada para o paciente ID ${req.body.id_animal}.`);
     res.status(201).json({ mensagem: 'Vacina registrada com sucesso' });
   } catch (error) {
     res.status(error.status || 500).json({ erro: error.message || 'Erro ao registrar vacina' });
@@ -17,12 +16,8 @@ async function registrarVacina(req, res) {
 
 async function cadastrarVacina(req, res) {
   try {
-    const id_usuario_log = req.body.id_usuario_log || req.query.id_usuario_log;
     await vacinaService.cadastrarVacina(req.body);
-
-    if (id_usuario_log) {
-      await logger.registrarLog(id_usuario_log, 'CADASTRAR_VACINA', `Vacina do fabricante ${req.body.fabricante} adicionada ao sistema.`);
-    }
+    await logger.registrarLog(req.user.id_usuario, 'CADASTRAR_VACINA', `Vacina do fabricante ${req.body.fabricante} adicionada ao sistema.`);
     res.status(201).json({ mensagem: 'Vacina cadastrada com sucesso!' });
   } catch (error) {
     res.status(error.status || 500).json({ erro: error.message || 'Erro ao cadastrar vacina' });
@@ -40,12 +35,8 @@ async function buscarVacinas(req, res) {
 
 async function editarVacina(req, res) {
   try {
-    const id_usuario_log = req.body.id_usuario_log || req.query.id_usuario_log;
     await vacinaService.editarVacina(req.params.id_vacina, req.body);
-
-    if (id_usuario_log) {
-      await logger.registrarLog(id_usuario_log, 'EDITAR_VACINA', `Dados da vacina ID ${req.params.id_vacina} atualizados.`);
-    }
+    await logger.registrarLog(req.user.id_usuario, 'EDITAR_VACINA', `Dados da vacina ID ${req.params.id_vacina} atualizados.`);
     res.status(200).json({ mensagem: 'Vacina atualizada com sucesso!' });
   } catch (error) {
     res.status(error.status || 500).json({ erro: error.message || 'Erro ao atualizar vacina' });
@@ -54,12 +45,8 @@ async function editarVacina(req, res) {
 
 async function deletarVacina(req, res) {
   try {
-    const id_usuario_log = req.body.id_usuario_log || req.query.id_usuario_log;
     await vacinaService.deletarVacina(req.params.id_vacina);
-
-    if (id_usuario_log) {
-      await logger.registrarLog(id_usuario_log, 'EXCLUIR_VACINA', `Vacina ID ${req.params.id_vacina} excluída.`);
-    }
+    await logger.registrarLog(req.user.id_usuario, 'EXCLUIR_VACINA', `Vacina ID ${req.params.id_vacina} excluída.`);
     res.status(200).json({ mensagem: 'Vacina excluída com sucesso!' });
   } catch (error) {
     res.status(error.status || 500).json({ erro: error.message || 'Erro ao excluir vacina' });
@@ -68,12 +55,16 @@ async function deletarVacina(req, res) {
 
 async function historicoPet(req, res) {
   try {
-    const { id_usuario_log } = req.query;
-    const historico = await vacinaService.historicoPet(req.params.id_animal, req.query);
-
-    if (id_usuario_log) {
-      await logger.registrarLog(id_usuario_log, 'EMITIR_CARTEIRA', `Histórico/Carteira do animal ID ${req.params.id_animal} acessada.`);
+    // Um tutor só pode ver o histórico de um animal que é seu.
+    if (req.user.perfil === 'TUTOR') {
+      const pertence = await vacinaService.animalPertenceATutor(req.params.id_animal, req.user.id_usuario);
+      if (!pertence) {
+        return res.status(403).json({ erro: 'Você não tem permissão para acessar este histórico.' });
+      }
     }
+
+    const historico = await vacinaService.historicoPet(req.params.id_animal, req.query);
+    await logger.registrarLog(req.user.id_usuario, 'EMITIR_CARTEIRA', `Histórico/Carteira do animal ID ${req.params.id_animal} acessada.`);
     res.status(200).json(historico);
   } catch (error) {
     res.status(error.status || 500).json({ erro: error.message || 'Erro ao buscar historico' });
@@ -82,12 +73,8 @@ async function historicoPet(req, res) {
 
 async function deletarRegistroVacina(req, res) {
   try {
-    const id_usuario_log = req.body.id_usuario_log || req.query.id_usuario_log;
     await vacinaService.deletarRegistroVacina(req.params.id_registro);
-
-    if (id_usuario_log) {
-      await logger.registrarLog(id_usuario_log, 'EXCLUIR_REGISTRO_VACINA', `Aplicação ID ${req.params.id_registro} deletada.`);
-    }
+    await logger.registrarLog(req.user.id_usuario, 'EXCLUIR_REGISTRO_VACINA', `Aplicação ID ${req.params.id_registro} deletada.`);
     res.status(200).json({ mensagem: 'Registro de vacina excluído com sucesso!' });
   } catch (error) {
     res.status(error.status || 500).json({ erro: error.message || 'Erro ao excluir registro de vacina' });
@@ -96,12 +83,8 @@ async function deletarRegistroVacina(req, res) {
 
 async function relatorioVacinas(req, res) {
   try {
-    const { id_usuario_log } = req.query;
     const relatorio = await vacinaService.relatorioVacinas(req.query);
-
-    if (id_usuario_log) {
-      await logger.registrarLog(id_usuario_log, 'EMITIR_RELATORIO', 'Relatório detalhado de vacinação gerado.');
-    }
+    await logger.registrarLog(req.user.id_usuario, 'EMITIR_RELATORIO', 'Relatório detalhado de vacinação gerado.');
     res.status(200).json(relatorio);
   } catch (error) {
     res.status(error.status || 500).json({ erro: error.message || 'Erro ao gerar relatório detalhado' });
@@ -110,12 +93,9 @@ async function relatorioVacinas(req, res) {
 
 async function editarRegistroVacina(req, res) {
   try {
-    const id_usuario_log = req.body.id_usuario_log || req.query.id_usuario_log;
+    req.body.id_usuario = req.user.id_usuario;
     await vacinaService.editarRegistroVacina(req.params.id_registro, req.body);
-
-    if (id_usuario_log) {
-      await logger.registrarLog(id_usuario_log, 'EDITAR_REGISTRO_VACINA', `Aplicação ID ${req.params.id_registro} alterada.`);
-    }
+    await logger.registrarLog(req.user.id_usuario, 'EDITAR_REGISTRO_VACINA', `Aplicação ID ${req.params.id_registro} alterada.`);
     res.status(200).json({ mensagem: 'Registro de vacina atualizado com sucesso!' });
   } catch (error) {
     res.status(error.status || 500).json({ erro: error.message || 'Erro ao atualizar registro de vacina' });
@@ -124,12 +104,8 @@ async function editarRegistroVacina(req, res) {
 
 async function animaisAtrasados(req, res) {
   try {
-    const { id_usuario_log } = req.query;
     const atrasados = await vacinaService.animaisAtrasados(req.query);
-
-    if (id_usuario_log) {
-      await logger.registrarLog(id_usuario_log, 'GERAR_RELATORIO', 'Relatório de animais em atraso gerado.');
-    }
+    await logger.registrarLog(req.user.id_usuario, 'GERAR_RELATORIO', 'Relatório de animais em atraso gerado.');
     res.status(200).json(atrasados);
   } catch (error) {
     res.status(error.status || 500).json({ erro: error.message || 'Erro ao buscar vacinas atrasadas' });

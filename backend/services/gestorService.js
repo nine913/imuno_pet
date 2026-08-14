@@ -187,6 +187,11 @@ async function cadastrarVet(data) {
   );
 }
 
+async function obterClinicaDoVet(id_veterinario) {
+  const [vet] = await db.query('SELECT id_clinica FROM veterinario WHERE id_veterinario = ?', [id_veterinario]);
+  return vet.length > 0 ? vet[0].id_clinica : null;
+}
+
 async function editarVet(id_veterinario, data) {
   const { nome_completo, crmv, email, id_usuario } = data;
 
@@ -231,6 +236,7 @@ module.exports = {
   relatoriosAvancados,
   veterinariosLista,
   cadastrarVet,
+  obterClinicaDoVet,
   editarVet,
   deletarVet
 };

@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from './lib/api';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AvisosGlobais from './components/AvisosGlobais';
@@ -12,14 +13,14 @@ export default function Login() {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [emailRecuperacao, setEmailRecuperacao] = useState('');
-  const [novaSenha, setNovaSenha] = useState('');
   const [msgRecuperacao, setMsgRecuperacao] = useState({ texto: '', cor: '' });
+  const [enviando, setEnviando] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setErro('');
     try {
-      const res = await fetch('http://localhost:3000/login', {
+      const res = await apiFetch('/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, senha })
@@ -36,37 +37,32 @@ export default function Login() {
     }
   };
 
-  const handleRedefinirSenha = async (e) => {
+  const handleSolicitarRedefinicao = async (e) => {
     e.preventDefault();
     setMsgRecuperacao({ texto: '', cor: '' });
+    setEnviando(true);
     try {
-      const res = await fetch('http://localhost:3000/redefinir-senha', {
-        method: 'PUT',
+      const res = await apiFetch('/solicitar-redefinicao-senha', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: emailRecuperacao, nova_senha: novaSenha })
+        body: JSON.stringify({ email: emailRecuperacao })
       });
       const dados = await res.json();
       if (res.ok) {
-        setMsgRecuperacao({ texto: 'Senha alterada com sucesso! Faça login.', cor: '#059669' });
-        setTimeout(() => {
-          setModalOpen(false);
-          setEmailRecuperacao('');
-          setNovaSenha('');
-          setMsgRecuperacao({ texto: '', cor: '' });
-        }, 3000);
+        setMsgRecuperacao({ texto: dados.mensagem, cor: '#059669' });
       } else {
-        setMsgRecuperacao({ texto: dados.erro || 'Erro ao redefinir senha.', cor: '#e11d48' });
+        setMsgRecuperacao({ texto: dados.erro || 'Erro ao solicitar redefinição.', cor: '#e11d48' });
       }
     } catch (error) {
       setMsgRecuperacao({ texto: 'Erro de conexão com o servidor.', cor: '#e11d48' });
+    } finally {
+      setEnviando(false);
     }
   };
 
   return (
     <div className="login-wrapper">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-
         .login-wrapper {
           min-height: 100vh;
           display: flex;
@@ -373,10 +369,10 @@ export default function Login() {
         <div className="modal-overlay">
           <div className="modal-box">
             <h3>Redefinir Senha</h3>
-            <p>Digite seu e-mail e escolha uma nova senha segura para sua conta.</p>
-            
-            <form onSubmit={handleRedefinirSenha}>
-              <div className="form-group">
+            <p>Digite seu e-mail cadastrado. Se ele existir em nossa base, enviaremos um link para você criar uma nova senha.</p>
+
+            <form onSubmit={handleSolicitarRedefinicao}>
+              <div className="form-group" style={{ marginBottom: 0 }}>
                 <input
                   type="email"
                   placeholder="E-mail cadastrado"
@@ -386,18 +382,7 @@ export default function Login() {
                   required
                 />
               </div>
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <input
-                  type="password"
-                  placeholder="Nova senha (mín. 6 caracteres)"
-                  value={novaSenha}
-                  onChange={(e) => setNovaSenha(e.target.value)}
-                  className="input-field"
-                  required
-                  minLength="6"
-                />
-              </div>
-              
+
               {msgRecuperacao.texto && (
                 <div style={{ marginTop: '16px', padding: '12px', borderRadius: '8px', backgroundColor: msgRecuperacao.cor === '#059669' ? '#d1fae5' : '#ffe4e6', color: msgRecuperacao.cor, fontSize: '14px', fontWeight: '700', textAlign: 'center' }}>
                   {msgRecuperacao.texto}
@@ -405,8 +390,10 @@ export default function Login() {
               )}
 
               <div className="modal-buttons">
-                <button type="submit" className="btn-primary" style={{ flex: 1, padding: '14px' }}>Atualizar</button>
-                <button type="button" onClick={() => setModalOpen(false)} className="btn-secondary" style={{ flex: 1, padding: '14px' }}>Cancelar</button>
+                <button type="submit" className="btn-primary" disabled={enviando} style={{ flex: 1, padding: '14px', opacity: enviando ? 0.7 : 1 }}>
+                  {enviando ? 'Enviando...' : 'Enviar link'}
+                </button>
+                <button type="button" onClick={() => { setModalOpen(false); setMsgRecuperacao({ texto: '', cor: '' }); }} className="btn-secondary" style={{ flex: 1, padding: '14px' }}>Cancelar</button>
               </div>
             </form>
           </div>

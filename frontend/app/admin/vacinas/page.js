@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from '../../lib/api';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import LayoutPainel from '../../components/LayoutPainel';
@@ -55,7 +56,7 @@ export default function AdminVacinas() {
 
   const buscarVacinas = async (termo = termoBusca) => {
     try {
-      const resposta = await fetch(`http://localhost:3000/admin/vacinas?termo=${termo}`);
+      const resposta = await apiFetch(`/admin/vacinas?termo=${termo}`);
       if (resposta.ok) {
         setVacinas(await resposta.json());
       } else {
@@ -99,11 +100,11 @@ export default function AdminVacinas() {
   const submitForm = async (e) => {
     e.preventDefault();
     
-    let url = 'http://localhost:3000/admin/cadastrar-vacina';
+    let url = '/admin/cadastrar-vacina';
     let metodo = 'POST';
 
     if (isEdicao) {
-      url = `http://localhost:3000/admin/editar-vacina/${formDados.id_vacina}`;
+      url = `/admin/editar-vacina/${formDados.id_vacina}`;
       metodo = 'PUT';
     }
 
@@ -114,7 +115,7 @@ export default function AdminVacinas() {
     };
 
     try {
-      const resposta = await fetch(url, {
+      const resposta = await apiFetch(url, {
         method: metodo,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -138,7 +139,7 @@ export default function AdminVacinas() {
   const confirmarExclusao = async () => {
     if (!idParaExcluir) return;
     try {
-      const resposta = await fetch(`http://localhost:3000/admin/deletar-vacina/${idParaExcluir}`, {
+      const resposta = await apiFetch(`/admin/deletar-vacina/${idParaExcluir}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id_usuario_log: usuario.id_usuario })

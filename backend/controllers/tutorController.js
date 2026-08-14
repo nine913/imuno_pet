@@ -21,12 +21,8 @@ const listarTutores = async (req, res) => {
 
 async function editarTutorDados(req, res) {
   try {
-    const id_usuario_log = req.body.id_usuario_log || req.query.id_usuario_log;
     await tutorService.editarTutorDados(req.params.id_tutor, req.body);
-    
-    if (id_usuario_log) {
-      await logger.registrarLog(id_usuario_log, 'EDITAR_TUTOR', `Dados do tutor ID ${req.params.id_tutor} atualizados.`);
-    }
+    await logger.registrarLog(req.user.id_usuario, 'EDITAR_TUTOR', `Dados do tutor ID ${req.params.id_tutor} atualizados.`);
     res.status(200).json({ mensagem: 'Dados do tutor atualizados com sucesso!' });
   } catch (error) {
     res.status(500).json({ erro: 'Erro ao atualizar tutor' });
@@ -35,29 +31,11 @@ async function editarTutorDados(req, res) {
 
 async function deletarTutor(req, res) {
   try {
-    const id_usuario_log = req.body.id_usuario_log || req.query.id_usuario_log;
     await tutorService.deletarTutor(req.params.id_tutor);
-
-    if (id_usuario_log) {
-      await logger.registrarLog(id_usuario_log, 'EXCLUIR_TUTOR', `Tutor ID ${req.params.id_tutor} excluído.`);
-    }
+    await logger.registrarLog(req.user.id_usuario, 'EXCLUIR_TUTOR', `Tutor ID ${req.params.id_tutor} excluído.`);
     res.status(200).json({ mensagem: 'Tutor excluído com sucesso!' });
   } catch (error) {
     res.status(error.status || 500).json({ erro: error.message || 'Erro ao excluir tutor' });
-  }
-}
-
-async function cadastrarTutorPet(req, res) {
-  try {
-    const id_usuario_log = req.body.id_usuario_log || req.query.id_usuario_log;
-    await tutorService.cadastrarTutorPet(req.body);
-
-    if (id_usuario_log) {
-      await logger.registrarLog(id_usuario_log, 'CADASTRAR_TUTOR_PET', 'Novo tutor e pet cadastrados via admin/gestão.');
-    }
-    res.status(201).json({ mensagem: 'Tutor e Pet cadastrados com sucesso!' });
-  } catch (error) {
-    res.status(error.status || 500).json({ erro: error.message || 'Erro ao cadastrar tutor e pet no sistema.' });
   }
 }
 
@@ -84,7 +62,6 @@ module.exports = {
   listarTutores,
   editarTutorDados,
   deletarTutor,
-  cadastrarTutorPet,
   getTutorAnimais,
   getTutorAlertas
 };

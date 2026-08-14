@@ -127,8 +127,8 @@
 - [x] Tutor → Pets → Vacinas
 - [x] Veterinário → Cadastro → Vacinação
 - [x] Backend → Banco → JSON → Frontend
-- [ ] Fluxo protegido por JWT
-- [ ] Controle completo de sessão
+- [x] Fluxo protegido por JWT
+- [x] Controle completo de sessão
 
 ---
 
@@ -160,7 +160,7 @@
 
 - [x] Separação de rotas
 - [x] Controllers e services implementados
-- [ ] Middleware de autenticação e autorização
+- [x] Middleware de autenticação e autorização (`backend/middleware/auth.js`)
 - [x] Padronização de respostas JSON
 - [ ] Validação centralizada de dados de entrada
 - [ ] Estrutura modular
@@ -180,7 +180,7 @@
 - [x] Tutor usa endpoints `GET /tutor/animais/:id_usuario`, `GET /tutor/alertas/:id_usuario` e `GET /historico-pet/:id_animal`
 - [x] Busca de pets filtrada localmente no frontend
 - [x] Veterinário com páginas em `frontend/veterinario/`
-- [x] Veterinário usa endpoints `GET /buscar-animais`, `GET /vacinas`, `GET /veterinarios`, `GET /listar-tutores`, `GET /detalhes-animal/:id_animal`, `POST /registrar-vacina`, `PUT /editar-pet-tutor/:id_animal`, `DELETE /deletar-animal/:id_animal`, `PUT /editar-vacina/:id_vacina`, `DELETE /deletar-vacina/:id_vacina`, `PUT /editar-tutor-dados/:id_tutor`, `DELETE /deletar-tutor/:id_tutor`, `POST /cadastrar-pet`, `POST /cadastrar-tutor-pet`, `POST /cadastrar-vacina`
+- [x] Veterinário usa endpoints `GET /buscar-animais`, `GET /vacinas`, `GET /veterinarios`, `GET /listar-tutores`, `GET /detalhes-animal/:id_animal`, `POST /registrar-vacina`, `PUT /editar-pet-tutor/:id_animal`, `DELETE /deletar-animal/:id_animal`, `PUT /editar-vacina/:id_vacina`, `DELETE /deletar-vacina/:id_vacina`, `PUT /editar-tutor-dados/:id_tutor`, `DELETE /deletar-tutor/:id_tutor`, `POST /cadastrar-pet`, `POST /cadastrar-tutor`, `POST /cadastrar-vacina`
 - [x] Veterinário pode cadastrar pets, tutores e vacinas
 - [x] Gestor com páginas em `frontend/gestor/`
 - [x] Gestor usa endpoints `GET /gestor/dados-dashboard`, `GET /gestor/relatorios-avancados` e `GET /vacinas`
@@ -193,8 +193,8 @@
 - [x] Reutilização de componentes
 - [ ] Organização modular
 - [ ] Camada de serviços frontend
-- [ ] Configuração central de URL da API
-- [ ] Autenticação via token e headers
+- [x] Configuração central de URL da API (`frontend/app/lib/api.js`)
+- [x] Autenticação via token e headers (`apiFetch` injeta `Authorization: Bearer` em toda chamada)
 
 ---
 
@@ -204,11 +204,14 @@
 - [x] SQL parametrizado
 - [x] Variáveis de ambiente
 - [x] Controle básico de sessão
-- [ ] JWT
-- [ ] Middleware de autenticação
-- [ ] Proteção de rotas
-- [ ] Expiração de sessão
-- [ ] Controle avançado de permissões
+- [x] JWT (`backend/utils/jwt.js`)
+- [x] Middleware de autenticação (`backend/middleware/auth.js`)
+- [x] Proteção de rotas (todas as rotas exigem token e perfil autorizado, exceto login/cadastro/avisos/redefinição de senha)
+- [x] Expiração de sessão (token expira em `JWT_EXPIRES_IN`)
+- [x] Controle avançado de permissões (autorização por perfil + escopo de clínica para gestor/veterinário + verificação de posse para tutor)
+- [x] CORS restrito por allowlist (`CORS_ORIGIN`)
+- [x] Rate limiting em login, cadastro e redefinição de senha
+- [x] Redefinição de senha por token de uso único com expiração de 1h, enviado por e-mail (nunca por e-mail + senha nova direto)
 
 ---
 
@@ -221,7 +224,7 @@
 - [x] GET /detalhes-animal/:id_animal
 - [x] PUT /editar-pet-tutor/:id_animal
 - [x] POST /cadastrar-pet
-- [x] POST /cadastrar-tutor-pet
+- [x] POST /cadastrar-tutor
 - [x] POST /cadastrar-vacina
 - [x] POST /registrar-vacina
 - [x] GET /vacinas
@@ -268,7 +271,7 @@
 - [x] Organização GitHub iniciada
 - [x] Documentação iniciada
 - [ ] Refatoração estrutural
-- [ ] Segurança avançada
+- [x] Segurança avançada (JWT, autorização por perfil/clínica, rate limiting, redefinição de senha por token)
 - [ ] Escalabilidade
 - [ ] Expansão institucional
 
@@ -313,7 +316,7 @@
 - [x] Fluxo vacinal implementado
 - [x] Estrutura documental criada
 - [ ] Arquitetura consolidada
-- [ ] Segurança avançada
+- [x] Segurança avançada (JWT, autorização por perfil/clínica, rate limiting, redefinição de senha por token)
 - [ ] Escalabilidade concluída
 
 ---
