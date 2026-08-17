@@ -116,10 +116,52 @@ const adminService = {
     const [usuarios] = await db.query('SELECT COUNT(*) as total FROM usuario');
     const [vacinas] = await db.query('SELECT COUNT(*) as total FROM vacina');
 
+    const [clinicasAtivas] = await db.query("SELECT COUNT(*) as total FROM clinica WHERE status = 'ATIVA'");
+    const [animais] = await db.query('SELECT COUNT(*) as total FROM animal');
+    const [tutores] = await db.query('SELECT COUNT(*) as total FROM tutor');
+    const [registros] = await db.query('SELECT COUNT(*) as total FROM registro_vacinacao');
+
+    const [usuariosPorPerfil] = await db.query(
+      'SELECT perfil, COUNT(*) as quantidade FROM usuario GROUP BY perfil ORDER BY quantidade DESC'
+    );
+
+    const [statusVacinacao] = await db.query(
+      'SELECT status, COUNT(*) as quantidade FROM registro_vacinacao GROUP BY status'
+    );
+
+    const [evolucaoMensal] = await db.query(`
+      SELECT * FROM (
+        SELECT DATE_FORMAT(data_aplicacao, '%Y-%m') as mes, COUNT(*) as quantidade
+        FROM registro_vacinacao
+        WHERE status = 'APLICADA'
+        GROUP BY mes
+        ORDER BY mes DESC
+        LIMIT 12
+      ) as ultimos_meses
+      ORDER BY mes ASC
+    `);
+
+    const [rankingClinicas] = await db.query(`
+      SELECT c.nome_fantasia, COUNT(rv.id_registro) as quantidade
+      FROM clinica c
+      LEFT JOIN registro_vacinacao rv ON rv.id_clinica = c.id_clinica AND rv.status = 'APLICADA'
+      GROUP BY c.id_clinica, c.nome_fantasia
+      ORDER BY quantidade DESC
+      LIMIT 5
+    `);
+
     return {
       total_clinicas: clinicas[0].total,
+      total_clinicas_ativas: clinicasAtivas[0].total,
       total_usuarios: usuarios[0].total,
-      total_vacinas: vacinas[0].total
+      total_vacinas: vacinas[0].total,
+      total_animais: animais[0].total,
+      total_tutores: tutores[0].total,
+      total_registros_vacinacao: registros[0].total,
+      usuariosPorPerfil,
+      statusVacinacao,
+      evolucaoMensal,
+      rankingClinicas
     };
   },
 

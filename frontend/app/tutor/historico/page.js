@@ -20,31 +20,6 @@ function HistoricoConteudo() {
   const searchParams = useSearchParams();
   const idAnimalUrl = searchParams.get('id');
 
-  useEffect(() => {
-    const usuarioString = localStorage.getItem('usuarioImunoPet');
-    if (!usuarioString) {
-      router.push('/');
-      return;
-    }
-    const user = JSON.parse(usuarioString);
-    setUsuario(user);
-
-    if (!idAnimalUrl) {
-      router.push('/tutor/animais');
-      return;
-    }
-
-    carregarDetalhesPet(user.id_usuario);
-    carregarHistoricoTutor(user.id_usuario, '', '');
-
-    const configSalvas = localStorage.getItem(`imunoPetConfig_${user.id_usuario}`);
-    if (configSalvas) {
-      const config = JSON.parse(configSalvas);
-      setTema(config.tema || 'claro');
-      setAltoContraste(config.altoContraste || false);
-    }
-  }, [idAnimalUrl, router]);
-
   const carregarDetalhesPet = async (userId) => {
     const id = userId || usuario?.id_usuario;
     try {
@@ -74,6 +49,32 @@ function HistoricoConteudo() {
       setCarregando(false);
     }
   };
+
+  useEffect(() => {
+    const usuarioString = localStorage.getItem('usuarioImunoPet');
+    if (!usuarioString) {
+      router.push('/');
+      return;
+    }
+    const user = JSON.parse(usuarioString);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza a sessão salva em localStorage (sistema externo, só existe no cliente) na montagem; padrão seguro para SSR
+    setUsuario(user);
+
+    if (!idAnimalUrl) {
+      router.push('/tutor/animais');
+      return;
+    }
+
+    carregarDetalhesPet(user.id_usuario);
+    carregarHistoricoTutor(user.id_usuario, '', '');
+
+    const configSalvas = localStorage.getItem(`imunoPetConfig_${user.id_usuario}`);
+    if (configSalvas) {
+      const config = JSON.parse(configSalvas);
+      setTema(config.tema || 'claro');
+      setAltoContraste(config.altoContraste || false);
+    }
+  }, [idAnimalUrl, router]);
 
   const handleBuscar = () => {
     carregarHistoricoTutor(usuario.id_usuario, termoBusca, statusFiltro);

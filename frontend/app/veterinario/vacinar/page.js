@@ -29,7 +29,18 @@ function FormularioVacina() {
   
   const [msg, setMsg] = useState({ texto: '', cor: '' });
 
+  const carregarDados = async () => {
+    try {
+      const resAnimal = await apiFetch(`/detalhes-animal/${idAnimal}`);
+      if (resAnimal.ok) setAnimal(await resAnimal.json());
+
+      const resVacinas = await apiFetch('/vacinas');
+      if (resVacinas.ok) setVacinas(await resVacinas.json());
+    } catch (e) {}
+  };
+
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sinaliza que já passamos da hidratação (evita mismatch de SSR); é o próprio propósito deste effect
     setIsMounted(true);
     const saved = localStorage.getItem('usuarioImunoPet');
     if (saved) {
@@ -49,19 +60,10 @@ function FormularioVacina() {
 
   useEffect(() => {
     if (usuario && idAnimal) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- busca dados do animal/vacinas assim que a sessão e o id da URL são conhecidos; padrão de data fetching documentado pelo React
       carregarDados();
     }
   }, [usuario, idAnimal]);
-
-  const carregarDados = async () => {
-    try {
-      const resAnimal = await apiFetch(`/detalhes-animal/${idAnimal}`);
-      if (resAnimal.ok) setAnimal(await resAnimal.json());
-
-      const resVacinas = await apiFetch('/vacinas');
-      if (resVacinas.ok) setVacinas(await resVacinas.json());
-    } catch (e) {}
-  };
 
   const recalcularProximaDose = (idVacina, dataBase) => {
     if (!idVacina || !dataBase) return '';

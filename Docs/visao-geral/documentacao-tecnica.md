@@ -38,9 +38,11 @@
 - [x] Node.js
 - [x] Express
 - [x] MySQL
+- [x] Next.js (frontend, App Router)
+- [x] React
 - [x] HTML5
 - [x] CSS3
-- [x] JavaScript Vanilla
+- [x] JavaScript Vanilla (backend)
 - [x] bcrypt
 - [x] dotenv
 - [x] cors
@@ -50,11 +52,11 @@
 
 ## ARQUITETURA DO SISTEMA
 
-- [x] Frontend HTML/CSS/JS
+- [x] Frontend em Next.js (App Router/React)
 - [x] Backend Node.js + Express
 - [x] Banco de Dados MySQL
 - [x] Comunicação via API REST
-- [x] Estrutura monolítica inicial
+- [x] Estrutura monolítica inicial (backend evoluiu para rotas/controllers/services/middlewares; frontend evoluiu de HTML/CSS/JS puro para Next.js)
 - [ ] Arquitetura modular futura
 - [ ] Estrutura escalável futura
 
@@ -84,21 +86,25 @@
 - [x] Tabela animal
 - [x] Tabela vacina
 - [x] Tabela registro_vacinacao
-- [x] Seed de dados em `database/script.sql`
+- [x] Tabela especie
+- [x] Tabela raca
+- [x] Tabela aviso
+- [x] Tabela log_auditoria
+- [x] Seed de dados em `database/INSERT IMUNOPET BRASIL.sql` (schema em `database/DB.sql`; migrações pontuais em `database/migrations/`, ex.: `001_add_reset_senha.sql`)
 - [ ] Constraints avançadas
-- [ ] Índices de performance
-- [ ] Revisão completa de integridade relacional
+- [ ] Índices de performance (faltam índices dedicados, ex.: `registro_vacinacao.status` e `registro_vacinacao.data_proxima_dose`; hoje só há índices de suporte a FK e `UNIQUE`)
+- [ ] Revisão completa de integridade relacional (`animal.especie`/`animal.raca` são `VARCHAR` livres, sem FK para as tabelas `especie`/`raca`)
 
 ---
 
 ## PERFIS DO SISTEMA
 
-- [X] ADMINISTRADOR
+- [x] ADMINISTRADOR
 - [x] TUTOR
 - [x] VETERINARIO
 - [x] GESTOR_CLINICA
 - [x] GOVERNO
-- [ ] Controle avançado de permissões
+- [x] Controle avançado de permissões (autorização por perfil + escopo de clínica para gestor/veterinário + verificação de posse para tutor — ver seção SEGURANÇA)
 - [x] Painéis específicos por perfil
 
 ---
@@ -143,58 +149,59 @@
 - [x] Separação de rotas
 - [x] Controllers
 - [x] Services
-- [x] Middlewares
+- [x] Middlewares (`backend/middleware/auth.js`, `backend/middleware/errorHandler.js`)
 - [ ] Validação de entrada centralizada
-- [ ] Estrutura modular
+- [x] Estrutura modular (rotas/controllers/services/middlewares/utils separados)
 
 ## DESCRIÇÃO DO BACKEND
 
-- [x] API REST monolítica em `backend/index.js`
+- [x] API REST modular: `backend/index.js` apenas inicializa o servidor; `backend/app.js` compõe middlewares e rotas (`backend/routes/*.js` → `controllers/*.js` → `services/*.js`)
 - [x] Conexão MySQL com `mysql2` e `createPool` em `backend/db.js`
 - [x] Autenticação por e-mail e senha com hash `bcrypt`
 - [x] Rotas para CRUD de tutores, pets, vacinas e registros de vacinação
 - [x] Relatórios para gestor, governo, alertas e vacinas atrasadas
 - [x] `express.json()` configurado para JSON
+- [x] Middleware global de tratamento de erros e rota 404 padronizada (`backend/middleware/errorHandler.js`)
 
 ## PONTOS DE MELHORIA BACKEND
 
 - [x] Separação de rotas
 - [x] Controllers e services implementados
 - [x] Middleware de autenticação e autorização (`backend/middleware/auth.js`)
-- [x] Padronização de respostas JSON
+- [ ] Padronização de respostas JSON (cada controller monta `res.json()` manualmente; sem helper de resposta compartilhado)
 - [ ] Validação centralizada de dados de entrada
-- [ ] Estrutura modular
+- [x] Estrutura modular
 
 ---
 
 ## FRONTEND
 
-- [x] Páginas HTML independentes
-- [x] JavaScript separado por páginas
+- [x] Páginas Next.js (App Router) independentes por rota, em `frontend/app/**/page.js` (27 rotas ao todo; nenhum arquivo `.html`/`app.js` vanilla restante)
+- [x] JavaScript/JSX separado por página
 - [x] Dashboard funcional
-- [x] Integração com API via `fetch`
-- [x] Login em `frontend/index.html` + `frontend/app.js`
-- [x] Dashboard em `frontend/dashboard.html`
+- [x] Integração com API via `fetch` (encapsulado em `apiFetch`, `frontend/app/lib/api.js`)
+- [x] Login em `frontend/app/page.js`
+- [x] Dashboard em `frontend/app/dashboard/page.js`
 - [x] Painéis exibidos conforme `perfil` do usuário
-- [x] Tutor com páginas em `frontend/tutor/`
+- [x] Tutor com páginas em `frontend/app/tutor/`
 - [x] Tutor usa endpoints `GET /tutor/animais/:id_usuario`, `GET /tutor/alertas/:id_usuario` e `GET /historico-pet/:id_animal`
 - [x] Busca de pets filtrada localmente no frontend
-- [x] Veterinário com páginas em `frontend/veterinario/`
+- [x] Veterinário com páginas em `frontend/app/veterinario/`
 - [x] Veterinário usa endpoints `GET /buscar-animais`, `GET /vacinas`, `GET /veterinarios`, `GET /listar-tutores`, `GET /detalhes-animal/:id_animal`, `POST /registrar-vacina`, `PUT /editar-pet-tutor/:id_animal`, `DELETE /deletar-animal/:id_animal`, `PUT /editar-vacina/:id_vacina`, `DELETE /deletar-vacina/:id_vacina`, `PUT /editar-tutor-dados/:id_tutor`, `DELETE /deletar-tutor/:id_tutor`, `POST /cadastrar-pet`, `POST /cadastrar-tutor`, `POST /cadastrar-vacina`
 - [x] Veterinário pode cadastrar pets, tutores e vacinas
-- [x] Gestor com páginas em `frontend/gestor/`
-- [x] Gestor usa endpoints `GET /gestor/dados-dashboard`, `GET /gestor/relatorios-avancados` e `GET /vacinas`
-- [x] Governo com páginas em `frontend/governo/`
+- [x] Gestor com páginas em `frontend/app/gestor/`
+- [x] Gestor usa endpoints `GET /gestor/dados-dashboard`, `GET /gestor/relatorios-avancados`, `GET /vacinas`, `GET /gestor/veterinarios-lista`, `POST /gestor/cadastrar-vet`, `PUT /gestor/editar-vet/:id_veterinario` e `DELETE /gestor/deletar-vet/:id_veterinario`
+- [x] Governo com páginas em `frontend/app/governo/`
 - [x] Governo usa endpoints `GET /governo/dados-epidemiologicos`, `GET /governo/relatorios-avancados` e `GET /vacinas`
-- [x] Autenticação por `localStorage`
-- [x] API hardcoded em `http://localhost:3000`
+- [x] Perfil do usuário e preferências de UI (tema, fonte, acessibilidade) salvos em `localStorage` (`usuarioImunoPet`, config de configurações); a autenticação em si não usa `localStorage` — ver seção SEGURANÇA
+- [x] URL base da API configurável via `NEXT_PUBLIC_API_URL`, com fallback padrão `http://localhost:3000` para desenvolvimento (`frontend/app/lib/api.js`)
 - [x] Uso de Chart.js em dashboards do gestor e governo
-- [ ] Separação completa de CSS
-- [x] Reutilização de componentes
-- [ ] Organização modular
+- [ ] Separação completa de CSS (predominância de estilo inline; só `globals.css` e o `page.module.css` padrão do `create-next-app` existem)
+- [x] Reutilização de componentes (`LayoutPainel.js` compartilhado por todas as páginas autenticadas)
+- [x] Organização modular (rotas agrupadas por perfil em `frontend/app/{admin,gestor,governo,tutor,veterinario}`)
 - [ ] Camada de serviços frontend
 - [x] Configuração central de URL da API (`frontend/app/lib/api.js`)
-- [x] Autenticação via token e headers (`apiFetch` injeta `Authorization: Bearer` em toda chamada)
+- [x] Autenticação via cookie httpOnly (JWT) + cabeçalho `X-CSRF-Token` em toda chamada mutável (`apiFetch` injeta o CSRF, não `Authorization: Bearer` — ver seção SEGURANÇA)
 
 ---
 
@@ -212,6 +219,10 @@
 - [x] CORS restrito por allowlist (`CORS_ORIGIN`)
 - [x] Rate limiting em login, cadastro e redefinição de senha
 - [x] Redefinição de senha por token de uso único com expiração de 1h, enviado por e-mail (nunca por e-mail + senha nova direto)
+- [x] Troca de senha pelo próprio usuário logado (`POST /alterar-senha`, exige a senha atual)
+- [x] Sessão via cookie httpOnly (JWT) + proteção CSRF por double-submit token, com fallback a `Authorization: Bearer` para uso programático
+- [x] Autorização de `/admin/especies`, `/admin/racas` e `/admin/vacinas` (GET) revisada para permitir leitura/gestão pelos perfis que legitimamente usam esses catálogos compartilhados (veterinário, gestor de clínica e, para leitura, governo) — o bloqueio anterior (`ADMINISTRADOR` exclusivo em todo o namespace `/admin`) quebrava silenciosamente formulários de cadastro de pet/vacina e filtros de relatório desses perfis; `GET /admin/clinicas/:id` segue restrito ao administrador ou ao gestor da própria clínica (`exigirPropriaClinica`)
+- [x] Middleware global de tratamento de erros (`backend/middleware/errorHandler.js`) evita vazamento de detalhes internos em respostas de erro não tratado (mensagem genérica salvo quando o erro é explicitamente marcado como seguro para exposição) e registra tecnicamente cada falha (rota, método, stack) via `console.error`
 
 ---
 
@@ -244,6 +255,27 @@
 - [x] GET /gestor/relatorios-avancados
 - [x] GET /governo/dados-epidemiologicos
 - [x] GET /governo/relatorios-avancados
+- [x] POST /logout
+- [x] POST /alterar-senha
+- [x] POST /solicitar-redefinicao-senha
+- [x] POST /confirmar-redefinicao-senha
+- [x] POST /cadastrar-animal
+- [x] GET /animais
+- [x] PUT /editar-animal/:id
+- [x] GET /avisos-ativos, GET /avisos (públicas, sem autenticação — exibidas inclusive na tela de login)
+- [x] GET /gestor/veterinarios-lista
+- [x] POST /gestor/cadastrar-vet
+- [x] PUT /gestor/editar-vet/:id_veterinario
+- [x] DELETE /gestor/deletar-vet/:id_veterinario
+- [x] GET /admin/especies, POST /admin/cadastrar-especie, DELETE /admin/deletar-especie/:id
+- [x] GET /admin/racas, POST /admin/cadastrar-raca, DELETE /admin/deletar-raca/:id
+- [x] GET /admin/vacinas, POST /admin/cadastrar-vacina, PUT /admin/editar-vacina/:id, DELETE /admin/deletar-vacina/:id
+- [x] GET /admin/clinicas, GET /admin/clinicas/:id, POST /admin/cadastrar-clinica, PUT /admin/editar-clinica/:id, DELETE /admin/deletar-clinica/:id
+- [x] GET /admin/gestores, POST /admin/cadastrar-gestor, PUT /admin/editar-gestor/:id, DELETE /admin/deletar-gestor/:id
+- [x] GET /admin/orgaos, POST /admin/cadastrar-orgao, PUT /admin/editar-orgao/:id, DELETE /admin/deletar-orgao/:id
+- [x] GET /admin/estatisticas
+- [x] GET /admin/avisos, POST /admin/cadastrar-aviso, PUT /admin/editar-aviso/:id, DELETE /admin/deletar-aviso/:id
+- [x] GET /admin/logs
 - [ ] Padronização completa de respostas da API
 
 ---
@@ -279,12 +311,12 @@
 
 ## PROBLEMAS TÉCNICOS IDENTIFICADOS
 
-- [x] Backend monolítico
-- [x] Rotas concentradas no index.js
-- [x] Frontend acoplado
-- [x] CSS dentro das páginas
-- [x] URLs hardcoded
-- [x] Falta de modularização
+- [ ] Backend monolítico (resolvido: rotas/controllers/services/middlewares separados)
+- [ ] Rotas concentradas no index.js (resolvido: `backend/index.js` só inicializa o servidor; rotas vivem em `backend/routes/`)
+- [ ] Frontend acoplado (resolvido: Next.js App Router organizado por perfil, com `LayoutPainel` compartilhado)
+- [x] CSS dentro das páginas (ainda vigente: estilo majoritariamente inline em vez de arquivos `.css`)
+- [ ] URLs hardcoded (mitigado: URL da API configurável via `NEXT_PUBLIC_API_URL`, com valor padrão `http://localhost:3000` apenas para desenvolvimento)
+- [ ] Falta de modularização (resolvido no backend; parcial no frontend — falta camada de serviços JS e separação de CSS)
 - [ ] Ausência de JWT
 - [ ] Ausência de middleware
 - [ ] Ausência de arquitetura escalável
@@ -294,8 +326,8 @@
 ## MELHORIAS FUTURAS
 
 - [x] Dashboard analítico
-- [ ] Estatísticas vacinais
-- [ ] Cobertura vacinal
+- [x] Estatísticas vacinais
+- [x] Cobertura vacinal
 - [ ] Notificações automáticas
 - [ ] Calendário vacinal
 - [ ] Integração entre clínicas

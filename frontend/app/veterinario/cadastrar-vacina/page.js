@@ -33,6 +33,7 @@ export default function VetCadastrarVacina() {
       router.push('/dashboard');
       return;
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza a sessão salva em localStorage (sistema externo, só existe no cliente) na montagem; padrão seguro para SSR
     setUsuario(user);
 
     const configSalvas = localStorage.getItem(`imunoPetConfig_${user.id_usuario}`);

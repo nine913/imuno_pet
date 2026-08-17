@@ -90,8 +90,31 @@ async function dadosEpidemiologicos(query) {
   `;
   const [topVacinas] = await db.query(queryTopVacinas, paramsGeral);
 
+  // Distribuição por status (visão geral do intervalo filtrado, sem exigir status = APLICADA)
+  let paramsStatus = [inicio, fim];
+  let condicaoStatus = `WHERE (rv.data_aplicacao BETWEEN ? AND ? OR rv.data_proxima_dose BETWEEN ? AND ?)`;
+  paramsStatus = [inicio, fim, inicio, fim];
+  if (localidade) {
+    condicaoStatus += ` AND (t.cidade LIKE ? OR t.bairro LIKE ?)`;
+    paramsStatus.push(`%${localidade}%`, `%${localidade}%`);
+  }
+  if (especie) {
+    condicaoStatus += ` AND a.especie = ?`;
+    paramsStatus.push(especie);
+  }
+
+  const queryStatus = `
+    SELECT rv.status, COUNT(rv.id_registro) AS quantidade
+    FROM registro_vacinacao rv
+    JOIN animal a ON rv.id_animal = a.id_animal
+    JOIN tutor t ON a.id_tutor = t.id_tutor
+    ${condicaoStatus}
+    GROUP BY rv.status
+  `;
+  const [distribuicaoStatus] = await db.query(queryStatus, paramsStatus);
+
   // Retorna conjunto consolidado
-  return { riscoRegiao, coberturaEspecie, evolucaoTemporal, topVacinas };
+  return { riscoRegiao, coberturaEspecie, evolucaoTemporal, topVacinas, distribuicaoStatus };
 }
 
 // Relatórios avançados com filtros opcionais

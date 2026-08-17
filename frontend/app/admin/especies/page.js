@@ -23,6 +23,16 @@ export default function AdminEspeciesRacas() {
   const [modalExclusaoOpen, setModalExclusaoOpen] = useState(false);
   const [itemParaExcluir, setItemParaExcluir] = useState({ tipo: '', id: null, nome: '' });
 
+  const carregarDados = async () => {
+    try {
+      const resEspecies = await apiFetch('/admin/especies');
+      if (resEspecies.ok) setEspecies(await resEspecies.json());
+
+      const resRacas = await apiFetch('/admin/racas');
+      if (resRacas.ok) setRacas(await resRacas.json());
+    } catch (erro) {}
+  };
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('usuarioImunoPet');
@@ -35,6 +45,7 @@ export default function AdminEspeciesRacas() {
         router.push('/dashboard');
         return;
       }
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza a sessão salva em localStorage (sistema externo, só existe no cliente) na montagem; padrão seguro para SSR
       setUsuario(user);
 
       const configSalvas = localStorage.getItem(`imunoPetConfig_${user.id_usuario}`);
@@ -47,16 +58,6 @@ export default function AdminEspeciesRacas() {
       carregarDados();
     }
   }, [router]);
-
-  const carregarDados = async () => {
-    try {
-      const resEspecies = await apiFetch('/admin/especies');
-      if (resEspecies.ok) setEspecies(await resEspecies.json());
-
-      const resRacas = await apiFetch('/admin/racas');
-      if (resRacas.ok) setRacas(await resRacas.json());
-    } catch (erro) {}
-  };
 
   const cadastrarEspecie = async (e) => {
     e.preventDefault();

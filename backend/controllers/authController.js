@@ -1,6 +1,13 @@
+const crypto = require('crypto');
 const authService = require('../services/authService');
 const logger = require('../services/logger');
 const { gerarToken } = require('../utils/jwt');
+const {
+  NOME_COOKIE_TOKEN,
+  NOME_COOKIE_CSRF,
+  opcoesCookieToken,
+  opcoesCookieCsrf
+} = require('../utils/cookies');
 
 async function login(req, res) {
   try {
@@ -11,12 +18,15 @@ async function login(req, res) {
 
     const dadosUsuario = await authService.autenticar(email, senha);
     const token = gerarToken(dadosUsuario);
+    const csrfToken = crypto.randomBytes(32).toString('hex');
 
     await logger.registrarLog(dadosUsuario.id_usuario, 'LOGIN', 'Usuário realizou login no sistema.');
 
+    res.cookie(NOME_COOKIE_TOKEN, token, opcoesCookieToken());
+    res.cookie(NOME_COOKIE_CSRF, csrfToken, opcoesCookieCsrf());
+
     res.status(200).json({
       mensagem: 'Login efetuado com sucesso',
-      token,
       ...dadosUsuario
     });
   } catch (error) {
@@ -27,9 +37,30 @@ async function login(req, res) {
 async function logout(req, res) {
   try {
     await logger.registrarLog(req.user.id_usuario, 'LOGOUT', 'Usuário saiu do sistema.');
+    res.clearCookie(NOME_COOKIE_TOKEN, { path: '/' });
+    res.clearCookie(NOME_COOKIE_CSRF, { path: '/' });
     res.status(200).json({ mensagem: 'Logout registrado com sucesso.' });
   } catch (error) {
     res.status(500).json({ erro: 'Erro ao registrar logout.' });
+  }
+}
+
+async function alterarSenha(req, res) {
+  try {
+    const { senha_atual, nova_senha } = req.body;
+    if (!senha_atual || !nova_senha) {
+      return res.status(400).json({ erro: 'Informe a senha atual e a nova senha.' });
+    }
+    if (nova_senha.length < 6) {
+      return res.status(400).json({ erro: 'A nova senha deve possuir no mínimo 6 caracteres.' });
+    }
+
+    await authService.alterarSenha(req.user.id_usuario, senha_atual, nova_senha);
+    await logger.registrarLog(req.user.id_usuario, 'ALTERAR_SENHA', 'Usuário alterou a própria senha.');
+
+    res.status(200).json({ mensagem: 'Senha alterada com sucesso.' });
+  } catch (error) {
+    res.status(error.status || 500).json({ erro: error.status ? error.message : 'Erro ao alterar a senha.' });
   }
 }
 
@@ -86,4 +117,4 @@ async function confirmarRedefinicaoSenha(req, res) {
   }
 }
 
-module.exports = { login, logout, cadastro, solicitarRedefinicaoSenha, confirmarRedefinicaoSenha };
+module.exports = { login, logout, cadastro, alterarSenha, solicitarRedefinicaoSenha, confirmarRedefinicaoSenha };

@@ -26,8 +26,9 @@ router.post('/registrar-vacina', autenticar, EQUIPE_CLINICA, forcarClinicaDoUsua
 // POST /cadastrar-vacina -> cadastra uma vacina (tabela vacina)
 router.post('/cadastrar-vacina', autenticar, EQUIPE_CLINICA, cadastrarVacina);
 
-// GET /vacinas -> lista vacinas (pode ter filtros via query)
-router.get('/vacinas', autenticar, EQUIPE_CLINICA, buscarVacinas);
+// GET /vacinas -> lista o catálogo de vacinas (pode ter filtros via query). Leitura também
+// usada pelo governo para popular filtros de relatórios epidemiológicos.
+router.get('/vacinas', autenticar, autorizar('VETERINARIO', 'GESTOR_CLINICA', 'GOVERNO', 'ADMINISTRADOR'), buscarVacinas);
 
 // PUT /editar-vacina/:id_vacina -> atualiza dados da vacina
 router.put('/editar-vacina/:id_vacina', autenticar, EQUIPE_CLINICA, editarVacina);

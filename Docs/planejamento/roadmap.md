@@ -61,10 +61,10 @@
 - [x] Separar rotas
 - [x] Criar controllers
 - [x] Criar services
-- [ ] Criar middlewares
+- [x] Criar middlewares (`backend/middleware/auth.js`, `backend/middleware/errorHandler.js`)
 - [ ] Separar CSS do HTML
 - [ ] Criar camada de serviços frontend
-- [ ] Centralizar configuração da API
+- [x] Centralizar configuração da API (`frontend/app/lib/api.js`)
 - [ ] Melhorar organização do banco de dados
 
 ---
@@ -79,6 +79,8 @@
 - [x] Proteção de rotas
 - [x] Expiração de sessão
 - [x] Controle avançado de permissões
+- [x] Sessão via cookie httpOnly + proteção CSRF por double-submit token (migrada de `localStorage`)
+- [x] CORS restrito por allowlist e rate limiting em rotas sensíveis (login, cadastro, redefinição/troca de senha)
 
 ---
 
@@ -98,7 +100,7 @@
 ## FASE 8 — Expansão Institucional
 
 - [ ] Integração entre clínicas
-- [ ] Controle regional
+- [x] Controle regional (agrupamento por cidade/bairro e risco por região em `governoService`)
 - [x] Painel epidemiológico
 - [x] Relatórios governamentais
 - [x] Estatísticas regionais

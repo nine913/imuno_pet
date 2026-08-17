@@ -1,13 +1,14 @@
 "use client";
 
 import { apiFetch } from '../lib/api';
+import { obterConfiguracoes } from '../lib/configuracoes';
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 
 export default function LayoutPainel({ children }) {
   const router = useRouter();
   const pathname = usePathname();
-  
+
   const [usuario, setUsuario] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('usuarioImunoPet');
@@ -16,13 +17,7 @@ export default function LayoutPainel({ children }) {
     return null;
   });
 
-  const [configuracoes, setConfiguracoes] = useState(() => {
-    if (typeof window !== 'undefined' && usuario) {
-      const configSalvas = localStorage.getItem(`imunoPetConfig_${usuario.id_usuario}`);
-      return configSalvas ? JSON.parse(configSalvas) : { tema: 'claro', fonte: '16px', altoContraste: false };
-    }
-    return { tema: 'claro', fonte: '16px', altoContraste: false };
-  });
+  const [configuracoes, setConfiguracoes] = useState(() => obterConfiguracoes(usuario?.id_usuario));
 
   const [menuExpandido, setMenuExpandido] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -34,27 +29,47 @@ export default function LayoutPainel({ children }) {
 
   const [permitirAnimacao, setPermitirAnimacao] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [menuMobileAberto, setMenuMobileAberto] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sinaliza que já passamos da hidratação (evita mismatch de SSR); é o próprio propósito deste effect
     setIsMounted(true);
     if (!usuario) {
       router.push('/');
     }
-    
+
     const timer = setTimeout(() => setPermitirAnimacao(true), 50);
-    
+
     document.body.style.backgroundColor = configuracoes.tema === 'escuro' ? '#121212' : '#f4f4f9';
     document.body.style.margin = '0';
-    
+
     return () => clearTimeout(timer);
   }, [usuario, router, configuracoes.tema]);
 
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 768px)');
+    const sincronizar = () => setIsMobile(mediaQuery.matches);
+    sincronizar();
+    mediaQuery.addEventListener('change', sincronizar);
+    return () => mediaQuery.removeEventListener('change', sincronizar);
+  }, []);
+
   const alternarMenu = () => {
+    if (isMobile) {
+      setMenuMobileAberto(false);
+      return;
+    }
     const novoStatus = !menuExpandido;
     setMenuExpandido(novoStatus);
     if (typeof window !== 'undefined') {
       localStorage.setItem('imunoPetMenuState', JSON.stringify(novoStatus));
     }
+  };
+
+  const irParaRota = (rota) => {
+    router.push(rota);
+    setMenuMobileAberto(false);
   };
 
   const handleLogout = async () => {
@@ -107,6 +122,7 @@ export default function LayoutPainel({ children }) {
   } else if (perfil === 'ADMINISTRADOR') {
     linksMenu = [
       { nome: 'Menu Inicial', rota: '/dashboard', icone: '🏠' },
+      { nome: 'Estatísticas', rota: '/admin/dashboard', icone: '📊' },
       { nome: 'Clínicas', rota: '/admin/clinicas', icone: '🏥' },
       { nome: 'Gestores', rota: '/admin/gestores', icone: '👔' },
       { nome: 'Governo', rota: '/admin/governo', icone: '🏛️' },
@@ -124,12 +140,15 @@ export default function LayoutPainel({ children }) {
   const mainBgColor = isTemaEscuro ? '#121212' : '#f4f4f9';
   const mainTextColor = isTemaEscuro ? '#fdfdfd' : '#333333';
   const sidebarWidth = menuExpandido ? '260px' : '70px';
-  
-  const transicaoSidebar = permitirAnimacao ? 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)' : 'none';
+  const exibirRotulos = isMobile ? true : menuExpandido;
+
+  const animacoesAtivas = permitirAnimacao && !configuracoes.reduzirAnimacoes;
+  const transicaoSidebar = animacoesAtivas ? 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)' : 'none';
 
   return (
     <div suppressHydrationWarning style={{ display: 'flex', minHeight: '100vh', backgroundColor: mainBgColor, color: mainTextColor, fontFamily: '"Inter", Arial, sans-serif', fontSize: configuracoes.fonte }}>
-      
+
+      {/* Regras de acessibilidade aplicadas globalmente (toda página passa por este layout). */}
       <style>{`
         @keyframes subtleFade {
           from { opacity: 0; }
@@ -142,18 +161,90 @@ export default function LayoutPainel({ children }) {
           background-color: rgba(255,255,255,0.05) !important;
           color: white !important;
         }
+        .ip-mobile-topbar { display: none; }
+        .ip-sidebar-backdrop { display: none; }
+        @media (max-width: 768px) {
+          .ip-sidebar {
+            width: 260px !important;
+            transform: translateX(${menuMobileAberto ? '0' : '-100%'});
+            box-shadow: ${menuMobileAberto ? '4px 0 24px rgba(0,0,0,0.35)' : 'none'} !important;
+          }
+          .ip-main {
+            margin-left: 0 !important;
+            width: 100% !important;
+            padding-top: 64px;
+          }
+          .ip-mobile-topbar { display: flex !important; }
+          .ip-sidebar-backdrop {
+            display: ${menuMobileAberto ? 'block' : 'none'};
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            z-index: 999;
+          }
+        }
+        ${configuracoes.reduzirAnimacoes ? `
+        *, *::before, *::after {
+          animation-duration: 0.001ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.001ms !important;
+          scroll-behavior: auto !important;
+        }
+        .premium-card:hover {
+          transform: none !important;
+        }
+        ` : ''}
+        ${configuracoes.espacamentoAmpliado ? `
+        body, main, main * {
+          line-height: 1.8 !important;
+          letter-spacing: 0.02em !important;
+          word-spacing: 0.05em !important;
+        }
+        ` : ''}
+        ${configuracoes.destacarFoco ? `
+        *:focus, *:focus-visible {
+          outline: 3px solid #2563eb !important;
+          outline-offset: 3px !important;
+        }
+        ` : ''}
+        ${configuracoes.altoContraste ? `
+        body {
+          filter: contrast(1.15) saturate(1.1);
+        }
+        ` : ''}
       `}</style>
 
-      <nav style={{ width: sidebarWidth, backgroundColor: '#001f3f', color: 'white', display: 'flex', flexDirection: 'column', position: 'fixed', height: '100vh', left: 0, top: 0, boxShadow: '2px 0 10px rgba(0,0,0,0.1)', zIndex: 1000, transition: transicaoSidebar }}>
-        
-        <div style={{ padding: '20px', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: menuExpandido ? 'space-between' : 'center', height: '70px', boxSizing: 'border-box' }}>
-          {menuExpandido && <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 'bold', color: '#ffffff', whiteSpace: 'nowrap', overflow: 'hidden' }}>ImunoPet</h2>}
-          <button 
-            onClick={alternarMenu} 
+      <div
+        className="ip-sidebar-backdrop"
+        onClick={() => setMenuMobileAberto(false)}
+        aria-hidden="true"
+      />
+
+      <div
+        className="ip-mobile-topbar"
+        style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '56px', backgroundColor: '#001f3f', color: 'white', alignItems: 'center', padding: '0 16px', gap: '12px', zIndex: 998, boxShadow: '0 2px 10px rgba(0,0,0,0.15)' }}
+      >
+        <button
+          onClick={() => setMenuMobileAberto(true)}
+          aria-label="Abrir menu de navegação"
+          aria-expanded={menuMobileAberto}
+          style={{ background: 'none', border: 'none', color: 'white', fontSize: '22px', cursor: 'pointer', padding: '4px', display: 'flex' }}
+        >
+          ☰
+        </button>
+        <h2 style={{ margin: 0, fontSize: '17px', fontWeight: 'bold' }}>ImunoPet</h2>
+      </div>
+
+      <nav className="ip-sidebar" style={{ width: sidebarWidth, backgroundColor: '#001f3f', color: 'white', display: 'flex', flexDirection: 'column', position: 'fixed', height: '100vh', left: 0, top: 0, boxShadow: '2px 0 10px rgba(0,0,0,0.1)', zIndex: 1000, transition: transicaoSidebar }}>
+
+        <div style={{ padding: '20px', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: exibirRotulos ? 'space-between' : 'center', height: '70px', boxSizing: 'border-box' }}>
+          {exibirRotulos && <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 'bold', color: '#ffffff', whiteSpace: 'nowrap', overflow: 'hidden' }}>ImunoPet</h2>}
+          <button
+            onClick={alternarMenu}
             style={{ background: 'none', border: 'none', color: 'white', fontSize: '24px', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-            title={menuExpandido ? "Recolher menu" : "Expandir menu"}
+            title={isMobile ? 'Fechar menu' : (menuExpandido ? 'Recolher menu' : 'Expandir menu')}
           >
-            ☰
+            {isMobile ? '✕' : '☰'}
           </button>
         </div>
 
@@ -161,22 +252,31 @@ export default function LayoutPainel({ children }) {
           {linksMenu.map((link, index) => {
             const isAtivo = pathname === link.rota || pathname.startsWith(link.rota + '/');
             return (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className={!isAtivo ? 'link-hover' : ''}
-                onClick={() => router.push(link.rota)}
-                style={{ display: 'flex', alignItems: 'center', justifyContent: menuExpandido ? 'flex-start' : 'center', padding: '12px', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease', backgroundColor: isAtivo ? '#0056b3' : 'transparent', color: isAtivo ? 'white' : '#cbd5e1' }}
-                title={!menuExpandido ? link.nome : ''}
+                onClick={() => irParaRota(link.rota)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    irParaRota(link.rota);
+                  }
+                }}
+                aria-current={isAtivo ? 'page' : undefined}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: exibirRotulos ? 'flex-start' : 'center', padding: '12px', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease', backgroundColor: isAtivo ? '#0056b3' : 'transparent', color: isAtivo ? 'white' : '#cbd5e1' }}
+                title={!exibirRotulos ? link.nome : ''}
               >
-                <span style={{ fontSize: '18px', width: '24px', textAlign: 'center', marginRight: menuExpandido ? '12px' : '0', filter: isTemaEscuro ? 'drop-shadow(0px 0px 2px rgba(255, 255, 255, 0.4))' : 'none' }}>{link.icone}</span>
-                {menuExpandido && <span style={{ fontSize: '15px', fontWeight: '500', whiteSpace: 'nowrap' }}>{link.nome}</span>}
+                <span style={{ fontSize: '18px', width: '24px', textAlign: 'center', marginRight: exibirRotulos ? '12px' : '0', filter: isTemaEscuro ? 'drop-shadow(0px 0px 2px rgba(255, 255, 255, 0.4))' : 'none' }}>{link.icone}</span>
+                {exibirRotulos && <span style={{ fontSize: '15px', fontWeight: '500', whiteSpace: 'nowrap' }}>{link.nome}</span>}
               </div>
             );
           })}
         </div>
 
         <div style={{ padding: '20px', borderTop: '1px solid rgba(255,255,255,0.1)', backgroundColor: 'rgba(0,0,0,0.2)', display: 'flex', flexDirection: 'column', alignItems: 'center', overflow: 'hidden' }}>
-          {menuExpandido ? (
+          {exibirRotulos ? (
             <>
               <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px', width: '100%' }}>
                 <div style={{ width: '36px', height: '36px', backgroundColor: '#17a2b8', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 'bold', fontSize: '16px', marginRight: '10px', textTransform: 'uppercase', flexShrink: 0 }}>
@@ -199,7 +299,7 @@ export default function LayoutPainel({ children }) {
         </div>
       </nav>
 
-      <main className="page-content-animated" style={{ marginLeft: sidebarWidth, flex: 1, minHeight: '100vh', width: `calc(100% - ${sidebarWidth})`, transition: transicaoSidebar }}>
+      <main className="ip-main page-content-animated" style={{ marginLeft: sidebarWidth, flex: 1, minHeight: '100vh', width: `calc(100% - ${sidebarWidth})`, transition: transicaoSidebar }}>
         {children}
       </main>
     </div>

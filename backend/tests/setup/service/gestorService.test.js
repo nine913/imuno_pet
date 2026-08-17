@@ -17,6 +17,7 @@ describe('TEST-GES-001 - dashboard sem clínica', () => {
     expect(resultado).toEqual({
       kpis: null,
       vacinasAplicadas: [],
+      coberturaEspecie: [],
       atendimentosMes: [],
       aplicacoesVet: [],
       clinica: null
@@ -39,6 +40,9 @@ describe('TEST-GES-002 - dashboard com dados', () => {
       ])
       .mockResolvedValueOnce([
         [{ nome_vacina: 'V10', quantidade: 5 }]
+      ])
+      .mockResolvedValueOnce([
+        [{ especie: 'Cachorro', quantidade: 7 }]
       ])
       .mockResolvedValueOnce([
         [{ mes: '2026-06', quantidade: 10 }]
@@ -67,6 +71,12 @@ describe('TEST-GES-002 - dashboard com dados', () => {
           quantidade: 5
         }
       ],
+      coberturaEspecie: [
+        {
+          especie: 'Cachorro',
+          quantidade: 7
+        }
+      ],
       atendimentosMes: [
         {
           mes: '2026-06',
@@ -85,7 +95,7 @@ describe('TEST-GES-002 - dashboard com dados', () => {
       }
     });
 
-    expect(db.query).toHaveBeenCalledTimes(5);
+    expect(db.query).toHaveBeenCalledTimes(6);
   });
 });
 

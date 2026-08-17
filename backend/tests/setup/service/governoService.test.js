@@ -49,7 +49,8 @@ describe('TEST-GOV-001 - dadosEpidemiologicos() query vazia', () => {
       .mockResolvedValueOnce([mockRiscoRegiao])
       .mockResolvedValueOnce([mockCoberturaEspecie])
       .mockResolvedValueOnce([mockEvolucao])
-      .mockResolvedValueOnce([mockTopVacinas]);
+      .mockResolvedValueOnce([mockTopVacinas])
+      .mockResolvedValueOnce([[]]);
 
     const result = await governoService.dadosEpidemiologicos({});
 
@@ -63,7 +64,7 @@ describe('TEST-GOV-001 - dadosEpidemiologicos() query vazia', () => {
     expect(result.evolucaoTemporal).toEqual(mockEvolucao);
     expect(result.topVacinas).toEqual(mockTopVacinas);
 
-    expect(db.query).toHaveBeenCalledTimes(4);
+    expect(db.query).toHaveBeenCalledTimes(5);
   });
 
 });
@@ -107,7 +108,8 @@ describe('TEST-GOV-002 - dadosEpidemiologicos() filtro por espécie', () => {
       .mockResolvedValueOnce([mockRiscoRegiao])
       .mockResolvedValueOnce([mockCoberturaEspecie])
       .mockResolvedValueOnce([mockEvolucao])
-      .mockResolvedValueOnce([mockTopVacinas]);
+      .mockResolvedValueOnce([mockTopVacinas])
+      .mockResolvedValueOnce([[]]);
 
     const query = {
       especie: 'CANINA'
@@ -125,7 +127,7 @@ describe('TEST-GOV-002 - dadosEpidemiologicos() filtro por espécie', () => {
     );
 
     // Validação geral
-    expect(db.query).toHaveBeenCalledTimes(4);
+    expect(db.query).toHaveBeenCalledTimes(5);
   });
 
 });
@@ -169,7 +171,8 @@ describe('TEST-GOV-003 - dadosEpidemiologicos() filtro por localidade', () => {
       .mockResolvedValueOnce([mockRiscoRegiao])
       .mockResolvedValueOnce([mockCoberturaEspecie])
       .mockResolvedValueOnce([mockEvolucao])
-      .mockResolvedValueOnce([mockTopVacinas]);
+      .mockResolvedValueOnce([mockTopVacinas])
+      .mockResolvedValueOnce([[]]);
 
     const query = {
       localidade: 'Belém'
@@ -187,7 +190,7 @@ describe('TEST-GOV-003 - dadosEpidemiologicos() filtro por localidade', () => {
     );
 
     // garante execução completa
-    expect(db.query).toHaveBeenCalledTimes(4);
+    expect(db.query).toHaveBeenCalledTimes(5);
   });
 
 });
@@ -231,7 +234,8 @@ describe('TEST-GOV-004 - dadosEpidemiologicos() filtros combinados', () => {
       .mockResolvedValueOnce([mockRiscoRegiao])
       .mockResolvedValueOnce([mockCoberturaEspecie])
       .mockResolvedValueOnce([mockEvolucao])
-      .mockResolvedValueOnce([mockTopVacinas]);
+      .mockResolvedValueOnce([mockTopVacinas])
+      .mockResolvedValueOnce([[]]);
 
     const query = {
       especie: 'FELINA',
@@ -256,7 +260,7 @@ describe('TEST-GOV-004 - dadosEpidemiologicos() filtros combinados', () => {
     );
 
     // valida execução completa
-    expect(db.query).toHaveBeenCalledTimes(4);
+    expect(db.query).toHaveBeenCalledTimes(5);
   });
 
 });
@@ -300,7 +304,8 @@ describe('TEST-GOV-005 - dadosEpidemiologicos() filtro de datas', () => {
       .mockResolvedValueOnce([mockRiscoRegiao])
       .mockResolvedValueOnce([mockCoberturaEspecie])
       .mockResolvedValueOnce([mockEvolucao])
-      .mockResolvedValueOnce([mockTopVacinas]);
+      .mockResolvedValueOnce([mockTopVacinas])
+      .mockResolvedValueOnce([[]]);
 
     const query = {
       inicio: '2026-01-01',
@@ -322,7 +327,7 @@ describe('TEST-GOV-005 - dadosEpidemiologicos() filtro de datas', () => {
     );
 
     // garante execução completa do fluxo
-    expect(db.query).toHaveBeenCalledTimes(4);
+    expect(db.query).toHaveBeenCalledTimes(5);
   });
 
 });
@@ -373,7 +378,8 @@ describe('TEST-GOV-006 - dadosEpidemiologicos() agrupamento por região', () => 
       .mockResolvedValueOnce([mockRiscoRegiao])
       .mockResolvedValueOnce([mockCoberturaEspecie])
       .mockResolvedValueOnce([mockEvolucao])
-      .mockResolvedValueOnce([mockTopVacinas]);
+      .mockResolvedValueOnce([mockTopVacinas])
+      .mockResolvedValueOnce([[]]);
 
     const result = await governoService.dadosEpidemiologicos({});
 
@@ -393,7 +399,7 @@ describe('TEST-GOV-006 - dadosEpidemiologicos() agrupamento por região', () => 
     );
 
     // garante fluxo completo
-    expect(db.query).toHaveBeenCalledTimes(4);
+    expect(db.query).toHaveBeenCalledTimes(5);
   });
 
 });
@@ -438,7 +444,8 @@ describe('TEST-GOV-007 - dadosEpidemiologicos() top vacinas', () => {
       .mockResolvedValueOnce([mockRiscoRegiao])
       .mockResolvedValueOnce([mockCoberturaEspecie])
       .mockResolvedValueOnce([mockEvolucao])
-      .mockResolvedValueOnce([mockTopVacinas]);
+      .mockResolvedValueOnce([mockTopVacinas])
+      .mockResolvedValueOnce([[]]);
 
     const result = await governoService.dadosEpidemiologicos({});
 
@@ -458,7 +465,7 @@ describe('TEST-GOV-007 - dadosEpidemiologicos() top vacinas', () => {
     );
 
     // garante fluxo completo
-    expect(db.query).toHaveBeenCalledTimes(4);
+    expect(db.query).toHaveBeenCalledTimes(5);
   });
 
 });
@@ -501,7 +508,8 @@ describe('TEST-GOV-008 - dadosEpidemiologicos() evolução temporal mensal', () 
       .mockResolvedValueOnce([mockRiscoRegiao])
       .mockResolvedValueOnce([mockCoberturaEspecie])
       .mockResolvedValueOnce([mockEvolucao])
-      .mockResolvedValueOnce([mockTopVacinas]);
+      .mockResolvedValueOnce([mockTopVacinas])
+      .mockResolvedValueOnce([[]]);
 
     const result = await governoService.dadosEpidemiologicos({});
 
@@ -526,7 +534,7 @@ describe('TEST-GOV-008 - dadosEpidemiologicos() evolução temporal mensal', () 
     );
 
     // garante fluxo completo
-    expect(db.query).toHaveBeenCalledTimes(4);
+    expect(db.query).toHaveBeenCalledTimes(5);
   });
 
 });
@@ -568,7 +576,8 @@ describe('TEST-GOV-009 - dadosEpidemiologicos() cobertura por espécie', () => {
       .mockResolvedValueOnce([mockRiscoRegiao])
       .mockResolvedValueOnce([mockCoberturaEspecie])
       .mockResolvedValueOnce([mockEvolucao])
-      .mockResolvedValueOnce([mockTopVacinas]);
+      .mockResolvedValueOnce([mockTopVacinas])
+      .mockResolvedValueOnce([[]]);
 
     const result = await governoService.dadosEpidemiologicos({});
 
@@ -588,7 +597,37 @@ describe('TEST-GOV-009 - dadosEpidemiologicos() cobertura por espécie', () => {
     );
 
     // garante execução completa do fluxo
-    expect(db.query).toHaveBeenCalledTimes(4);
+    expect(db.query).toHaveBeenCalledTimes(5);
+  });
+
+});
+
+describe('TEST-GOV-016 - dadosEpidemiologicos() distribuição por status', () => {
+
+  it('Deve retornar a distribuição de registros por status', async () => {
+    const mockDistribuicaoStatus = [
+      { status: 'APLICADA', quantidade: 40 },
+      { status: 'ATRASADA', quantidade: 10 },
+      { status: 'PENDENTE', quantidade: 5 }
+    ];
+
+    db.query
+      .mockResolvedValueOnce([[]])
+      .mockResolvedValueOnce([[]])
+      .mockResolvedValueOnce([[]])
+      .mockResolvedValueOnce([[]])
+      .mockResolvedValueOnce([mockDistribuicaoStatus]);
+
+    const result = await governoService.dadosEpidemiologicos({});
+
+    expect(result.distribuicaoStatus).toEqual(mockDistribuicaoStatus);
+
+    expect(db.query).toHaveBeenCalledWith(
+      expect.stringContaining('GROUP BY rv.status'),
+      expect.any(Array)
+    );
+
+    expect(db.query).toHaveBeenCalledTimes(5);
   });
 
 });

@@ -27,6 +27,15 @@ export default function AdminAvisos() {
   const [tema, setTema] = useState('claro');
   const [altoContraste, setAltoContraste] = useState(false);
 
+  const buscarAvisos = async () => {
+    try {
+      const resposta = await apiFetch('/admin/avisos');
+      if (resposta.ok) {
+        setAvisos(await resposta.json());
+      }
+    } catch (erro) {}
+  };
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('usuarioImunoPet');
@@ -39,6 +48,7 @@ export default function AdminAvisos() {
         router.push('/dashboard');
         return;
       }
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza a sessão salva em localStorage (sistema externo, só existe no cliente) na montagem; padrão seguro para SSR
       setUsuario(user);
 
       const configSalvas = localStorage.getItem(`imunoPetConfig_${user.id_usuario}`);
@@ -51,15 +61,6 @@ export default function AdminAvisos() {
       buscarAvisos();
     }
   }, [router]);
-
-  const buscarAvisos = async () => {
-    try {
-      const resposta = await apiFetch('/admin/avisos');
-      if (resposta.ok) {
-        setAvisos(await resposta.json());
-      }
-    } catch (erro) {}
-  };
 
   const abrirModalCadastro = () => {
     setIsEdicao(false);

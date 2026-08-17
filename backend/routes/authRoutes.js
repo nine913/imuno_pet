@@ -23,9 +23,19 @@ const limiteRedefinirSenha = rateLimit({
   message: { erro: 'Muitas tentativas. Tente novamente mais tarde.' }
 });
 
+// Limita tentativas de troca de senha (usuário já autenticado, mas dificulta força bruta contra a senha atual).
+const limiteAlterarSenha = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { erro: 'Muitas tentativas. Tente novamente mais tarde.' }
+});
+
 router.post('/login', limiteAutenticacao, authController.login);
 router.post('/logout', autenticar, authController.logout);
 router.post('/cadastro', limiteAutenticacao, authController.cadastro);
+router.post('/alterar-senha', autenticar, limiteAlterarSenha, authController.alterarSenha);
 
 // Fluxo de redefinição de senha em 2 passos: solicitar (recebe link por e-mail) -> confirmar (com o token do link).
 router.post('/solicitar-redefinicao-senha', limiteRedefinirSenha, authController.solicitarRedefinicaoSenha);

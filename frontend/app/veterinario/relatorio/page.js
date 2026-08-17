@@ -23,30 +23,6 @@ export default function VetRelatorio() {
 
   const router = useRouter();
 
-  useEffect(() => {
-    const usuarioString = localStorage.getItem('usuarioImunoPet');
-    if (!usuarioString) {
-      router.push('/');
-      return;
-    }
-    const user = JSON.parse(usuarioString);
-    if (user.perfil !== 'VETERINARIO') {
-      router.push('/dashboard');
-      return;
-    }
-    setUsuario(user);
-
-    const configSalvas = localStorage.getItem(`imunoPetConfig_${user.id_usuario}`);
-    if (configSalvas) {
-      const config = JSON.parse(configSalvas);
-      setTema(config.tema || 'claro');
-      setAltoContraste(config.altoContraste || false);
-    }
-
-    carregarEspecies();
-    gerarRelatorio(user.id_clinica, user.id_usuario); 
-  }, [router]);
-
   const carregarEspecies = async () => {
     try {
       const resposta = await apiFetch('/admin/especies');
@@ -85,6 +61,31 @@ export default function VetRelatorio() {
       setCarregando(false);
     }
   };
+
+  useEffect(() => {
+    const usuarioString = localStorage.getItem('usuarioImunoPet');
+    if (!usuarioString) {
+      router.push('/');
+      return;
+    }
+    const user = JSON.parse(usuarioString);
+    if (user.perfil !== 'VETERINARIO') {
+      router.push('/dashboard');
+      return;
+    }
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza a sessão salva em localStorage (sistema externo, só existe no cliente) na montagem; padrão seguro para SSR
+    setUsuario(user);
+
+    const configSalvas = localStorage.getItem(`imunoPetConfig_${user.id_usuario}`);
+    if (configSalvas) {
+      const config = JSON.parse(configSalvas);
+      setTema(config.tema || 'claro');
+      setAltoContraste(config.altoContraste || false);
+    }
+
+    carregarEspecies();
+    gerarRelatorio(user.id_clinica, user.id_usuario);
+  }, [router]);
 
   const handleChangeFiltro = (campo, valor) => {
     setFiltros(prev => ({ ...prev, [campo]: valor }));

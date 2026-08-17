@@ -75,20 +75,23 @@ Dependências principais: `express`, `mysql2`, `cors`, `bcrypt`, `dotenv`, `json
 
 ## Frontend
 
-- Persistência/estado no navegador via `localStorage` (token JWT + dados do usuário logado)
-- Toda chamada à API passa por `frontend/app/lib/api.js` (`apiFetch`), que centraliza a URL base (`NEXT_PUBLIC_API_URL`) e injeta o header `Authorization: Bearer`
+- Sessão via cookie `httpOnly` (JWT), setado pelo backend no login — inacessível a JavaScript, resistente a roubo via XSS. O `localStorage` guarda apenas o perfil do usuário (nome, perfil, ids) para uso da interface, nunca o token.
+- Proteção CSRF por double-submit: o backend também seta um cookie `csrf_token` (não `httpOnly`); o frontend lê seu valor e o reenvia no header `X-CSRF-Token` em toda requisição que altera estado (POST/PUT/PATCH/DELETE). Requisições de leitura (GET) não exigem esse header.
+- Toda chamada à API passa por `frontend/app/lib/api.js` (`apiFetch`), que centraliza a URL base (`NEXT_PUBLIC_API_URL`), envia `credentials: 'include'` (para o cookie de sessão) e injeta o `X-CSRF-Token` quando necessário.
+- Tela `/configuracoes`: alteração de senha, tema/fonte, acessibilidade (alto contraste, redução de animações, espaçamento de texto ampliado, destaque de foco de teclado) e preferências de notificação. As preferências ficam em `localStorage` (`imunoPetConfig_<id_usuario>`, via `frontend/app/lib/configuracoes.js`) e as regras de acessibilidade são injetadas globalmente pelo `LayoutPainel`, valendo para todas as páginas autenticadas.
 
 ## Principais endpoints (evidência no backend)
 
-Todas as rotas exigem um token JWT válido (`Authorization: Bearer <token>`) e o perfil correto, exceto as marcadas como **pública**.
+Todas as rotas exigem sessão válida (cookie `httpOnly` de login, ou `Authorization: Bearer <token>` para uso programático/API) e o perfil correto, exceto as marcadas como **pública**. Rotas que alteram estado (POST/PUT/PATCH/DELETE) autenticadas via cookie também exigem o header `X-CSRF-Token` correspondente ao cookie `csrf_token` da sessão.
 
 ### Autenticação e usuários
 
-- `POST /login` — pública
+- `POST /login` — pública; em caso de sucesso, seta os cookies `token` (httpOnly) e `csrf_token`
 - `POST /cadastro` (auto-cadastro de tutor) — pública
-- `POST /logout` — requer token
+- `POST /logout` — requer sessão + `X-CSRF-Token`; limpa os cookies de sessão
 - `POST /solicitar-redefinicao-senha` — pública (envia link com token de uso único por e-mail; sem SMTP configurado, o link é registrado no console do backend)
 - `POST /confirmar-redefinicao-senha` — pública (recebe o token do link + nova senha)
+- `POST /alterar-senha` — requer sessão + `X-CSRF-Token`; troca a senha do próprio usuário logado (exige a senha atual)
 
 ### Tutor
 
@@ -120,7 +123,7 @@ Seguindo `Docs/auditoria.md`, os itens abaixo devem ser marcados como `[x]` apen
 - [x] Login de usuários
 - [x] Validação de senha com bcrypt
 - [x] Controle básico por perfil
-- [x] Persistência de sessão com localStorage (token JWT)
+- [x] Persistência de sessão via cookie httpOnly (JWT) + proteção CSRF por double-submit token
 - [x] Recuperação de senha por token de uso único enviado por e-mail
 - [x] Logout global padronizado (`POST /logout` autenticado)
 - [x] Expiração de sessão (token JWT expira em `JWT_EXPIRES_IN`, padrão 8h)
@@ -205,7 +208,8 @@ Seguindo `Docs/auditoria.md`, os itens abaixo devem ser marcados como `[x]` apen
 
 ## Observações
 
-- Autenticação via JWT (`Authorization: Bearer`); o perfil no token determina quais dados/rotas são acessados, com verificação de posse (tutor) e escopo de clínica (gestor/veterinário) no backend — nunca confiando em valores enviados pelo cliente.
+- Autenticação via JWT guardado em cookie `httpOnly` (com fallback a `Authorization: Bearer` para uso programático); o perfil no token determina quais dados/rotas são acessados, com verificação de posse (tutor) e escopo de clínica (gestor/veterinário) no backend — nunca confiando em valores enviados pelo cliente.
+- Em produção, defina `NODE_ENV=production` no backend para que o cookie de sessão seja marcado `Secure` (só trafega por HTTPS). Se frontend e backend forem servidos em domínios totalmente diferentes (não apenas subdomínios do mesmo domínio), o cookie `SameSite=Lax` atual não será enviado em requisições cross-site — nesse cenário seria necessário `SameSite=None; Secure` e reavaliar a proteção CSRF.
 - O banco pode ser criado e populado usando `database/DB.sql` (schema já inclui os campos de redefinição de senha) e, opcionalmente, `database/INSERT IMUNOPET BRASIL.sql` (dados de exemplo, senha padrão documentada no próprio arquivo).
 - Bancos criados **antes** desta atualização precisam rodar a migration `database/migrations/001_add_reset_senha.sql` para ganhar suporte à redefinição de senha por token.
 - O frontend antigo (`frontend-antigo/`) foi mantido por compatibilidade, mas não recebe mais manutenção ativa — o frontend em produção é o `frontend/` (Next.js).

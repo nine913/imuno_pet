@@ -431,28 +431,23 @@ describe('TEST-ADM-018 - deletarOrgao() existente', () => {
 describe('TEST-ADM-020 - obterEstatisticas()', () => {
 
    it('Deve retornar as estatísticas do sistema', async () => {
+  const usuariosPorPerfil = [{ perfil: 'TUTOR', quantidade: 30 }, { perfil: 'VETERINARIO', quantidade: 15 }];
+  const statusVacinacao = [{ status: 'APLICADA', quantidade: 100 }, { status: 'PENDENTE', quantidade: 20 }];
+  const evolucaoMensal = [{ mes: '2026-07', quantidade: 40 }, { mes: '2026-08', quantidade: 35 }];
+  const rankingClinicas = [{ nome_fantasia: 'Clínica X', quantidade: 50 }];
+
   db.query
-    .mockResolvedValueOnce([
-      [
-        {
-          total: 10
-        }
-      ]
-    ])
-    .mockResolvedValueOnce([
-      [
-        {
-          total: 50
-        }
-      ]
-    ])
-    .mockResolvedValueOnce([
-      [
-        {
-          total: 25
-        }
-      ]
-    ]);
+    .mockResolvedValueOnce([[{ total: 10 }]])
+    .mockResolvedValueOnce([[{ total: 50 }]])
+    .mockResolvedValueOnce([[{ total: 25 }]])
+    .mockResolvedValueOnce([[{ total: 8 }]])
+    .mockResolvedValueOnce([[{ total: 68 }]])
+    .mockResolvedValueOnce([[{ total: 45 }]])
+    .mockResolvedValueOnce([[{ total: 1500 }]])
+    .mockResolvedValueOnce([usuariosPorPerfil])
+    .mockResolvedValueOnce([statusVacinacao])
+    .mockResolvedValueOnce([evolucaoMensal])
+    .mockResolvedValueOnce([rankingClinicas]);
 
   const resultado = await adminService.obterEstatisticas();
 
@@ -471,10 +466,20 @@ describe('TEST-ADM-020 - obterEstatisticas()', () => {
     'SELECT COUNT(*) as total FROM vacina'
   );
 
+  expect(db.query).toHaveBeenCalledTimes(11);
+
   expect(resultado).toEqual({
     total_clinicas: 10,
+    total_clinicas_ativas: 8,
     total_usuarios: 50,
-    total_vacinas: 25
+    total_vacinas: 25,
+    total_animais: 68,
+    total_tutores: 45,
+    total_registros_vacinacao: 1500,
+    usuariosPorPerfil,
+    statusVacinacao,
+    evolucaoMensal,
+    rankingClinicas
   });
    });
 

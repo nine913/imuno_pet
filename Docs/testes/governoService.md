@@ -128,4 +128,4 @@ Validar geração de relatórios dinâmicos com filtros opcionais e múltiplas c
 - [x] Filtros SQL dinâmicos testados  
 - [x] Agregações e rankings validados  
 - [x] Evolução temporal coberta  
-- [x] Módulo governoService estruturado e pronto para uso  
+- [x] Módulo governoService concluído (`backend/tests/setup/service/governoService.test.js`, parte da suíte de 170 testes do backend)  

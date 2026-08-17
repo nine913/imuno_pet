@@ -13,6 +13,7 @@ export default function Dashboard() {
   const [altoContraste, setAltoContraste] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sinaliza que já passamos da hidratação (evita mismatch de SSR); é o próprio propósito deste effect
     setIsMounted(true);
     const usuarioString = localStorage.getItem('usuarioImunoPet');
     
@@ -158,6 +159,12 @@ export default function Dashboard() {
 
           {perfilUsuario === 'ADMINISTRADOR' && (
              <>
+              <div className="premium-card" style={{ backgroundColor: bgCard, border: `1px solid ${borderColor}`, borderRadius: '16px', padding: '32px', cursor: 'pointer', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }} onClick={() => router.push('/admin/dashboard')}>
+                <div style={{ width: '56px', height: '56px', borderRadius: '16px', backgroundColor: isEscuro ? '#1e3a8a' : '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', marginBottom: '20px', filter: sombraEmoji }}>📊</div>
+                <h3 style={{ color: headerColor, margin: '0 0 12px 0', fontSize: '20px', fontWeight: '700' }}>Estatísticas do Sistema</h3>
+                <p style={{ color: textSecundario, margin: 0, fontSize: '14px', lineHeight: '1.6' }}>Acompanhe clínicas, usuários e volume de vacinação em toda a plataforma.</p>
+              </div>
+
               <div className="premium-card" style={{ backgroundColor: bgCard, border: `1px solid ${borderColor}`, borderRadius: '16px', padding: '32px', cursor: 'pointer', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }} onClick={() => router.push('/admin/clinicas')}>
                 <div style={{ width: '56px', height: '56px', borderRadius: '16px', backgroundColor: isEscuro ? '#064e3b' : '#ecfdf5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', marginBottom: '20px', filter: sombraEmoji }}>🏥</div>
                 <h3 style={{ color: headerColor, margin: '0 0 12px 0', fontSize: '20px', fontWeight: '700' }}>Gerenciar Clínicas</h3>

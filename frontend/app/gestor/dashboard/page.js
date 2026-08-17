@@ -13,6 +13,7 @@ export default function GestorDashboard() {
   const [kpis, setKpis] = useState({ total_aplicadas: 0, total_atrasadas: 0, total_pendentes: 0, total_animais: 0 });
   const [chartDataEvolucao, setChartDataEvolucao] = useState([]);
   const [chartDataVacinas, setChartDataVacinas] = useState([]);
+  const [chartDataEspecie, setChartDataEspecie] = useState([]);
   const [chartDataVet, setChartDataVet] = useState([]);
 
   const [tema, setTema] = useState('claro');
@@ -20,41 +21,15 @@ export default function GestorDashboard() {
 
   const canvasEvolucaoRef = useRef(null);
   const canvasVacinasRef = useRef(null);
+  const canvasEspecieRef = useRef(null);
   const canvasVetRef = useRef(null);
-  
+
   const chartEvolucaoInstance = useRef(null);
   const chartVacinasInstance = useRef(null);
+  const chartEspecieInstance = useRef(null);
   const chartVetInstance = useRef(null);
 
   const router = useRouter();
-
-  useEffect(() => {
-    const usuarioString = localStorage.getItem('usuarioImunoPet');
-    if (!usuarioString) {
-      router.push('/');
-      return;
-    }
-    const user = JSON.parse(usuarioString);
-    if (user.perfil.toUpperCase() !== 'GESTOR' && user.perfil.toUpperCase() !== 'GESTOR_CLINICA') {
-      router.push('/dashboard');
-      return;
-    }
-    setUsuario(user);
-
-    const configSalvas = localStorage.getItem(`imunoPetConfig_${user.id_usuario}`);
-    if (configSalvas) {
-      const config = JSON.parse(configSalvas);
-      setTema(config.tema || 'claro');
-      setAltoContraste(config.altoContraste || false);
-    }
-
-    const initialInicio = '2023-01-01'; 
-    const initialFim = '2026-12-31';
-    setFiltros({ inicio: initialInicio, fim: initialFim });
-
-    carregarClinica(user.id_clinica);
-    carregarDadosGestor(initialInicio, initialFim, user.id_clinica, user.id_usuario);
-  }, [router]);
 
   const carregarClinica = async (id_clinica) => {
     if (!id_clinica) return;
@@ -83,10 +58,40 @@ export default function GestorDashboard() {
         setKpis(dados.kpis || { total_aplicadas: 0, total_atrasadas: 0, total_pendentes: 0, total_animais: 0 });
         setChartDataEvolucao(dados.atendimentosMes || []);
         setChartDataVacinas(dados.vacinasAplicadas || []);
+        setChartDataEspecie(dados.coberturaEspecie || []);
         setChartDataVet(dados.aplicacoesVet || []);
       }
     } catch (erro) {}
   };
+
+  useEffect(() => {
+    const usuarioString = localStorage.getItem('usuarioImunoPet');
+    if (!usuarioString) {
+      router.push('/');
+      return;
+    }
+    const user = JSON.parse(usuarioString);
+    if (user.perfil.toUpperCase() !== 'GESTOR' && user.perfil.toUpperCase() !== 'GESTOR_CLINICA') {
+      router.push('/dashboard');
+      return;
+    }
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza a sessão salva em localStorage (sistema externo, só existe no cliente) na montagem; padrão seguro para SSR
+    setUsuario(user);
+
+    const configSalvas = localStorage.getItem(`imunoPetConfig_${user.id_usuario}`);
+    if (configSalvas) {
+      const config = JSON.parse(configSalvas);
+      setTema(config.tema || 'claro');
+      setAltoContraste(config.altoContraste || false);
+    }
+
+    const initialInicio = '2023-01-01';
+    const initialFim = '2026-12-31';
+    setFiltros({ inicio: initialInicio, fim: initialFim });
+
+    carregarClinica(user.id_clinica);
+    carregarDadosGestor(initialInicio, initialFim, user.id_clinica, user.id_usuario);
+  }, [router]);
 
   const handleFiltrar = () => {
     carregarDadosGestor(filtros.inicio, filtros.fim, usuario?.id_clinica, usuario?.id_usuario);
@@ -158,6 +163,23 @@ export default function GestorDashboard() {
         });
       }
 
+      if (chartEspecieInstance.current) chartEspecieInstance.current.destroy();
+      if (canvasEspecieRef.current) {
+        const ctx = canvasEspecieRef.current.getContext('2d');
+        const labels = chartDataEspecie.length > 0 ? chartDataEspecie.map(item => item.especie) : ['Sem dados'];
+        const valores = chartDataEspecie.length > 0 ? chartDataEspecie.map(item => item.quantidade) : [1];
+        const colors = chartDataEspecie.length > 0 ? ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ec4899'] : ['#cbd5e1'];
+
+        chartEspecieInstance.current = new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: labels,
+            datasets: [{ data: valores, backgroundColor: colors, borderWidth: 0, hoverOffset: 4 }]
+          },
+          options: { responsive: true, cutout: '70%', plugins: { legend: { position: 'bottom', labels: { color: chartTextColor, font: { family: "'Inter', sans-serif", size: 13 } } } } }
+        });
+      }
+
       if (chartVetInstance.current) chartVetInstance.current.destroy();
       if (canvasVetRef.current) {
         const ctx = canvasVetRef.current.getContext('2d');
@@ -193,7 +215,7 @@ export default function GestorDashboard() {
     if (usuario) {
       renderCharts();
     }
-  }, [chartDataEvolucao, chartDataVacinas, chartDataVet, usuario, tema]);
+  }, [chartDataEvolucao, chartDataVacinas, chartDataEspecie, chartDataVet, usuario, tema]);
 
   if (!usuario) return null;
 
@@ -291,6 +313,12 @@ export default function GestorDashboard() {
             <h3 style={{ margin: '0 0 20px 0', color: textColor, fontSize: '18px', fontWeight: '700' }}>Vacinas Mais Aplicadas</h3>
             <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', maxHeight: '300px' }}>
               <canvas ref={canvasVacinasRef}></canvas>
+            </div>
+          </div>
+          <div style={{ backgroundColor: bgCard, border: `1px solid ${borderColor}`, padding: '24px', borderRadius: '16px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column' }}>
+            <h3 style={{ margin: '0 0 20px 0', color: textColor, fontSize: '18px', fontWeight: '700' }}>Cobertura por Espécie</h3>
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', maxHeight: '300px' }}>
+              <canvas ref={canvasEspecieRef}></canvas>
             </div>
           </div>
         </div>

@@ -35,8 +35,9 @@ export default function VetEspeciesRacas() {
         router.push('/dashboard');
         return;
       }
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza a sessão salva em localStorage (sistema externo, só existe no cliente) na montagem; padrão seguro para SSR
       setUsuario(user);
-      
+
       const configSalvas = localStorage.getItem(`imunoPetConfig_${user.id_usuario}`);
       if (configSalvas) {
         const config = JSON.parse(configSalvas);
@@ -45,12 +46,6 @@ export default function VetEspeciesRacas() {
       }
     }
   }, [router]);
-
-  useEffect(() => {
-    if (usuario) {
-      carregarDados();
-    }
-  }, [usuario]);
 
   const carregarDados = async () => {
     try {
@@ -61,6 +56,13 @@ export default function VetEspeciesRacas() {
       if (resRacas.ok) setRacas(await resRacas.json());
     } catch (erro) {}
   };
+
+  useEffect(() => {
+    if (usuario) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- busca espécies/raças na API assim que a sessão é conhecida (efeito colateral externo); padrão de data fetching documentado pelo React
+      carregarDados();
+    }
+  }, [usuario]);
 
   const cadastrarEspecie = async (e) => {
     e.preventDefault();

@@ -38,7 +38,15 @@ export default function CadastrarTutor() {
 
   const hoje = new Date().toISOString().split('T')[0];
 
+  const carregarEspecies = async () => {
+    try {
+      const res = await apiFetch('/admin/especies');
+      if (res.ok) setEspecies(await res.json());
+    } catch (e) {}
+  };
+
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sinaliza que já passamos da hidratação (evita mismatch de SSR); é o próprio propósito deste effect
     setIsMounted(true);
     const saved = localStorage.getItem('usuarioImunoPet');
     if (saved) {
@@ -58,16 +66,10 @@ export default function CadastrarTutor() {
 
   useEffect(() => {
     if (usuario) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- busca as espécies na API assim que a sessão é conhecida (efeito colateral externo); padrão de data fetching documentado pelo React
       carregarEspecies();
     }
   }, [usuario]);
-
-  const carregarEspecies = async () => {
-    try {
-      const res = await apiFetch('/admin/especies');
-      if (res.ok) setEspecies(await res.json());
-    } catch (e) {}
-  };
 
   const handleEspecieChange = async (e) => {
     const value = e.target.value;

@@ -16,25 +16,6 @@ export default function MeusAnimaisTutor() {
   const [altoContraste, setAltoContraste] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    const usuarioString = localStorage.getItem('usuarioImunoPet');
-    if (!usuarioString) {
-      router.push('/');
-      return;
-    } 
-    
-    const user = JSON.parse(usuarioString);
-    setUsuario(user);
-    buscarDadosIniciais(user.id_usuario);
-
-    const configSalvas = localStorage.getItem(`imunoPetConfig_${user.id_usuario}`);
-    if (configSalvas) {
-      const config = JSON.parse(configSalvas);
-      setTema(config.tema || 'claro');
-      setAltoContraste(config.altoContraste || false);
-    }
-  }, [router]);
-
   const buscarDadosIniciais = async (id_usuario) => {
     try {
       const resAlertas = await apiFetch(`/tutor/alertas/${id_usuario}?id_usuario_log=${id_usuario}`);
@@ -55,6 +36,26 @@ export default function MeusAnimaisTutor() {
       setErro('Erro de conexão com o servidor.');
     }
   };
+
+  useEffect(() => {
+    const usuarioString = localStorage.getItem('usuarioImunoPet');
+    if (!usuarioString) {
+      router.push('/');
+      return;
+    }
+
+    const user = JSON.parse(usuarioString);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza a sessão salva em localStorage (sistema externo, só existe no cliente) na montagem; padrão seguro para SSR
+    setUsuario(user);
+    buscarDadosIniciais(user.id_usuario);
+
+    const configSalvas = localStorage.getItem(`imunoPetConfig_${user.id_usuario}`);
+    if (configSalvas) {
+      const config = JSON.parse(configSalvas);
+      setTema(config.tema || 'claro');
+      setAltoContraste(config.altoContraste || false);
+    }
+  }, [router]);
 
   const handleBuscar = () => {
     const termo = termoBusca.toLowerCase();

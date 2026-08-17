@@ -27,30 +27,6 @@ function HistoricoConteudo() {
   const idAnimal = searchParams.get('id');
   const dataHoje = new Date().toISOString().split('T')[0];
 
-  useEffect(() => {
-    const usuarioString = localStorage.getItem('usuarioImunoPet');
-    if (!usuarioString) {
-      router.push('/');
-      return;
-    }
-    const user = JSON.parse(usuarioString);
-    if (user.perfil !== 'VETERINARIO' && user.perfil !== 'GESTOR_CLINICA' && user.perfil !== 'ADMINISTRADOR') {
-      router.push('/dashboard');
-      return;
-    }
-    setUsuario(user);
-
-    const configSalvas = localStorage.getItem(`imunoPetConfig_${user.id_usuario}`);
-    if (configSalvas) {
-      const config = JSON.parse(configSalvas);
-      setTema(config.tema || 'claro');
-      setAltoContraste(config.altoContraste || false);
-    }
-
-    carregarVacinas();
-    buscarHistorico(user.id_usuario);
-  }, [idAnimal, router]);
-
   const carregarVacinas = async () => {
     try {
       const res = await apiFetch('/vacinas');
@@ -71,6 +47,31 @@ function HistoricoConteudo() {
       setMsgEditar({ texto: 'Erro de conexão.', cor: '#ef4444' });
     }
   };
+
+  useEffect(() => {
+    const usuarioString = localStorage.getItem('usuarioImunoPet');
+    if (!usuarioString) {
+      router.push('/');
+      return;
+    }
+    const user = JSON.parse(usuarioString);
+    if (user.perfil !== 'VETERINARIO' && user.perfil !== 'GESTOR_CLINICA' && user.perfil !== 'ADMINISTRADOR') {
+      router.push('/dashboard');
+      return;
+    }
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza a sessão salva em localStorage (sistema externo, só existe no cliente) na montagem; padrão seguro para SSR
+    setUsuario(user);
+
+    const configSalvas = localStorage.getItem(`imunoPetConfig_${user.id_usuario}`);
+    if (configSalvas) {
+      const config = JSON.parse(configSalvas);
+      setTema(config.tema || 'claro');
+      setAltoContraste(config.altoContraste || false);
+    }
+
+    carregarVacinas();
+    buscarHistorico(user.id_usuario);
+  }, [idAnimal, router]);
 
   const calcularProxima = (idVac, dataApp) => {
     if (!idVac || !dataApp) return '';

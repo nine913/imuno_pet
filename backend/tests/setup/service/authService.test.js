@@ -60,6 +60,41 @@ describe('TEST-AUTHSVC-001 - autenticar()', () => {
   });
 });
 
+describe('TEST-AUTHSVC-005 - alterarSenha()', () => {
+  test('lança erro 404 quando o usuário não existe', async () => {
+    db.query.mockResolvedValueOnce([[]]);
+
+    await expect(authService.alterarSenha(999, 'atual', 'nova12345')).rejects.toMatchObject({
+      status: 404
+    });
+  });
+
+  test('lança erro 401 quando a senha atual está incorreta', async () => {
+    db.query.mockResolvedValueOnce([[{ senha: 'hash-atual' }]]);
+    bcrypt.compare.mockResolvedValue(false);
+
+    await expect(authService.alterarSenha(1, 'atual-errada', 'nova12345')).rejects.toMatchObject({
+      message: 'Senha atual incorreta.',
+      status: 401
+    });
+  });
+
+  test('atualiza a senha com o novo hash quando a senha atual é válida', async () => {
+    bcrypt.compare.mockResolvedValue(true);
+    bcrypt.hash.mockResolvedValue('hash-nova-senha');
+    db.query
+      .mockResolvedValueOnce([[{ senha: 'hash-atual' }]])
+      .mockResolvedValueOnce([{}]);
+
+    await authService.alterarSenha(1, 'atual-correta', 'nova12345');
+
+    expect(db.query).toHaveBeenLastCalledWith(
+      'UPDATE usuario SET senha = ? WHERE id_usuario = ?',
+      ['hash-nova-senha', 1]
+    );
+  });
+});
+
 describe('TEST-AUTHSVC-002 - cadastrarTutorPublico()', () => {
   test('lança erro 400 quando o e-mail já existe', async () => {
     db.query.mockResolvedValueOnce([[{ id_usuario: 1 }]]);

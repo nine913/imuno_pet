@@ -82,6 +82,21 @@ async function autenticar(email, senha) {
   };
 }
 
+async function alterarSenha(id_usuario, senhaAtual, novaSenha) {
+  const [rows] = await db.query('SELECT senha FROM usuario WHERE id_usuario = ?', [id_usuario]);
+  if (rows.length === 0) {
+    throw erroComStatus('Usuário não encontrado.', 404);
+  }
+
+  const senhaValida = await bcrypt.compare(senhaAtual, rows[0].senha);
+  if (!senhaValida) {
+    throw erroComStatus('Senha atual incorreta.', 401);
+  }
+
+  const hashNovaSenha = await bcrypt.hash(novaSenha, 10);
+  await db.query('UPDATE usuario SET senha = ? WHERE id_usuario = ?', [hashNovaSenha, id_usuario]);
+}
+
 async function cadastrarTutorPublico(dados) {
   const { nome_completo, email, senha, cpf, telefone, estado, cidade, bairro } = dados;
 
@@ -161,6 +176,7 @@ async function confirmarRedefinicaoSenha(tokenBruto, novaSenha) {
 
 module.exports = {
   autenticar,
+  alterarSenha,
   cadastrarTutorPublico,
   solicitarRedefinicaoSenha,
   confirmarRedefinicaoSenha

@@ -104,8 +104,8 @@
 - [x] Entidades devem possuir chave primária
 - [x] Relacionamentos devem ser mantidos
 - [x] Tabelas `clinica` e `orgao_governamental` previstas no modelo
-- [x] Dados iniciais de seed em `database/script.sql`
-- [ ] Foreign keys devem ser revisadas
+- [x] Dados iniciais de seed em `database/INSERT IMUNOPET BRASIL.sql` (schema em `database/DB.sql`)
+- [ ] Foreign keys devem ser revisadas (`animal.especie`/`animal.raca` são `VARCHAR` livres, sem FK para as tabelas `especie`/`raca` já existentes)
 - [ ] Integridade relacional deve ser fortalecida
 - [x] Constraints devem ser implementadas
 
@@ -118,7 +118,7 @@
 - [x] Senhas não devem ser armazenadas em texto puro
 - [x] Rotas deverão possuir middleware de autenticação
 - [x] Sistema deverá possuir autorização por perfil
-- [x] Sessões deverão ser protegidas
+- [x] Sessões deverão ser protegidas (token JWT em cookie httpOnly, inacessível a JavaScript/XSS, com proteção CSRF por double-submit token nas requisições que alteram estado)
 
 ---
 

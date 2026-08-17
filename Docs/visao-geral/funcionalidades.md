@@ -5,11 +5,25 @@
 - [x] Login de usuários
 - [x] Validação de senha com bcrypt
 - [x] Controle básico por perfil
-- [x] Persistência de sessão com localStorage (token JWT)
-- [x] Logout global padronizado (`POST /logout` autenticado, limpa sessão no frontend)
+- [x] Persistência de sessão via cookie httpOnly (token JWT) + proteção CSRF por double-submit token
+- [x] Logout global padronizado (`POST /logout` autenticado, limpa os cookies de sessão no backend e o perfil salvo no frontend)
 - [x] Recuperação de senha por token de uso único enviado por e-mail (`/solicitar-redefinicao-senha`, `/confirmar-redefinicao-senha`)
+- [x] Troca de senha pelo próprio usuário logado (`POST /alterar-senha`, exige a senha atual)
 - [x] Expiração de sessão (token JWT expira em `JWT_EXPIRES_IN`)
 - [x] Autenticação JWT
+
+---
+
+## CONFIGURAÇÕES E ACESSIBILIDADE
+
+- [x] Tela de configurações (`/configuracoes`) com seções de Conta, Segurança, Aparência, Acessibilidade e Notificações
+- [x] Alterar senha pela própria tela de configurações
+- [x] Tema claro/escuro e tamanho de fonte configuráveis
+- [x] Alto contraste (aplicado globalmente via filtro de contraste, além do ajuste de cores nas telas que já o implementam)
+- [x] Redução de animações e efeitos de movimento (aplicada globalmente a todas as páginas autenticadas)
+- [x] Espaçamento de texto ampliado, para leitura facilitada (aplicado globalmente)
+- [x] Destaque de foco de navegação por teclado (aplicado globalmente); itens do menu lateral agora são navegáveis via Tab/Enter
+- [ ] Preferências de notificação por e-mail/WhatsApp — salvas, mas o envio automático ainda não está implementado
 
 ---
 
@@ -19,6 +33,7 @@
 - [x] Perfil TUTOR
 - [x] Perfil VETERINARIO
 - [x] Perfil GESTOR_CLINICA
+- [x] Gestor de clínica gerencia a equipe de veterinários da própria clínica (listar, cadastrar, editar, remover)
 - [x] Perfil GOVERNO
 - [x] Controle avançado de permissões (autorização por perfil, escopo de clínica para gestor/veterinário, verificação de posse para tutor)
 - [x] Painéis específicos por perfil

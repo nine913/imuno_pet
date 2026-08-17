@@ -26,30 +26,6 @@ export default function GovernoRelatorios() {
 
   const router = useRouter();
 
-  useEffect(() => {
-    const usuarioString = localStorage.getItem('usuarioImunoPet');
-    if (!usuarioString) {
-      router.push('/');
-      return;
-    }
-    const user = JSON.parse(usuarioString);
-    if (user.perfil.toUpperCase() !== 'GOVERNO') {
-      router.push('/dashboard');
-      return;
-    }
-    setUsuario(user);
-
-    const configSalvas = localStorage.getItem(`imunoPetConfig_${user.id_usuario}`);
-    if (configSalvas) {
-      const config = JSON.parse(configSalvas);
-      setTema(config.tema || 'claro');
-      setAltoContraste(config.altoContraste || false);
-    }
-
-    carregarFiltrosAPI();
-    gerarRelatorio(user.id_usuario);
-  }, [router]);
-
   const carregarFiltrosAPI = async () => {
     try {
       const respostaVac = await apiFetch('/vacinas');
@@ -88,6 +64,31 @@ export default function GovernoRelatorios() {
       setCarregando(false);
     }
   };
+
+  useEffect(() => {
+    const usuarioString = localStorage.getItem('usuarioImunoPet');
+    if (!usuarioString) {
+      router.push('/');
+      return;
+    }
+    const user = JSON.parse(usuarioString);
+    if (user.perfil.toUpperCase() !== 'GOVERNO') {
+      router.push('/dashboard');
+      return;
+    }
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza a sessão salva em localStorage (sistema externo, só existe no cliente) na montagem; padrão seguro para SSR
+    setUsuario(user);
+
+    const configSalvas = localStorage.getItem(`imunoPetConfig_${user.id_usuario}`);
+    if (configSalvas) {
+      const config = JSON.parse(configSalvas);
+      setTema(config.tema || 'claro');
+      setAltoContraste(config.altoContraste || false);
+    }
+
+    carregarFiltrosAPI();
+    gerarRelatorio(user.id_usuario);
+  }, [router]);
 
   const handleChangeFiltro = (campo, valor) => {
     setFiltros(prev => ({ ...prev, [campo]: valor }));

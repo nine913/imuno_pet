@@ -30,30 +30,6 @@ export default function AdminGestores() {
 
   const router = useRouter();
 
-  useEffect(() => {
-    const usuarioString = localStorage.getItem('usuarioImunoPet');
-    if (!usuarioString) {
-      router.push('/');
-      return;
-    }
-    const user = JSON.parse(usuarioString);
-    if (user.perfil.toUpperCase() !== 'ADMINISTRADOR') {
-      router.push('/dashboard');
-      return;
-    }
-    setUsuario(user);
-
-    const configSalvas = localStorage.getItem(`imunoPetConfig_${user.id_usuario}`);
-    if (configSalvas) {
-      const config = JSON.parse(configSalvas);
-      setTema(config.tema || 'claro');
-      setAltoContraste(config.altoContraste || false);
-    }
-
-    buscarGestores('');
-    buscarClinicas();
-  }, [router]);
-
   const buscarGestores = async (termo = termoBusca) => {
     try {
       const resposta = await apiFetch(`/admin/gestores?termo=${termo}`);
@@ -73,6 +49,31 @@ export default function AdminGestores() {
       }
     } catch (erro) {}
   };
+
+  useEffect(() => {
+    const usuarioString = localStorage.getItem('usuarioImunoPet');
+    if (!usuarioString) {
+      router.push('/');
+      return;
+    }
+    const user = JSON.parse(usuarioString);
+    if (user.perfil.toUpperCase() !== 'ADMINISTRADOR') {
+      router.push('/dashboard');
+      return;
+    }
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza a sessão salva em localStorage (sistema externo, só existe no cliente) na montagem; padrão seguro para SSR
+    setUsuario(user);
+
+    const configSalvas = localStorage.getItem(`imunoPetConfig_${user.id_usuario}`);
+    if (configSalvas) {
+      const config = JSON.parse(configSalvas);
+      setTema(config.tema || 'claro');
+      setAltoContraste(config.altoContraste || false);
+    }
+
+    buscarGestores('');
+    buscarClinicas();
+  }, [router]);
 
   const abrirModalCadastro = () => {
     setIsEdicao(false);

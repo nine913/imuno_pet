@@ -32,6 +32,17 @@ export default function AdminClinicas() {
 
   const router = useRouter();
 
+  const buscarClinicas = async (termo = termoBusca) => {
+    try {
+      const resposta = await apiFetch(`/admin/clinicas?termo=${termo}`);
+      if (resposta.ok) {
+        setClinicas(await resposta.json());
+      } else {
+        setClinicas([]);
+      }
+    } catch (erro) {}
+  };
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('usuarioImunoPet');
@@ -44,6 +55,7 @@ export default function AdminClinicas() {
         router.push('/dashboard');
         return;
       }
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza a sessão salva em localStorage (sistema externo, só existe no cliente) na montagem; padrão seguro para SSR
       setUsuario(user);
 
       const configSalvas = localStorage.getItem(`imunoPetConfig_${user.id_usuario}`);
@@ -56,17 +68,6 @@ export default function AdminClinicas() {
       buscarClinicas('');
     }
   }, [router]);
-
-  const buscarClinicas = async (termo = termoBusca) => {
-    try {
-      const resposta = await apiFetch(`/admin/clinicas?termo=${termo}`);
-      if (resposta.ok) {
-        setClinicas(await resposta.json());
-      } else {
-        setClinicas([]);
-      }
-    } catch (erro) {}
-  };
 
   const handleCNPJChange = (e) => {
     let v = e.target.value.replace(/\D/g, "");

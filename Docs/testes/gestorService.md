@@ -167,4 +167,4 @@ Validar remoção segura de veterinários com regras de integridade.
 - [x] Relatórios dinâmicos validados  
 - [x] Dashboard totalmente coberto  
 - [x] Regras de integridade e bloqueios validadas  
-- [x] Módulo gestorService estruturado e pronto para implementação
+- [x] Módulo gestorService concluído (`backend/tests/setup/service/gestorService.test.js`, parte da suíte de 170 testes do backend)

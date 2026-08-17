@@ -1,7 +1,7 @@
 process.env.JWT_SECRET = process.env.JWT_SECRET || 'segredo-de-teste';
 
 const { gerarToken, verificarToken } = require('../../../utils/jwt');
-const { autenticar, autorizar, exigirProprioUsuario, forcarClinicaDoUsuario } = require('../../../middleware/auth');
+const { autenticar, autorizar, exigirProprioUsuario, exigirPropriaClinica, forcarClinicaDoUsuario } = require('../../../middleware/auth');
 
 function criarResposta() {
   const res = {};
@@ -62,6 +62,75 @@ describe('TEST-AUTH-002 - middleware autenticar', () => {
   });
 });
 
+describe('TEST-AUTH-006 - middleware autenticar via cookie httpOnly + CSRF', () => {
+  test('em GET, autentica via cookie sem exigir token CSRF', () => {
+    const token = gerarToken({ id_usuario: 1, perfil: 'TUTOR', id_clinica: null, id_especifico: 3, nome: 'Ana' });
+    const req = { method: 'GET', headers: {}, cookies: { token } };
+    const res = criarResposta();
+    const next = jest.fn();
+
+    autenticar(req, res, next);
+
+    expect(next).toHaveBeenCalled();
+    expect(req.user.id_usuario).toBe(1);
+  });
+
+  test('em POST via cookie, bloqueia com 403 quando o header X-CSRF-Token está ausente', () => {
+    const token = gerarToken({ id_usuario: 1, perfil: 'TUTOR' });
+    const req = { method: 'POST', headers: {}, cookies: { token, csrf_token: 'abc123' } };
+    const res = criarResposta();
+    const next = jest.fn();
+
+    autenticar(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  test('em POST via cookie, bloqueia com 403 quando o header X-CSRF-Token não bate com o cookie', () => {
+    const token = gerarToken({ id_usuario: 1, perfil: 'TUTOR' });
+    const req = {
+      method: 'POST',
+      headers: { 'x-csrf-token': 'valor-errado' },
+      cookies: { token, csrf_token: 'abc123' }
+    };
+    const res = criarResposta();
+    const next = jest.fn();
+
+    autenticar(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  test('em POST via cookie, autentica quando o header X-CSRF-Token bate com o cookie', () => {
+    const token = gerarToken({ id_usuario: 1, perfil: 'TUTOR' });
+    const req = {
+      method: 'POST',
+      headers: { 'x-csrf-token': 'abc123' },
+      cookies: { token, csrf_token: 'abc123' }
+    };
+    const res = criarResposta();
+    const next = jest.fn();
+
+    autenticar(req, res, next);
+
+    expect(next).toHaveBeenCalled();
+    expect(req.user.id_usuario).toBe(1);
+  });
+
+  test('Bearer via header continua funcionando em POST, sem exigir CSRF (não é cookie)', () => {
+    const token = gerarToken({ id_usuario: 1, perfil: 'TUTOR' });
+    const req = { method: 'POST', headers: { authorization: `Bearer ${token}` }, cookies: {} };
+    const res = criarResposta();
+    const next = jest.fn();
+
+    autenticar(req, res, next);
+
+    expect(next).toHaveBeenCalled();
+  });
+});
+
 describe('TEST-AUTH-003 - middleware autorizar', () => {
   test('bloqueia com 403 quando o perfil não está na lista permitida', () => {
     const req = { user: { perfil: 'TUTOR' } };
@@ -113,6 +182,39 @@ describe('TEST-AUTH-004 - middleware exigirProprioUsuario', () => {
     const next = jest.fn();
 
     exigirProprioUsuario()(req, res, next);
+
+    expect(next).toHaveBeenCalled();
+  });
+});
+
+describe('TEST-AUTH-005B - middleware exigirPropriaClinica', () => {
+  test('bloqueia com 403 quando o :id da rota não é a clínica do token', () => {
+    const req = { user: { perfil: 'GESTOR_CLINICA', id_clinica: 5 }, params: { id: '9' } };
+    const res = criarResposta();
+    const next = jest.fn();
+
+    exigirPropriaClinica('id')(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  test('permite quando o :id da rota é a clínica do token', () => {
+    const req = { user: { perfil: 'GESTOR_CLINICA', id_clinica: 5 }, params: { id: '5' } };
+    const res = criarResposta();
+    const next = jest.fn();
+
+    exigirPropriaClinica('id')(req, res, next);
+
+    expect(next).toHaveBeenCalled();
+  });
+
+  test('ADMINISTRADOR sempre passa, mesmo com id_clinica diferente', () => {
+    const req = { user: { perfil: 'ADMINISTRADOR', id_clinica: null }, params: { id: '5' } };
+    const res = criarResposta();
+    const next = jest.fn();
+
+    exigirPropriaClinica('id')(req, res, next);
 
     expect(next).toHaveBeenCalled();
   });

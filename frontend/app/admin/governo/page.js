@@ -31,6 +31,17 @@ export default function AdminGoverno() {
   const [tema, setTema] = useState('claro');
   const [altoContraste, setAltoContraste] = useState(false);
 
+  const buscarOrgaos = async (termo = termoBusca) => {
+    try {
+      const resposta = await apiFetch(`/admin/orgaos?termo=${termo}`);
+      if (resposta.ok) {
+        setOrgaos(await resposta.json());
+      } else {
+        setOrgaos([]);
+      }
+    } catch (erro) {}
+  };
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('usuarioImunoPet');
@@ -43,6 +54,7 @@ export default function AdminGoverno() {
         router.push('/dashboard');
         return;
       }
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza a sessão salva em localStorage (sistema externo, só existe no cliente) na montagem; padrão seguro para SSR
       setUsuario(user);
 
       const configSalvas = localStorage.getItem(`imunoPetConfig_${user.id_usuario}`);
@@ -55,17 +67,6 @@ export default function AdminGoverno() {
       buscarOrgaos('');
     }
   }, [router]);
-
-  const buscarOrgaos = async (termo = termoBusca) => {
-    try {
-      const resposta = await apiFetch(`/admin/orgaos?termo=${termo}`);
-      if (resposta.ok) {
-        setOrgaos(await resposta.json());
-      } else {
-        setOrgaos([]);
-      }
-    } catch (erro) {}
-  };
 
   const abrirModalCadastro = () => {
     setIsEdicao(false);

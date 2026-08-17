@@ -5,7 +5,7 @@ async function dadosDashboard(query) {
   const id_clinica = query.id_clinica;
   
   if (!id_clinica || id_clinica === 'undefined') {
-    return { kpis: null, vacinasAplicadas: [], atendimentosMes: [], aplicacoesVet: [], clinica: null };
+    return { kpis: null, vacinasAplicadas: [], coberturaEspecie: [], atendimentosMes: [], aplicacoesVet: [], clinica: null };
   }
 
   const inicio = query.inicio || '2000-01-01';
@@ -40,6 +40,16 @@ async function dadosDashboard(query) {
   `;
   const [vacinasAplicadas] = await db.query(queryTopVacinas, paramsAplicadas);
 
+  const queryEspecie = `
+    SELECT a.especie, COUNT(rv.id_registro) as quantidade
+    FROM registro_vacinacao rv
+    JOIN animal a ON rv.id_animal = a.id_animal
+    WHERE ${condicaoAplicadas}
+    GROUP BY a.especie
+    ORDER BY quantidade DESC
+  `;
+  const [coberturaEspecie] = await db.query(queryEspecie, paramsAplicadas);
+
   const queryEvolucao = `
     SELECT * FROM (
       SELECT DATE_FORMAT(data_aplicacao, '%Y-%m') as mes, COUNT(id_registro) as quantidade
@@ -68,6 +78,7 @@ async function dadosDashboard(query) {
   return {
     kpis: kpis[0],
     vacinasAplicadas,
+    coberturaEspecie,
     atendimentosMes,
     aplicacoesVet,
     clinica: clinicaDados[0] || null

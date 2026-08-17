@@ -26,9 +26,15 @@ body {
   flex-direction: column;
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Várias telas fixam "Inter" em style inline; sem isto elas caem para Arial pois a
+   fonte nunca era carregada de verdade. !important é necessário para vencer o inline. */
+body, body * {
+  font-family: var(--font-inter), Arial, Helvetica, sans-serif !important;
 }
 
 * {

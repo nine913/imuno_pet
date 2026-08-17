@@ -1,8 +1,10 @@
 const express = require('express');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 
 const db = require('./db');
 const { autenticar, autorizar } = require('./middleware/auth');
+const { rotaNaoEncontrada, tratarErro } = require('./middleware/errorHandler');
 
 const authRoutes = require('./routes/authRoutes');
 const petRoutes = require('./routes/petRoutes');
@@ -26,9 +28,11 @@ app.use(cors({
       return callback(null, true);
     }
     return callback(new Error('Origem não autorizada pelo CORS.'));
-  }
+  },
+  credentials: true
 }));
 app.use(express.json());
+app.use(cookieParser());
 
 app.use('/', authRoutes);
 app.use('/', petRoutes);
@@ -82,5 +86,8 @@ app.get('/avisos', async (req, res) => {
     res.status(500).json({ erro: 'Erro ao buscar avisos' });
   }
 });
+
+app.use(rotaNaoEncontrada);
+app.use(tratarErro);
 
 module.exports = app;

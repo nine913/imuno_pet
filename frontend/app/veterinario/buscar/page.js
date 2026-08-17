@@ -42,7 +42,42 @@ export default function BuscarAnimal() {
 
   const hoje = new Date().toISOString().split('T')[0];
 
+  const carregarEspecies = async () => {
+    try {
+      const res = await apiFetch('/admin/especies');
+      if (res.ok) setEspecies(await res.json());
+    } catch (e) {}
+  };
+
+  const carregarTutores = async (id_clinica) => {
+    try {
+      let url = '/listar-tutores';
+      if (id_clinica) {
+        url += `?id_clinica=${id_clinica}`;
+      }
+      const res = await apiFetch(url);
+      if (res.ok) setTutores(await res.json());
+    } catch (e) {}
+  };
+
+  const buscarAnimais = async (clinicaId = null) => {
+    const id = clinicaId || (usuario ? usuario.id_clinica : null);
+    let url = `/animais?termo=${termoBusca}`;
+
+    if (id) {
+      url += `&id_clinica=${id}`;
+    }
+
+    try {
+      const res = await apiFetch(url);
+      if (res.ok) {
+        setAnimais(await res.json());
+      }
+    } catch (err) {}
+  };
+
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sinaliza que já passamos da hidratação (evita mismatch de SSR); é o próprio propósito deste effect
     setIsMounted(true);
     const saved = localStorage.getItem('usuarioImunoPet');
     if (saved) {
@@ -66,40 +101,6 @@ export default function BuscarAnimal() {
       setAltoContraste(config.altoContraste || false);
     }
   }, [router]);
-
-  const carregarEspecies = async () => {
-    try {
-      const res = await apiFetch('/admin/especies');
-      if (res.ok) setEspecies(await res.json());
-    } catch (e) {}
-  };
-
-  const carregarTutores = async (id_clinica) => {
-    try {
-      let url = '/listar-tutores';
-      if (id_clinica) {
-        url += `?id_clinica=${id_clinica}`;
-      }
-      const res = await apiFetch(url);
-      if (res.ok) setTutores(await res.json());
-    } catch (e) {}
-  };
-
-  const buscarAnimais = async (clinicaId = null) => {
-    const id = clinicaId || (usuario ? usuario.id_clinica : null);
-    let url = `/animais?termo=${termoBusca}`;
-    
-    if (id) {
-      url += `&id_clinica=${id}`;
-    }
-
-    try {
-      const res = await apiFetch(url);
-      if (res.ok) {
-        setAnimais(await res.json());
-      }
-    } catch (err) {}
-  };
 
   const calcularFaseVida = (data) => {
     if (!data) return '';

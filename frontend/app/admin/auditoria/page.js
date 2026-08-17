@@ -15,6 +15,15 @@ export default function AdminAuditoria() {
   const [tema, setTema] = useState('claro');
   const [altoContraste, setAltoContraste] = useState(false);
 
+  const buscarLogs = async () => {
+    try {
+      const resposta = await apiFetch('/admin/logs');
+      if (resposta.ok) {
+        setLogs(await resposta.json());
+      }
+    } catch (erro) {}
+  };
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('usuarioImunoPet');
@@ -27,6 +36,7 @@ export default function AdminAuditoria() {
         router.push('/dashboard');
         return;
       }
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza a sessão salva em localStorage (sistema externo, só existe no cliente) na montagem; padrão seguro para SSR
       setUsuario(user);
 
       const configSalvas = localStorage.getItem(`imunoPetConfig_${user.id_usuario}`);
@@ -39,15 +49,6 @@ export default function AdminAuditoria() {
       buscarLogs();
     }
   }, [router]);
-
-  const buscarLogs = async () => {
-    try {
-      const resposta = await apiFetch('/admin/logs');
-      if (resposta.ok) {
-        setLogs(await resposta.json());
-      }
-    } catch (erro) {}
-  };
 
   const logsFiltrados = logs.filter(log => 
     log.acao.toLowerCase().includes(termoBusca.toLowerCase()) || 

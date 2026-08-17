@@ -29,6 +29,17 @@ export default function AdminVacinas() {
 
   const router = useRouter();
 
+  const buscarVacinas = async (termo = termoBusca) => {
+    try {
+      const resposta = await apiFetch(`/admin/vacinas?termo=${termo}`);
+      if (resposta.ok) {
+        setVacinas(await resposta.json());
+      } else {
+        setVacinas([]);
+      }
+    } catch (erro) {}
+  };
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('usuarioImunoPet');
@@ -41,6 +52,7 @@ export default function AdminVacinas() {
         router.push('/dashboard');
         return;
       }
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza a sessão salva em localStorage (sistema externo, só existe no cliente) na montagem; padrão seguro para SSR
       setUsuario(user);
 
       const configSalvas = localStorage.getItem(`imunoPetConfig_${user.id_usuario}`);
@@ -53,17 +65,6 @@ export default function AdminVacinas() {
       buscarVacinas('');
     }
   }, [router]);
-
-  const buscarVacinas = async (termo = termoBusca) => {
-    try {
-      const resposta = await apiFetch(`/admin/vacinas?termo=${termo}`);
-      if (resposta.ok) {
-        setVacinas(await resposta.json());
-      } else {
-        setVacinas([]);
-      }
-    } catch (erro) {}
-  };
 
   const abrirModalCadastro = () => {
     setIsEdicao(false);

@@ -19,44 +19,20 @@ export default function GovernoDashboard() {
   const [chartDataEspecie, setChartDataEspecie] = useState([]);
   const [chartDataEvolucao, setChartDataEvolucao] = useState([]);
   const [chartDataTop, setChartDataTop] = useState([]);
+  const [chartDataStatus, setChartDataStatus] = useState([]);
 
   const canvasEspecieRef = useRef(null);
   const canvasEvolucaoRef = useRef(null);
   const canvasTopRef = useRef(null);
+  const canvasStatusRef = useRef(null);
 
   const chartEspecieInstance = useRef(null);
   const chartEvolucaoInstance = useRef(null);
   const chartTopInstance = useRef(null);
+  const chartStatusInstance = useRef(null);
 
   const router = useRouter();
   const limiteLinhas = 5;
-
-  useEffect(() => {
-    const usuarioString = localStorage.getItem('usuarioImunoPet');
-    if (!usuarioString) {
-      router.push('/');
-      return;
-    }
-    const user = JSON.parse(usuarioString);
-    if (user.perfil.toUpperCase() !== 'GOVERNO') {
-      router.push('/dashboard');
-      return;
-    }
-    setUsuario(user);
-
-    const configSalvas = localStorage.getItem(`imunoPetConfig_${user.id_usuario}`);
-    if (configSalvas) {
-      const config = JSON.parse(configSalvas);
-      setTema(config.tema || 'claro');
-      setAltoContraste(config.altoContraste || false);
-    }
-
-    const initialInicio = '2023-01-01';
-    const initialFim = '2026-12-31';
-    
-    setFiltros(prev => ({ ...prev, inicio: initialInicio, fim: initialFim }));
-    carregarDadosOrgao(initialInicio, initialFim, '', '', user.id_usuario);
-  }, [router]);
 
   const carregarDadosOrgao = async (inicio, fim, especie, localidade, idUsuarioLog) => {
     const userId = idUsuarioLog || (usuario ? usuario.id_usuario : '');
@@ -94,9 +70,38 @@ export default function GovernoDashboard() {
         setChartDataEspecie(dados.coberturaEspecie || []);
         setChartDataEvolucao(dados.evolucaoTemporal || []);
         setChartDataTop(dados.topVacinas || []);
+        setChartDataStatus(dados.distribuicaoStatus || []);
       }
     } catch (erro) {}
   };
+
+  useEffect(() => {
+    const usuarioString = localStorage.getItem('usuarioImunoPet');
+    if (!usuarioString) {
+      router.push('/');
+      return;
+    }
+    const user = JSON.parse(usuarioString);
+    if (user.perfil.toUpperCase() !== 'GOVERNO') {
+      router.push('/dashboard');
+      return;
+    }
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza a sessão salva em localStorage (sistema externo, só existe no cliente) na montagem; padrão seguro para SSR
+    setUsuario(user);
+
+    const configSalvas = localStorage.getItem(`imunoPetConfig_${user.id_usuario}`);
+    if (configSalvas) {
+      const config = JSON.parse(configSalvas);
+      setTema(config.tema || 'claro');
+      setAltoContraste(config.altoContraste || false);
+    }
+
+    const initialInicio = '2023-01-01';
+    const initialFim = '2026-12-31';
+
+    setFiltros(prev => ({ ...prev, inicio: initialInicio, fim: initialFim }));
+    carregarDadosOrgao(initialInicio, initialFim, '', '', user.id_usuario);
+  }, [router]);
 
   const handleFiltrar = () => {
     carregarDadosOrgao(filtros.inicio, filtros.fim, filtros.especie, filtros.localidade, usuario?.id_usuario);
@@ -217,12 +222,37 @@ export default function GovernoDashboard() {
           }
         });
       }
+      if (chartStatusInstance.current) chartStatusInstance.current.destroy();
+      if (canvasStatusRef.current) {
+        const ctx = canvasStatusRef.current.getContext('2d');
+        const coresPorStatus = { APLICADA: '#10b981', PENDENTE: '#f59e0b', ATRASADA: '#ef4444', CANCELADA: '#94a3b8' };
+        let labels = ['Sem dados'];
+        let valores = [1];
+        let colors = ['#cbd5e1'];
+        if (chartDataStatus.length > 0) {
+          labels = chartDataStatus.map(item => item.status);
+          valores = chartDataStatus.map(item => item.quantidade);
+          colors = chartDataStatus.map(item => coresPorStatus[item.status] || '#94a3b8');
+        }
+        chartStatusInstance.current = new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels,
+            datasets: [{ data: valores, backgroundColor: colors, borderWidth: 0, hoverOffset: 4 }]
+          },
+          options: {
+            responsive: true,
+            cutout: '70%',
+            plugins: { legend: { position: 'bottom', labels: { color: chartTextColor, font: { family: "'Inter', sans-serif", size: 13 } } } }
+          }
+        });
+      }
     };
 
     if (usuario) {
       renderCharts();
     }
-  }, [chartDataEspecie, chartDataEvolucao, chartDataTop, usuario, tema]);
+  }, [chartDataEspecie, chartDataEvolucao, chartDataTop, chartDataStatus, usuario, tema]);
 
   if (!usuario) return null;
 
@@ -327,7 +357,14 @@ export default function GovernoDashboard() {
             <h3 style={{ margin: '0 0 20px 0', color: textColor, fontSize: '18px', fontWeight: '700' }}>Top 5 Vacinas Mais Aplicadas</h3>
             <canvas ref={canvasTopRef}></canvas>
           </div>
-          
+
+          <div style={{ backgroundColor: bgCard, border: `1px solid ${borderColor}`, padding: '24px', borderRadius: '16px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column' }}>
+            <h3 style={{ margin: '0 0 20px 0', color: textColor, fontSize: '18px', fontWeight: '700' }}>Distribuição por Status</h3>
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', maxHeight: '300px' }}>
+              <canvas ref={canvasStatusRef}></canvas>
+            </div>
+          </div>
+
           <div style={{ backgroundColor: bgCard, border: `1px solid ${borderColor}`, padding: '24px', borderRadius: '16px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', gridColumn: 'span 2' }}>
             <h3 style={{ margin: '0 0 20px 0', color: textColor, fontSize: '18px', fontWeight: '700' }}>Mapeamento de Risco por Localidade</h3>
             <div style={{ overflowX: 'auto', borderRadius: '10px', border: `1px solid ${borderColor}` }}>
